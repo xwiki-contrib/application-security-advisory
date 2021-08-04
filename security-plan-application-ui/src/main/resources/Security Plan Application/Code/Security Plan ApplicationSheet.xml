@@ -1,0 +1,164 @@
+<?xml version="1.1" encoding="UTF-8"?>
+
+<!--
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+-->
+
+<xwikidoc version="1.4" reference="Security Plan Application.Code.Security Plan ApplicationSheet" locale="">
+  <web>Security Plan Application.Code</web>
+  <name>Security Plan ApplicationSheet</name>
+  <language/>
+  <defaultLanguage/>
+  <translation>0</translation>
+  <creator>xwiki:XWiki.Admin</creator>
+  <parent>Security Plan ApplicationClass</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <version>1.1</version>
+  <title/>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>true</hidden>
+  <content>{{velocity}}
+#set ($object = $doc.getObject('Security Plan Application.Code.Security Plan ApplicationClass'))
+#if (!$object)
+  #set ($messageKey = 'security plan application.sheet.description')
+  #set ($messageType = 'info')
+  #if ($doc.documentReference.name != 'Security Plan ApplicationSheet')
+    #set ($messageKey = 'security plan application.sheet.noObject')
+    #set ($messageType = 'warning')
+  #end
+  {{$messageType}}
+  $services.localization.render($messageKey)
+  {{/$messageType}}
+  #stop
+#end
+#set ($discard = $xwiki.jsfx.use('uicomponents/edit/editableProperty.js', {
+  'forceSkinAction': true,
+  'language': $xcontext.locale
+}))
+#set ($discard = $doc.use($object))
+#set ($editing = $xcontext.action == 'edit')
+{{html wiki="true" clean="false"}}
+&lt;div class="xform"&gt;
+  &lt;dl&gt;
+    &lt;dt #if (!$editing &amp;&amp; $hasEdit)
+        class="editableProperty"
+        data-property="$escapetool.xml($services.model.serialize($object.getProperty('product').reference))"
+        data-property-type="object"#end&gt;
+      &lt;label#if ($editing) for="Security Plan Application.Code.Security Plan ApplicationClass_0_product"#end&gt;
+        $escapetool.xml($doc.displayPrettyName('product', false, false))
+      &lt;/label&gt;
+    &lt;/dt&gt;
+    &lt;dd&gt;$doc.display('product')&lt;/dd&gt;
+    &lt;dt #if (!$editing &amp;&amp; $hasEdit)
+        class="editableProperty"
+        data-property="$escapetool.xml($services.model.serialize($object.getProperty('affectVersions').reference))"
+        data-property-type="object"#end&gt;
+      &lt;label#if ($editing) for="Security Plan Application.Code.Security Plan ApplicationClass_0_affectVersions"#end&gt;
+        $escapetool.xml($doc.displayPrettyName('affectVersions', false, false))
+      &lt;/label&gt;
+    &lt;/dt&gt;
+    &lt;dd&gt;$doc.display('affectVersions')&lt;/dd&gt;
+    &lt;dt #if (!$editing &amp;&amp; $hasEdit)
+        class="editableProperty"
+        data-property="$escapetool.xml($services.model.serialize($object.getProperty('fixVersions').reference))"
+        data-property-type="object"#end&gt;
+      &lt;label#if ($editing) for="Security Plan Application.Code.Security Plan ApplicationClass_0_fixVersions"#end&gt;
+        $escapetool.xml($doc.displayPrettyName('fixVersions', false, false))
+      &lt;/label&gt;
+    &lt;/dt&gt;
+    &lt;dd&gt;$doc.display('fixVersions')&lt;/dd&gt;
+    &lt;dt #if (!$editing &amp;&amp; $hasEdit)
+        class="editableProperty"
+        data-property="$escapetool.xml($services.model.serialize($object.getProperty('tickets').reference))"
+        data-property-type="object"#end&gt;
+      &lt;label#if ($editing) for="Security Plan Application.Code.Security Plan ApplicationClass_0_tickets"#end&gt;
+        $escapetool.xml($doc.displayPrettyName('tickets', false, false))
+      &lt;/label&gt;
+    &lt;/dt&gt;
+    &lt;dd&gt;
+    {{jira url="https://jira.xwiki.org"}}
+      #foreach ($ticket in $object.getValue("tickets"))
+        $ticket
+      #end
+    {{/jira}}
+    &lt;/dd&gt;
+    &lt;dt #if (!$editing &amp;&amp; $hasEdit)
+        class="editableProperty"
+        data-property="$escapetool.xml($services.model.serialize($object.getProperty('advisoryUrl').reference))"
+        data-property-type="object"#end&gt;
+      &lt;label#if ($editing) for="Security Plan Application.Code.Security Plan ApplicationClass_0_advisoryUrl"#end&gt;
+        $escapetool.xml($doc.displayPrettyName('advisoryUrl', false, false))
+      &lt;/label&gt;
+    &lt;/dt&gt;
+    &lt;dd&gt;$doc.display('advisoryUrl')&lt;/dd&gt;
+    #if ($editing)
+      &lt;dt&gt;
+        &lt;label for="Security Plan Application.Code.Security Plan ApplicationClass_0_automaticEmbargo"&gt;
+          $doc.display('automaticEmbargo')
+          $escapetool.xml($doc.displayPrettyName('automaticEmbargo', false, false))
+        &lt;/label&gt;
+      &lt;/dt&gt;
+      &lt;dd&gt;
+        &lt;span class="xHint"&gt;
+          $escapetool.xml($services.localization.render('Check to compute automatically the disclosure date'))
+        &lt;/span&gt;
+      &lt;/dd&gt;
+    #else
+      &lt;dt #if (!$editing &amp;&amp; $hasEdit)
+          class="editableProperty"
+          data-property="$escapetool.xml($services.model.serialize($object.getProperty('automaticEmbargo').reference))"
+          data-property-type="object"#end&gt;
+        &lt;label#if ($editing) for="Security Plan Application.Code.Security Plan ApplicationClass_0_automaticEmbargo"#end&gt;
+          $escapetool.xml($doc.displayPrettyName('automaticEmbargo', false, false))
+        &lt;/label&gt;
+        &lt;span class="xHint"&gt;
+          $escapetool.xml($services.localization.render('Check to compute automatically the disclosure date'))
+        &lt;/span&gt;
+      &lt;/dt&gt;
+      &lt;dd&gt;$doc.display('automaticEmbargo')&lt;/dd&gt;
+    #end
+    &lt;dt #if (!$editing &amp;&amp; $hasEdit)
+        class="editableProperty"
+        data-property="$escapetool.xml($services.model.serialize($object.getProperty('disclosureDate').reference))"
+        data-property-type="object"#end&gt;
+      &lt;label#if ($editing) for="Security Plan Application.Code.Security Plan ApplicationClass_0_disclosureDate"#end&gt;
+        $escapetool.xml($doc.displayPrettyName('disclosureDate', false, false))
+      &lt;/label&gt;
+      &lt;span class="xHint"&gt;
+        $escapetool.xml($services.localization.render('Date for the public disclosure of the security issue'))
+      &lt;/span&gt;
+    &lt;/dt&gt;
+    &lt;dd&gt;$doc.display('disclosureDate')&lt;/dd&gt;
+    &lt;dt #if (!$editing &amp;&amp; $hasEdit)
+        class="editableProperty"
+        data-property="$escapetool.xml($services.model.serialize($object.getProperty('content1').reference))"
+        data-property-type="object"#end&gt;
+      &lt;label#if ($editing) for="Security Plan Application.Code.Security Plan ApplicationClass_0_content1"#end&gt;
+        $escapetool.xml($doc.displayPrettyName('content1', false, false))
+      &lt;/label&gt;
+    &lt;/dt&gt;
+    &lt;dd&gt;$doc.display('content1')&lt;/dd&gt;
+  &lt;/dl&gt;
+&lt;/div&gt;
+{{/html}}
+{{/velocity}}</content>
+</xwikidoc>

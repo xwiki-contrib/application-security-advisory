@@ -1,0 +1,219 @@
+<?xml version="1.1" encoding="UTF-8"?>
+
+<!--
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+-->
+
+<xwikidoc version="1.4" reference="Security Plan Application.Code.Notification Scheduler" locale="">
+  <web>Security Plan Application.Code</web>
+  <name>Notification Scheduler</name>
+  <language/>
+  <defaultLanguage/>
+  <translation>0</translation>
+  <creator>xwiki:XWiki.Admin</creator>
+  <parent>Security Plan Application.Code.Security Plan ApplicationClass</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <version>1.1</version>
+  <title>Notification Scheduler</title>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>true</hidden>
+  <content/>
+  <object>
+    <name>Security Plan Application.Code.Notification Scheduler</name>
+    <number>0</number>
+    <className>XWiki.SchedulerJobClass</className>
+    <guid>0ce47367-0c98-452f-ab25-33d3ef066be3</guid>
+    <class>
+      <name>XWiki.SchedulerJobClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <contextDatabase>
+        <customDisplay/>
+        <disabled>0</disabled>
+        <hint/>
+        <name>contextDatabase</name>
+        <number>9</number>
+        <picker>1</picker>
+        <prettyName>Job execution context database</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </contextDatabase>
+      <contextLang>
+        <customDisplay/>
+        <disabled>0</disabled>
+        <hint/>
+        <name>contextLang</name>
+        <number>8</number>
+        <picker>1</picker>
+        <prettyName>Job execution context lang</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </contextLang>
+      <contextUser>
+        <customDisplay/>
+        <disabled>0</disabled>
+        <hint/>
+        <name>contextUser</name>
+        <number>7</number>
+        <picker>1</picker>
+        <prettyName>Job execution context user</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </contextUser>
+      <cron>
+        <customDisplay/>
+        <disabled>0</disabled>
+        <hint/>
+        <name>cron</name>
+        <number>5</number>
+        <picker>1</picker>
+        <prettyName>Cron Expression</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </cron>
+      <jobClass>
+        <customDisplay/>
+        <disabled>0</disabled>
+        <hint/>
+        <name>jobClass</name>
+        <number>3</number>
+        <picker>1</picker>
+        <prettyName>Job Class</prettyName>
+        <size>60</size>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </jobClass>
+      <jobDescription>
+        <contenttype>---</contenttype>
+        <customDisplay/>
+        <disabled>0</disabled>
+        <editor>---</editor>
+        <hint/>
+        <name>jobDescription</name>
+        <number>2</number>
+        <picker>1</picker>
+        <prettyName>Job Description</prettyName>
+        <rows>10</rows>
+        <size>45</size>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </jobDescription>
+      <jobName>
+        <customDisplay/>
+        <disabled>0</disabled>
+        <hint/>
+        <name>jobName</name>
+        <number>1</number>
+        <picker>1</picker>
+        <prettyName>Job Name</prettyName>
+        <size>60</size>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </jobName>
+      <script>
+        <contenttype>PureText</contenttype>
+        <customDisplay/>
+        <disabled>0</disabled>
+        <editor>PureText</editor>
+        <hint/>
+        <name>script</name>
+        <number>6</number>
+        <picker>1</picker>
+        <prettyName>Job Script</prettyName>
+        <rows>60</rows>
+        <size>80</size>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </script>
+      <status>
+        <customDisplay/>
+        <disabled>0</disabled>
+        <hint/>
+        <name>status</name>
+        <number>4</number>
+        <picker>1</picker>
+        <prettyName>Status</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </status>
+    </class>
+    <property>
+      <contextDatabase>testwiki</contextDatabase>
+    </property>
+    <property>
+      <contextLang>en</contextLang>
+    </property>
+    <property>
+      <contextUser>XWiki.superadmin</contextUser>
+    </property>
+    <property>
+      <cron>0 12 2 * * ?</cron>
+    </property>
+    <property>
+      <jobClass>com.xpn.xwiki.plugin.scheduler.GroovyJob</jobClass>
+    </property>
+    <property>
+      <jobDescription/>
+    </property>
+    <property>
+      <jobName>Send Reminder when issue should be disclosed</jobName>
+    </property>
+    <property>
+      <script>
+def logger = services.logging.getLogger('org.xwiki.contrib.hackathon.security.scheduler.reminding')
+
+logger.error('running scheduler job')
+</script>
+    </property>
+    <property>
+      <status>Normal</status>
+    </property>
+  </object>
+</xwikidoc>

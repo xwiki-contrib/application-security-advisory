@@ -1,0 +1,334 @@
+<?xml version="1.1" encoding="UTF-8"?>
+
+<!--
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+-->
+
+<xwikidoc version="1.4" reference="Security Plan Application.Code.ReleaseListener.WebHome" locale="">
+  <web>Security Plan Application.Code.ReleaseListener</web>
+  <name>WebHome</name>
+  <language/>
+  <defaultLanguage/>
+  <translation>0</translation>
+  <creator>xwiki:XWiki.Admin</creator>
+  <parent>Main.WebHome</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <version>1.1</version>
+  <title>Release Listener</title>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>true</hidden>
+  <content/>
+  <object>
+    <name>Security Plan Application.Code.ReleaseListener.WebHome</name>
+    <number>0</number>
+    <className>XWiki.ComponentClass</className>
+    <guid>73b98bb2-a94d-44fb-bf82-cf67f2674e0c</guid>
+    <class>
+      <name>XWiki.ComponentClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <roleHint>
+        <disabled>0</disabled>
+        <name>roleHint</name>
+        <number>2</number>
+        <prettyName>Component Role Hint</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </roleHint>
+      <roleType>
+        <disabled>0</disabled>
+        <name>roleType</name>
+        <number>1</number>
+        <prettyName>Component Role Type</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </roleType>
+      <scope>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <freeText>forbidden</freeText>
+        <largeStorage>0</largeStorage>
+        <multiSelect>0</multiSelect>
+        <name>scope</name>
+        <number>3</number>
+        <prettyName>Component Scope</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>wiki=Current Wiki|user=Current User|global=Global</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </scope>
+    </class>
+    <property>
+      <roleHint>org.xwiki.contrib.securityapplication.releaselistener</roleHint>
+    </property>
+    <property>
+      <roleType>org.xwiki.observation.EventListener</roleType>
+    </property>
+    <property>
+      <scope>wiki</scope>
+    </property>
+  </object>
+  <object>
+    <name>Security Plan Application.Code.ReleaseListener.WebHome</name>
+    <number>0</number>
+    <className>XWiki.ComponentMethodClass</className>
+    <guid>570f2bc5-ac89-4d08-86c3-d9cab815c7b7</guid>
+    <class>
+      <name>XWiki.ComponentMethodClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <code>
+        <disabled>0</disabled>
+        <editor>Text</editor>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Method body code</prettyName>
+        <rows>20</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Method name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+    </class>
+    <property>
+      <code>{{groovy}}
+  import com.xpn.xwiki.internal.event.XObjectUpdatedEvent;
+  import com.xpn.xwiki.objects.BaseObjectReference;
+  
+  String serializedXClassReference = "Version Management.Code.Version ManagementClass";
+  def xclassReference = BaseObjectReference.any(serializedXClassReference)
+xcontext.method.output.value = [new XObjectUpdatedEvent(xclassReference)]
+{{/groovy}}</code>
+    </property>
+    <property>
+      <name>getEvents</name>
+    </property>
+  </object>
+  <object>
+    <name>Security Plan Application.Code.ReleaseListener.WebHome</name>
+    <number>1</number>
+    <className>XWiki.ComponentMethodClass</className>
+    <guid>5f8f06c0-7d04-4c90-bba3-6efbbbb60f5c</guid>
+    <class>
+      <name>XWiki.ComponentMethodClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <code>
+        <disabled>0</disabled>
+        <editor>Text</editor>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Method body code</prettyName>
+        <rows>20</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Method name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+    </class>
+    <property>
+      <code>{{groovy}}
+xcontext.method.output.value = doc.documentReference.toString()
+{{/groovy}}</code>
+    </property>
+    <property>
+      <name>getName</name>
+    </property>
+  </object>
+  <object>
+    <name>Security Plan Application.Code.ReleaseListener.WebHome</name>
+    <number>2</number>
+    <className>XWiki.ComponentMethodClass</className>
+    <guid>c9159920-307b-4f76-b5ca-b6b8f723d5f4</guid>
+    <class>
+      <name>XWiki.ComponentMethodClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <code>
+        <disabled>0</disabled>
+        <editor>Text</editor>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Method body code</prettyName>
+        <rows>20</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Method name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+    </class>
+    <property>
+      <code>{{groovy}}
+  import java.util.Date;
+  import java.time.Instant;
+  import java.time.temporal.ChronoUnit;
+  
+  def serializedXClassReference = "Version Management.Code.Version ManagementClass";
+  
+  
+  // A security entry should be updated if:
+  //   1. there's no disclosure date yet
+  //   2. all fix versions of this entry have been released
+  // To check more efficiently the second part, we're storing the information about released version in a map for next calls.
+  // TODO: this should be probably improved with a proper cache.
+  def shouldSecurityEntryBeUpdated(securityObject, versionMap, serializedXClassReference) {
+    def result = securityObject.getValue("disclosureDate") == null &amp;&amp; securityObject.getValue("automaticEmbargo");
+    
+    if (result) {
+      def fixVersions = securityObject.getValue("fixVersions");
+      def versionsToCheck = [];
+      for (def fixVersion in fixVersions) {
+        if (versionMap.containsKey(fixVersion)) {
+          if (!versionMap.get(fixVersion)) {
+            // if we found a version not yet released, we already know that we won't update the entry
+            // so no need to check the other versions
+            versionsToCheck = [];
+            result = false;
+            break;
+          }
+        } else {
+          // the version does not exist in the map: we don't know its status yet
+          versionsToCheck.add(fixVersion);
+        }
+      }
+      if (!versionsToCheck.isEmpty()) {
+        String hqlStatement = ", BaseObject as obj, StringProperty as versionProperty where obj.className=:xclass and obj.name=doc.fullName and obj.id=versionProperty.id.id and versionProperty.id.name='version' and versionProperty.value in (:versions)";
+        def query = services.query.hql(hqlStatement);
+        query.bindValue("xclass", serializedXClassReference)
+        query.bindValue("versions", versionsToCheck);
+        def results = query.execute();
+        
+        for (def versionRef in results) {
+          def versionDoc = xwiki.getDocument(versionRef);
+          def versionObj = versionDoc.getObject(serializedXClassReference);
+          
+          if (versionObj.getValue("releaseDate") == null) {
+            result = false;
+            versionMap.put(versionObj.getValue("version"), false);
+          } else {
+            versionMap.put(versionObj.getValue("version"), true);
+          }
+        }
+      }
+    }
+    
+    return result;
+  }
+  
+  // The embargo date is computed from today + 3 months
+  // We use 90 days since months unit is not supported for add method in Instant.
+  def computeEmbargoDate(releaseDate) {
+    return new Date(releaseDate.toInstant().plus(90, ChronoUnit.DAYS).toEpochMilli());
+  }
+  
+  def logger = services.logging.getLogger("securityapp.listener");
+  logger.warn("Listener for version called!");
+  try {
+    def docSource = xcontext.method.input.get(1)
+    def docSourceRef = docSource.getDocumentReference();
+    def savedDocument = xwiki.getDocument(docSourceRef);
+    def versionObject = savedDocument.getObject(serializedXClassReference);
+    logger.warn("XObject found in [{}]: [{}]", savedDocument, versionObject)
+    if (versionObject != null) {
+      def version = versionObject.getValue("version");
+      def releaseDate = versionObject.getValue("releaseDate");
+
+      String hqlStatement = ", BaseObject as obj, DBStringListProperty as versionProperty join versionProperty.list item where obj.className=:xclass and obj.name=doc.fullName and obj.id=versionProperty.id.id and versionProperty.id.name='fixVersions' and lower(item)=lower(:version)";
+      def query = services.query.hql(hqlStatement);
+      query.bindValue("xclass", "Security Plan Application.Code.Security Plan ApplicationClass")
+      query.bindValue("version", "13.2");
+      def results = query.execute();
+      def versionMap = [(version): true];
+      
+      for (def securityEntryRef in results) {
+        def securityEntryDoc = xwiki.getDocument(securityEntryRef)
+        def securityObject = securityEntryDoc.getObject("Security Plan Application.Code.Security Plan ApplicationClass")
+        
+        if (shouldSecurityEntryBeUpdated(securityObject, versionMap, serializedXClassReference)) {
+          securityObject.set("disclosureDate", computeEmbargoDate(releaseDate));
+          securityEntryDoc.save("Update disclosure date");
+          
+          // TODO: send an email with proper informations.
+        }
+      }
+    }
+  } catch (Exception e) {
+    logger.error('duh, this did not work',e);
+  }
+  
+{{/groovy}}</code>
+    </property>
+    <property>
+      <name>onEvent</name>
+    </property>
+  </object>
+</xwikidoc>
