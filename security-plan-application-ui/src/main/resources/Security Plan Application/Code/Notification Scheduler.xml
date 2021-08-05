@@ -206,11 +206,103 @@
       <jobName>Send Reminder when issue should be disclosed</jobName>
     </property>
     <property>
-      <script>
-def logger = services.logging.getLogger('org.xwiki.contrib.hackathon.security.scheduler.reminding')
+      <script>import org.joda.time.DateTime
 
-logger.error('running scheduler job')
-</script>
+def logger = services.logging.getLogger('org.xwiki.contrib.hackathon.security.scheduler.reminding')
+def document = xcontext.getDoc()
+def doc = xwiki.getDocument(document.getFullName())
+
+logger.info('running scheduler job {} in version [{}]', doc.getPlainTitle(), doc.getVersion())
+
+def receiver = 'security@xwiki.org'
+// XXX testing
+receiver = 'clemens.robbenhaar@green-meadows.de'
+
+try {
+
+  def now = new DateTime();
+  def warningMargin = now; // .minusMonths(2);
+  warningMargin = warningMargin.minusDays(4); // we actually want to be warned about three days ahead (I think)
+  logger.info("check for issues do be disclosed before $warningMargin.")
+  String queryString = 'from doc.object("Security Plan Application.Code.Security Plan ApplicationClass") as security where security.disclosureDate &gt; :date and not security.automaticEmbargo = 0 and not doc.fullName = \'Security Plan Application.Code.Security Plan ApplicationTemplate\'';
+  def query = services.query.xwql(queryString).bindValue('date', new Date(warningMargin.getMillis()))
+  def results = query.execute();
+
+  if (results.isEmpty()) {
+    logger.info("no upcoming disclosures")
+  } else {
+    fromAddr = services.mail.sender.configuration.fromAddress
+    if (! fromAddr) {
+      fromAddr = "no-reply@${request.serverName}"
+    }
+    def wikiRef = doc.getDocumentReference().getWikiReference()
+    // def mailTemplateReference = services.model.createSpaceReference(, wikiRef)
+    def mailTemplateReference = services.model.createDocumentReference(wikiRef.getName(), ['Security Plan Application', 'Code', 'NotificationMail'], 'WebHome')
+    logger.info('try to send mail from [{}]', mailTemplateReference)
+
+    results.each({ docName -&gt;
+
+      def planDoc = xwiki.getDocument(docName)
+      def planObj = planDoc.getObject('Security Plan Application.Code.Security Plan ApplicationClass')
+      if (planObj == null) {
+        return
+      }
+
+      def mailParams = ['from' : fromAddr, 'to' : receiver, 'language' : 'en']
+      velocityVariables = [:]
+      velocityVariables['securityPlanLink'] = planDoc.getExternalURL('view');
+      velocityVariables['securityPlanTitle'] = planDoc.getDisplayTitle()
+      velocityVariables['embargo'] = true; // otherwise we would not get here
+      // FIXME: not really a link
+      velocityVariables['jiraLink'] = 'n/a'
+      issues = planObj.getValue('tickets')
+      if (issues) {
+        velocityVariables['jiraLink'] = String.join(',' , issues)
+      } else {
+        logger.info('no issues found for [{}]', docName)
+      }
+
+      versionNumbers = []
+      logger.debug('try to collect versions [{}] for doc [{}]', planObj.getValue('fixVersions'), docName)
+      planObj.getValue('fixVersions').each({ versionDocName -&gt;
+        logger.debug('we get fix version [{}] for security plan [{}].', versionDocName, docName)
+
+        def versionDoc = xwiki.getDocument(services.model.createDocumentReference(wikiRef.getName(), ['Version Management'], versionDocName))
+        def versionObj = versionDoc.getObject('Version Management.Code.Version ManagementClass')
+        if (versionObj &amp;&amp; versionObj.getValue('version')) {
+          versionNumbers.add(versionObj.getValue('version'))
+        } else {
+          logger.warn('we have no version number in version [{}]', versionDoc)
+          versionNumbers.add(versionDocName) // actually this is as good as the "version" attribute, usually
+        }
+      })
+      if (versionNumbers.isEmpty()) {
+        logger.info('no version numbers found for [{}]', docName)
+      }
+      velocityVariables['versions'] = versionNumbers
+      mailParams['velocityVariables'] = velocityVariables
+
+      def mailToSend = services.mail.sender.createMessage('template', mailTemplateReference, mailParams)
+      mailToSend.addHeader('To', receiver)
+
+      def mailResult = services.mail.sender.send([mailToSend], 'database')
+      def failedMailStatuses = mailResult?.statusResult?.getAllErrors()
+      if (failedMailStatuses) {
+        while (failedMailStatuses.hasNext()) {
+          def mailStatus = failedMailStatuses.next()
+          logger.warn("could not send mail because of [{}]", mailStatus.errorDescription)
+        }
+      } else {
+        logger.info('mail send for security plan at [{}]', docName)
+        // TODO: now set the reminderSendDate
+      }
+    })
+  }
+
+  logger.info('done')
+} catch (Exception e) {
+  logger.error('did not work, too bad', e)
+}</script>
     </property>
     <property>
       <status>Normal</status>
