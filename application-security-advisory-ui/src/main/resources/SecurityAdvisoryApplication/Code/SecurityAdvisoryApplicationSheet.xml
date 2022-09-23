@@ -115,7 +115,11 @@ You should follow the process defined in our security policy for properly close 
       &lt;/span&gt;
     &lt;/dt&gt;
     &lt;dd&gt;
-      #displayVersions($object.getValue('product') $object.getValue('affectedVersions'))
+      #if ($editing)
+        $doc.display('affectedVersions')
+      #else
+        #displayVersions($object.getValue('product') $object.getValue('affectedVersions'))
+      #end
     &lt;/dd&gt;
     &lt;dt #if (!$editing &amp;&amp; $hasEdit)
         class="editableProperty"
@@ -128,7 +132,13 @@ You should follow the process defined in our security policy for properly close 
         $escapetool.xml($services.localization.render('All versions that have been patched'))
       &lt;/span&gt;
     &lt;/dt&gt;
-    &lt;dd&gt;#displayVersions($object.getValue('product') $object.getValue('patchedVersions'))&lt;/dd&gt;
+    &lt;dd&gt;
+      #if ($editing)
+        $doc.display('patchedVersions')
+      #else
+        #displayVersions($object.getValue('product') $object.getValue('patchedVersions'))
+      #end
+    &lt;/dd&gt;
     &lt;dt #if (!$editing &amp;&amp; $hasEdit)
         class="editableProperty"
         data-property="$escapetool.xml($services.model.serialize($object.getPropertyReference('advisoryLink')))"

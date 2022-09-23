@@ -62,13 +62,13 @@ public class SecurityAdvisoriesManager
     public List<SecurityAdvisory> getAdvisoriesWithStatus(String status, boolean computeEmbargoDate)
     {
         String statement = String.format("where doc.object(%1$s).status = :status and "
-            + "doc.object(%1$s).computeEmbargoDate = :computeEmbargoDate",
+            + "doc.object(%1$s).computeEmbargo = :computeEmbargoDate",
             SECURITY_ADVISORY_CLASS);
 
         if (computeEmbargoDate) {
-            statement += " and embargoDate = ''";
+            statement += String.format(" and doc.object(%1$s).embargoDate = ''", SECURITY_ADVISORY_CLASS);
         } else {
-            statement += " and embargoDate != ''";
+            statement += String.format(" and doc.object(%1$s).embargoDate != ''", SECURITY_ADVISORY_CLASS);
         }
 
         try {
@@ -100,7 +100,7 @@ public class SecurityAdvisoriesManager
                 result.setAffectedVersions(xObject.getListValue("affectedVersions"))
                     .setPatchedVersions(xObject.getListValue("patchedVersions"))
                     .setEmbargoDate(xObject.getDateValue("embargoDate"))
-                    .setComputeEmbargoDate(xObject.getIntValue("computeEmbargoDate") == 1)
+                    .setComputeEmbargoDate(xObject.getIntValue("computeEmbargo") == 1)
                     .setAuthor(document.getAuthorReference());
                 return result;
             }
