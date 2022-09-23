@@ -1,0 +1,77 @@
+<?xml version="1.1" encoding="UTF-8"?>
+
+<!--
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+-->
+
+<xwikidoc version="1.5" reference="SecurityAdvisoryApplication.Code.SecurityAdvisoryMacros" locale="">
+  <web>SecurityAdvisoryApplication.Code</web>
+  <name>SecurityAdvisoryMacros</name>
+  <language/>
+  <defaultLanguage/>
+  <translation>0</translation>
+  <creator>xwiki:XWiki.Admin</creator>
+  <parent>Main.WebHome</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <originalMetadataAuthor>XWiki.Admin</originalMetadataAuthor>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <version>1.1</version>
+  <title>SecurityAdvisoryMacros</title>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>true</hidden>
+  <content>{{velocity output="false"}}
+#macro (isProductXS $product $result)
+  #set ($isXS = $stringtool.startsWithIgnoreCase($product, "xwiki"))
+  #setVariable("$result", $isXS)
+#end
+
+#macro (isVersionReleased $product $productVersion $result)
+  ## TODO: check the product later to retrieve RN from different product
+  #isProductXS($product $isXS)
+  #if ($isXS)
+    ## Query in release notes if XS is released
+    #set ($query = "where doc.object(ReleaseNotes.Code.ReleaseNoteClass).released=1 and doc.object(ReleaseNotes.Code.ReleaseNoteClass).version=:version")
+    #set ($countResult = $services.query.xwql($query).bindValue('version', $productVersion).count())
+    #set ($isReleased = ($countResult &gt; 0))
+  #else
+    #set ($isReleased = false)
+  #end
+  #setVariable("$result", $isReleased)
+#end
+
+#macro (displayVersions $product $versionList)
+  &lt;ul class="version-list"&gt;
+  #foreach ($version in $versionList)
+   #isVersionReleased($product $version $isReleased)
+   &lt;li&gt;
+     $version
+     #if ($isReleased)
+       &lt;span class="label label-success"&gt;released&lt;/span&gt;
+     #else
+       &lt;span class="label label-warning"&gt;not released&lt;/span&gt;
+     #end
+  &lt;/li&gt;
+  #end
+  &lt;ul&gt;
+#end
+{{/velocity}}
+</content>
+</xwikidoc>

@@ -1,0 +1,222 @@
+<?xml version="1.1" encoding="UTF-8"?>
+
+<!--
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+-->
+
+<xwikidoc version="1.5" reference="SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationSheet" locale="">
+  <web>SecurityAdvisoryApplication.Code</web>
+  <name>SecurityAdvisoryApplicationSheet</name>
+  <language/>
+  <defaultLanguage/>
+  <translation>0</translation>
+  <creator>xwiki:XWiki.Admin</creator>
+  <parent>SecurityAdvisoryApplicationClass</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <originalMetadataAuthor>XWiki.Admin</originalMetadataAuthor>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <version>1.1</version>
+  <title/>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>true</hidden>
+  <content>{{include reference="SecurityAdvisoryApplication.Code.SecurityAdvisoryMacros"/}}
+{{velocity}}
+#set ($object = $doc.getObject('SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass'))
+#if (!$object)
+  #set ($messageKey = 'securityadvisoryapplication.sheet.description')
+  #set ($messageType = 'info')
+  #if ($doc.documentReference.name != 'SecurityAdvisoryApplicationSheet')
+    #set ($messageKey = 'securityadvisoryapplication.sheet.noObject')
+    #set ($messageType = 'warning')
+  #end
+  {{$messageType}}
+  $services.localization.render($messageKey)
+  {{/$messageType}}
+  #stop
+#end
+#set ($discard = $xwiki.jsfx.use('uicomponents/edit/editableProperty.js', {
+  'forceSkinAction': true,
+  'language': $xcontext.locale
+}))
+#set ($discard = $doc.use($object))
+#set ($editing = $xcontext.action == 'edit')
+#if (!$editing &amp;&amp; $hasEdit)
+{{info}}
+You should follow the process defined in our security policy for properly close a vulnerability and disclose this advisory.
+{{/info}}
+#end
+{{html wiki="true" clean="false"}}
+&lt;div class="xform"&gt;
+  &lt;dl&gt;
+    ## TODO: Display the status and the capability to switch from one status to another.
+    &lt;dt #if (!$editing &amp;&amp; $hasEdit)
+        class="editableProperty"
+        data-property="$escapetool.xml($services.model.serialize($object.getPropertyReference('title1')))"
+        data-property-type="object"#end&gt;
+      &lt;label#if ($editing) for="SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_0_title1"#end&gt;
+        $escapetool.xml($doc.displayPrettyName('title1', false, false))
+      &lt;/label&gt;
+      &lt;span class="xHint"&gt;
+        $escapetool.xml($services.localization.render('Title of the advisory'))
+      &lt;/span&gt;
+    &lt;/dt&gt;
+    &lt;dd&gt;$doc.display('title1')&lt;/dd&gt;
+    &lt;dt #if (!$editing &amp;&amp; $hasEdit)
+        class="editableProperty"
+        data-property="$escapetool.xml($services.model.serialize($object.getPropertyReference('product')))"
+        data-property-type="object"#end&gt;
+      &lt;label#if ($editing) for="SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_0_product"#end&gt;
+        $escapetool.xml($doc.displayPrettyName('product', false, false))
+      &lt;/label&gt;
+      &lt;span class="xHint"&gt;
+        $escapetool.xml($services.localization.render('Impacted product (e.g. xwiki-platform, xwiki-rendering, application-change-request, etc)'))
+      &lt;/span&gt;
+    &lt;/dt&gt;
+    &lt;dd&gt;$doc.display('product')&lt;/dd&gt;
+    &lt;dt #if (!$editing &amp;&amp; $hasEdit)
+        class="editableProperty"
+        data-property="$escapetool.xml($services.model.serialize($object.getPropertyReference('mavenModules')))"
+        data-property-type="object"#end&gt;
+      &lt;label#if ($editing) for="SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_0_mavenModules"#end&gt;
+        $escapetool.xml($doc.displayPrettyName('mavenModules', false, false))
+      &lt;/label&gt;
+      &lt;span class="xHint"&gt;
+        $escapetool.xml($services.localization.render('Impacted maven modules using full package definition without version (e.g. org.xwiki.platform:xwiki-platform-oldcore)'))
+      &lt;/span&gt;
+    &lt;/dt&gt;
+    &lt;dd&gt;$doc.display('mavenModules')&lt;/dd&gt;
+    &lt;dt #if (!$editing &amp;&amp; $hasEdit)
+        class="editableProperty"
+        data-property="$escapetool.xml($services.model.serialize($object.getPropertyReference('affectedVersions')))"
+        data-property-type="object"#end&gt;
+      &lt;label#if ($editing) for="SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_0_affectedVersions"#end&gt;
+        $escapetool.xml($doc.displayPrettyName('affectedVersions', false, false))
+      &lt;/label&gt;
+      &lt;span class="xHint"&gt;
+        $escapetool.xml($services.localization.render('All versions affected by the vulnerability'))
+      &lt;/span&gt;
+    &lt;/dt&gt;
+    &lt;dd&gt;
+      #displayVersions($object.getValue('product') $object.getValue('affectedVersions'))
+    &lt;/dd&gt;
+    &lt;dt #if (!$editing &amp;&amp; $hasEdit)
+        class="editableProperty"
+        data-property="$escapetool.xml($services.model.serialize($object.getPropertyReference('patchedVersions')))"
+        data-property-type="object"#end&gt;
+      &lt;label#if ($editing) for="SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_0_patchedVersions"#end&gt;
+        $escapetool.xml($doc.displayPrettyName('patchedVersions', false, false))
+      &lt;/label&gt;
+      &lt;span class="xHint"&gt;
+        $escapetool.xml($services.localization.render('All versions that have been patched'))
+      &lt;/span&gt;
+    &lt;/dt&gt;
+    &lt;dd&gt;#displayVersions($object.getValue('product') $object.getValue('patchedVersions'))&lt;/dd&gt;
+    &lt;dt #if (!$editing &amp;&amp; $hasEdit)
+        class="editableProperty"
+        data-property="$escapetool.xml($services.model.serialize($object.getPropertyReference('advisoryLink')))"
+        data-property-type="object"#end&gt;
+      &lt;label#if ($editing) for="SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_0_advisoryLink"#end&gt;
+        $escapetool.xml($doc.displayPrettyName('advisoryLink', false, false))
+      &lt;/label&gt;
+      &lt;span class="xHint"&gt;
+        $escapetool.xml($services.localization.render('Link of the github advisory that has been created'))
+      &lt;/span&gt;
+    &lt;/dt&gt;
+    &lt;dd&gt;$doc.display('advisoryLink')&lt;/dd&gt;
+    &lt;dt #if (!$editing &amp;&amp; $hasEdit)
+        class="editableProperty"
+        data-property="$escapetool.xml($services.model.serialize($object.getPropertyReference('jiraTickets')))"
+        data-property-type="object"#end&gt;
+      &lt;label#if ($editing) for="SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_0_jiraTickets"#end&gt;
+        $escapetool.xml($doc.displayPrettyName('jiraTickets', false, false))
+      &lt;/label&gt;
+      &lt;span class="xHint"&gt;
+        $escapetool.xml($services.localization.render('List of jira tickets code'))
+      &lt;/span&gt;
+    &lt;/dt&gt;
+    &lt;dd&gt;$doc.display('jiraTickets')&lt;/dd&gt;
+    #if ($editing)
+      &lt;dt&gt;
+        &lt;label for="SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_0_computeEmbargo"&gt;
+          $doc.display('computeEmbargo')
+          $escapetool.xml($doc.displayPrettyName('computeEmbargo', false, false))
+        &lt;/label&gt;
+      &lt;/dt&gt;
+      &lt;dd&gt;
+        &lt;span class="xHint"&gt;
+          $escapetool.xml($services.localization.render('Define if the embargo date should be computed automatically from versions or not.'))
+        &lt;/span&gt;
+      &lt;/dd&gt;
+    #else
+      &lt;dt #if (!$editing &amp;&amp; $hasEdit)
+          class="editableProperty"
+          data-property="$escapetool.xml($services.model.serialize($object.getPropertyReference('computeEmbargo')))"
+          data-property-type="object"#end&gt;
+        &lt;label#if ($editing) for="SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_0_computeEmbargo"#end&gt;
+          $escapetool.xml($doc.displayPrettyName('computeEmbargo', false, false))
+        &lt;/label&gt;
+        &lt;span class="xHint"&gt;
+          $escapetool.xml($services.localization.render('Define if the embargo date should be computed automatically from versions or not.'))
+        &lt;/span&gt;
+      &lt;/dt&gt;
+      &lt;dd&gt;$doc.display('computeEmbargo')&lt;/dd&gt;
+    #end
+    &lt;dt #if (!$editing &amp;&amp; $hasEdit)
+        class="editableProperty"
+        data-property="$escapetool.xml($services.model.serialize($object.getPropertyReference('embargoDate')))"
+        data-property-type="object"#end&gt;
+      &lt;label#if ($editing) for="SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_0_embargoDate"#end&gt;
+        $escapetool.xml($doc.displayPrettyName('embargoDate', false, false))
+      &lt;/label&gt;
+      &lt;span class="xHint"&gt;
+        $escapetool.xml($services.localization.render('Define a specific embargo date: this one is only taken into account if the compute embargo date flag is not checked.'))
+      &lt;/span&gt;
+    &lt;/dt&gt;
+    &lt;dd&gt;$doc.display('embargoDate')&lt;/dd&gt;
+    &lt;dt #if (!$editing &amp;&amp; $hasEdit)
+        class="editableProperty"
+        data-property="$escapetool.xml($services.model.serialize($object.getPropertyReference('cvss')))"
+        data-property-type="object"#end&gt;
+      &lt;label#if ($editing) for="SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_0_cvss"#end&gt;
+        $escapetool.xml($doc.displayPrettyName('cvss', false, false))
+      &lt;/label&gt;
+      &lt;span class="xHint"&gt;
+        $escapetool.xml($services.localization.render('Value of the computed CVSS.'))
+      &lt;/span&gt;
+    &lt;/dt&gt;
+    &lt;dd&gt;$doc.display('cvss')&lt;/dd&gt;
+    &lt;dt #if (!$editing &amp;&amp; $hasEdit)
+        class="editableProperty"
+        data-property="$escapetool.xml($services.model.serialize($object.getPropertyReference('description')))"
+        data-property-type="object"#end&gt;
+      &lt;label#if ($editing) for="SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_0_description"#end&gt;
+        $escapetool.xml($doc.displayPrettyName('description', false, false))
+      &lt;/label&gt;
+      &lt;span class="xHint"&gt;
+        $escapetool.xml($services.localization.render('Full content of the advisory'))
+      &lt;/span&gt;
+    &lt;/dt&gt;
+    &lt;dd&gt;$doc.display('description')&lt;/dd&gt;
+  &lt;/dl&gt;
+&lt;/div&gt;
+{{/html}}
+{{/velocity}}</content>
+</xwikidoc>

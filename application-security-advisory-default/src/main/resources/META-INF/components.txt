@@ -1,0 +1,5 @@
+org.xwiki.contrib.securityadvisory.internal.ComputeEmbargoDateScheduler
+org.xwiki.contrib.securityadvisory.internal.DefaultSecurityAdvisoryConfiguration
+org.xwiki.contrib.securityadvisory.internal.SecurityAdvisoriesManager
+org.xwiki.contrib.securityadvisory.internal.SecurityAdvisoryConfigurationSource
+org.xwiki.contrib.securityadvisory.internal.VersionReleasedManager

@@ -1,0 +1,450 @@
+<?xml version="1.1" encoding="UTF-8"?>
+
+<!--
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+-->
+
+<xwikidoc version="1.5" reference="SecurityAdvisoryApplication.WebHome" locale="">
+  <web>SecurityAdvisoryApplication</web>
+  <name>WebHome</name>
+  <language/>
+  <defaultLanguage/>
+  <translation>0</translation>
+  <creator>xwiki:XWiki.Admin</creator>
+  <parent>Main.WebHome</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <originalMetadataAuthor>XWiki.Admin</originalMetadataAuthor>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <version>1.1</version>
+  <title>Security Advisory Application</title>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>true</hidden>
+  <content>{{velocity}}
+#set ($securityEntrySpace = "SecurityAdvisoryApplication.SecurityEntrySpace")
+#set ($securityEntrySpaceRef = $services.model.resolveSpace($securityEntrySpace))
+## FIXME: Do we keep it like that?
+#set ($allUsersGroup = "XWiki.XWikiAllGroup")
+#set ($isOpenToAll = $services.security.authorization.hasAccess("view", $allUsersGroup, $securityEntrySpaceRef))
+#if ($isOpenToAll)
+## Example of creating a link from a translation like "translation=my {0}link label{1}
+#set ($warningMessage = $services.localization.render('securityadvisoryapplication.home.right.warning', ["__BEGINLINK__", "__ENDLINK__"]))
+#set ($warningMessage = $services.rendering.escape($warningMessage, "xwiki/2.1"))
+#set ($warningMessage = $warningMessage.replace($services.rendering.escape("__BEGINLINK__", "xwiki/2.1"), "[["))
+#set ($warningMessage = $warningMessage.replace($services.rendering.escape("__ENDLINK__", "xwiki/2.1"), "&gt;&gt;${securityEntrySpace}.WebHome]]"))
+{{warning}}
+ $warningMessage
+{{/warning}}
+#end
+#set ($columnsProperties = {
+  'status': {},
+  'product': {},
+  'doc.title': {"link":"view"},
+  'doc.date': {},
+  'affectedVersions': {},
+  'patchedVersions': {},
+  'doc.author': {"link":"author"},
+  '_actions': {"sortable":false,"filterable":false,"html":true,"actions":["edit","delete"]}
+})
+#set ($options = {
+  'className': 'SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass',
+  'translationPrefix': 'securityadvisoryapplication.livetable.',
+  'tagCloud': true,
+  'rowCount': 15,
+  'maxPages': 10,
+  'selectedColumn': 'status',
+  'defaultOrder': 'asc'
+})
+#set ($columns = ['status', 'product', 'doc.title', 'doc.date', 'affectedVersions', 'patchedVersions', 'doc.author', '_actions'])
+#livetable('securityadvisoryapplication' $columns $columnsProperties $options)
+{{/velocity}}</content>
+  <object>
+    <name>SecurityAdvisoryApplication.WebHome</name>
+    <number>0</number>
+    <className>AppWithinMinutes.LiveTableClass</className>
+    <guid>e5b074f7-655b-46c0-aefe-524c3a34a08c</guid>
+    <class>
+      <name>AppWithinMinutes.LiveTableClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <class>
+        <customDisplay/>
+        <disabled>0</disabled>
+        <name>class</name>
+        <number>1</number>
+        <picker>0</picker>
+        <prettyName>Class</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </class>
+      <columns>
+        <customDisplay/>
+        <disabled>0</disabled>
+        <name>columns</name>
+        <number>3</number>
+        <picker>0</picker>
+        <prettyName>Live Table Columns</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </columns>
+      <dataSpace>
+        <customDisplay/>
+        <disabled>0</disabled>
+        <name>dataSpace</name>
+        <number>4</number>
+        <picker>0</picker>
+        <prettyName>Data Location</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </dataSpace>
+      <description>
+        <customDisplay/>
+        <disabled>0</disabled>
+        <editor>---</editor>
+        <name>description</name>
+        <number>2</number>
+        <picker>0</picker>
+        <prettyName>Description</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+    </class>
+    <property>
+      <class>SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass</class>
+    </property>
+    <property>
+      <columns>status product doc.title doc.date affectedVersions patchedVersions doc.author _actions</columns>
+    </property>
+    <property>
+      <dataSpace/>
+    </property>
+    <property>
+      <description/>
+    </property>
+  </object>
+  <object>
+    <name>SecurityAdvisoryApplication.WebHome</name>
+    <number>0</number>
+    <className>XWiki.JavaScriptExtension</className>
+    <guid>48a757f4-77d3-43ec-b7fb-47c8ed21d7c0</guid>
+    <class>
+      <name>XWiki.JavaScriptExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <defaultValue>long</defaultValue>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <freeText>forbidden</freeText>
+        <largeStorage>0</largeStorage>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>5</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <contenttype>PureText</contenttype>
+        <disabled>0</disabled>
+        <editor>PureText</editor>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Code</prettyName>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>4</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <freeText>forbidden</freeText>
+        <largeStorage>0</largeStorage>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>3</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage|onDemand|always</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <property>
+      <cache>long</cache>
+    </property>
+    <property>
+      <code>'use strict';
+require(["jquery", "xwiki-meta"], function ($, xm) {
+  
+  // FIXME: this needs to be finish to bind it when the modal is created, however the modal popup doesn't provide an event right now
+  // so we probably need to use a mutation observer for this.
+  var listenEntryAdd = function() {
+    var entryNamePopup = $('#entryNamePopup');
+    var entryTitle = entryNamePopup.find('input[type="text"]');
+    var entryAdd = entryNamePopup.find('input[type="image"]');
+    var uidManager = XWiki.Model.resolve('SecurityAdvisoryApplication.Code.AdvisoryUIDManager', XWiki.EntityType.DOCUMENT);
+
+    var redirectToPage = function (title) {
+      var queryString = "action=getuid&amp;title=" + title + "&amp;form_token=" + xm.form_token;
+      var url = new XWiki.Document(uidManager).getURL('view', queryString);
+      window.location.href=url;
+    };
+    
+    entryAdd.off('click');
+    entryAdd.on('click', function() {
+      redirectToPage(entryTitle.val());
+    });
+    entryTitle.on('keydown', function (event) {
+      if (event.key == "Enter") {
+        event.preventDefault(); // FIXME: this does not work, the other listener is called in parallel.
+        redirectToPage(entryTitle.val());
+      }
+    });
+  };
+  
+  var onMutations = function (mutations) {
+    for (var i = 0; i &lt; mutations.length; i++) {
+      var mutation = mutations[i];
+
+      for (var j = 0; j &lt; mutation.addedNodes.length; j++) {
+        var element = mutation.addedNodes[j];
+        var selector = ".xdialog-box";
+
+        if ($(element).find(selector)) {
+          listenEntryAdd();
+        }
+      }
+    }
+  };
+  
+  var initMutationObserver = function() {
+    var observer = new MutationObserver(onMutations);
+    observer.observe(document, { childList: true, subtree : true, attributes : false});
+  };
+  
+  initMutationObserver() &amp;&amp; document.observe("xwiki:dom:loaded", initMutationObserver);
+});</code>
+    </property>
+    <property>
+      <name>EntryCreationListener</name>
+    </property>
+    <property>
+      <parse>0</parse>
+    </property>
+    <property>
+      <use>currentPage</use>
+    </property>
+  </object>
+  <object>
+    <name>SecurityAdvisoryApplication.WebHome</name>
+    <number>0</number>
+    <className>XWiki.UIExtensionClass</className>
+    <guid>ab128688-fb05-4654-8b63-0b11ca005b2b</guid>
+    <class>
+      <name>XWiki.UIExtensionClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <async_cached>
+        <defaultValue>0</defaultValue>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType/>
+        <name>async_cached</name>
+        <number>3</number>
+        <prettyName>Cached</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </async_cached>
+      <async_context>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <freeText>forbidden</freeText>
+        <largeStorage>0</largeStorage>
+        <multiSelect>1</multiSelect>
+        <name>async_context</name>
+        <number>4</number>
+        <prettyName>Context elements</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator>, </separator>
+        <separators>|, </separators>
+        <size>5</size>
+        <unmodifiable>0</unmodifiable>
+        <values>action=Action|doc.reference=Document|icon.theme=Icon theme|locale=Language|rendering.defaultsyntax=Default syntax|rendering.restricted=Restricted|rendering.targetsyntax=Target syntax|request.base=Request base URL|request.cookies|request.parameters=Request parameters|request.url=Request URL|request.wiki=Request wiki|user=User|wiki=Wiki</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </async_context>
+      <async_enabled>
+        <defaultValue>0</defaultValue>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType/>
+        <name>async_enabled</name>
+        <number>2</number>
+        <prettyName>Asynchronous rendering</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </async_enabled>
+      <content>
+        <disabled>0</disabled>
+        <editor>Text</editor>
+        <name>content</name>
+        <number>1</number>
+        <prettyName>Executed Content</prettyName>
+        <rows>25</rows>
+        <size>120</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </content>
+      <extensionPointId>
+        <disabled>0</disabled>
+        <name>extensionPointId</name>
+        <number>5</number>
+        <prettyName>Extension Point ID</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </extensionPointId>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>6</number>
+        <prettyName>Extension ID</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parameters>
+        <contenttype>PureText</contenttype>
+        <disabled>0</disabled>
+        <editor>PureText</editor>
+        <name>parameters</name>
+        <number>7</number>
+        <prettyName>Extension Parameters</prettyName>
+        <rows>10</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </parameters>
+      <scope>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <freeText>forbidden</freeText>
+        <largeStorage>0</largeStorage>
+        <multiSelect>0</multiSelect>
+        <name>scope</name>
+        <number>8</number>
+        <prettyName>Extension Scope</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>wiki=Current Wiki|user=Current User|global=Global</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </scope>
+    </class>
+    <property>
+      <async_cached>0</async_cached>
+    </property>
+    <property>
+      <async_context/>
+    </property>
+    <property>
+      <async_enabled>0</async_enabled>
+    </property>
+    <property>
+      <content/>
+    </property>
+    <property>
+      <extensionPointId>org.xwiki.platform.panels.Applications</extensionPointId>
+    </property>
+    <property>
+      <name>platform.panels.SecurityAdvisoryApplicationApplication</name>
+    </property>
+    <property>
+      <parameters>label=Security Advisory Application
+target=SecurityAdvisoryApplication.WebHome
+icon=icon:shield</parameters>
+    </property>
+    <property>
+      <scope>wiki</scope>
+    </property>
+  </object>
+</xwikidoc>

@@ -1,0 +1,316 @@
+<?xml version="1.1" encoding="UTF-8"?>
+
+<!--
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+-->
+
+<xwikidoc version="1.5" reference="SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationTemplate" locale="">
+  <web>SecurityAdvisoryApplication.Code</web>
+  <name>SecurityAdvisoryApplicationTemplate</name>
+  <language/>
+  <defaultLanguage/>
+  <translation>0</translation>
+  <creator>xwiki:XWiki.Admin</creator>
+  <parent>SecurityAdvisoryApplicationClass</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <originalMetadataAuthor>XWiki.Admin</originalMetadataAuthor>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <version>1.1</version>
+  <title/>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>true</hidden>
+  <content/>
+  <object>
+    <name>SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationTemplate</name>
+    <number>0</number>
+    <className>SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass</className>
+    <guid>a5dcb587-03af-49a5-8e1d-dba42aebd157</guid>
+    <class>
+      <name>SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <advisoryLink>
+        <customDisplay/>
+        <disabled>0</disabled>
+        <hint>Link of the github advisory that has been created</hint>
+        <name>advisoryLink</name>
+        <number>7</number>
+        <picker>0</picker>
+        <prettyName>Advisory Link</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </advisoryLink>
+      <affectedVersions>
+        <cache>0</cache>
+        <customDisplay/>
+        <defaultValue/>
+        <disabled>0</disabled>
+        <displayType>input</displayType>
+        <freeText/>
+        <hint>All versions affected by the vulnerability</hint>
+        <multiSelect>1</multiSelect>
+        <name>affectedVersions</name>
+        <number>5</number>
+        <picker>1</picker>
+        <prettyName>Affected versions</prettyName>
+        <relationalStorage>1</relationalStorage>
+        <separator> </separator>
+        <separators> ,|</separators>
+        <size>1</size>
+        <sort>none</sort>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <values/>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </affectedVersions>
+      <computeEmbargo>
+        <customDisplay/>
+        <defaultValue/>
+        <disabled>0</disabled>
+        <displayFormType>checkbox</displayFormType>
+        <displayType/>
+        <hint>Define if the embargo date should be computed automatically from versions or not.</hint>
+        <name>computeEmbargo</name>
+        <number>9</number>
+        <prettyName>compute embargo</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </computeEmbargo>
+      <cvss>
+        <customDisplay/>
+        <disabled>0</disabled>
+        <hint>Value of the computed CVSS.</hint>
+        <name>cvss</name>
+        <number>11</number>
+        <picker>0</picker>
+        <prettyName>CVSS Score</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </cvss>
+      <description>
+        <customDisplay>{{include reference="AppWithinMinutes.Content"/}}</customDisplay>
+        <disabled>0</disabled>
+        <hint>Full content of the advisory</hint>
+        <name>description</name>
+        <number>12</number>
+        <prettyName>Description</prettyName>
+        <script/>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.ComputedFieldClass</classType>
+      </description>
+      <embargoDate>
+        <customDisplay>{{include reference="AppWithinMinutes.DateDisplayer" /}}</customDisplay>
+        <dateFormat>dd/MM/yyyy</dateFormat>
+        <disabled>0</disabled>
+        <emptyIsToday>0</emptyIsToday>
+        <hint>Define a specific embargo date: this one is only taken into account if the compute embargo date flag is not checked.</hint>
+        <name>embargoDate</name>
+        <number>10</number>
+        <picker>1</picker>
+        <prettyName>Embargo date</prettyName>
+        <size>20</size>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.DateClass</classType>
+      </embargoDate>
+      <jiraTickets>
+        <cache>0</cache>
+        <customDisplay/>
+        <defaultValue/>
+        <disabled>0</disabled>
+        <displayType>input</displayType>
+        <freeText/>
+        <hint>List of jira tickets code</hint>
+        <multiSelect>1</multiSelect>
+        <name>jiraTickets</name>
+        <number>8</number>
+        <picker>1</picker>
+        <prettyName>JIRA Tickets</prettyName>
+        <relationalStorage>1</relationalStorage>
+        <separator> </separator>
+        <separators> ,|</separators>
+        <size>1</size>
+        <sort>none</sort>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <values/>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </jiraTickets>
+      <mavenModules>
+        <cache>0</cache>
+        <customDisplay/>
+        <defaultValue/>
+        <disabled>0</disabled>
+        <displayType>input</displayType>
+        <freeText/>
+        <hint>Impacted maven modules using full package definition without version (e.g. org.xwiki.platform:xwiki-platform-oldcore)</hint>
+        <multiSelect>1</multiSelect>
+        <name>mavenModules</name>
+        <number>4</number>
+        <picker>1</picker>
+        <prettyName>Maven modules</prettyName>
+        <relationalStorage>1</relationalStorage>
+        <separator> </separator>
+        <separators> ,|</separators>
+        <size>1</size>
+        <sort>none</sort>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <values/>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </mavenModules>
+      <patchedVersions>
+        <cache>0</cache>
+        <customDisplay/>
+        <defaultValue/>
+        <disabled>0</disabled>
+        <displayType>input</displayType>
+        <freeText/>
+        <hint>All versions that have been patched</hint>
+        <multiSelect>1</multiSelect>
+        <name>patchedVersions</name>
+        <number>6</number>
+        <picker>1</picker>
+        <prettyName>Patched versions</prettyName>
+        <relationalStorage>1</relationalStorage>
+        <separator> </separator>
+        <separators> ,|</separators>
+        <size>1</size>
+        <sort>none</sort>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <values/>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </patchedVersions>
+      <product>
+        <cache>0</cache>
+        <customDisplay/>
+        <defaultValue/>
+        <disabled>0</disabled>
+        <displayType>input</displayType>
+        <freeText/>
+        <hint>Impacted product (e.g. xwiki-platform, xwiki-rendering, application-change-request, etc)</hint>
+        <multiSelect>0</multiSelect>
+        <name>product</name>
+        <number>3</number>
+        <picker>1</picker>
+        <prettyName>product</prettyName>
+        <relationalStorage>1</relationalStorage>
+        <separator> </separator>
+        <separators> ,|</separators>
+        <size>1</size>
+        <sort>none</sort>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <values/>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </product>
+      <status>
+        <cache>0</cache>
+        <customDisplay/>
+        <defaultValue/>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <freeText/>
+        <hint>Status of the advisory</hint>
+        <multiSelect>0</multiSelect>
+        <name>status</name>
+        <number>1</number>
+        <picker>0</picker>
+        <prettyName>status</prettyName>
+        <relationalStorage>1</relationalStorage>
+        <separator> </separator>
+        <separators> ,|</separators>
+        <size>1</size>
+        <sort>none</sort>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <values>draft=Draft|completed=Completed|announced=Announced|disclosed=Disclosed</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </status>
+      <title1>
+        <customDisplay>{{include reference="AppWithinMinutes.Title"/}}</customDisplay>
+        <disabled>0</disabled>
+        <hint>Title of the advisory</hint>
+        <name>title1</name>
+        <number>2</number>
+        <prettyName>Title</prettyName>
+        <script/>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.ComputedFieldClass</classType>
+      </title1>
+    </class>
+    <property>
+      <advisoryLink/>
+    </property>
+    <property>
+      <affectedVersions/>
+    </property>
+    <property>
+      <computeEmbargo>1</computeEmbargo>
+    </property>
+    <property>
+      <cvss/>
+    </property>
+    <property>
+      <embargoDate/>
+    </property>
+    <property>
+      <jiraTickets/>
+    </property>
+    <property>
+      <mavenModules/>
+    </property>
+    <property>
+      <patchedVersions/>
+    </property>
+    <property>
+      <product/>
+    </property>
+    <property>
+      <status/>
+    </property>
+  </object>
+</xwikidoc>

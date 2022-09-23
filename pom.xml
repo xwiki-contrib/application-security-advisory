@@ -27,10 +27,10 @@
     <artifactId>parent-platform</artifactId>
     <version>12.10.6</version>
   </parent>
-  <groupId>org.xwiki.contrib.security-plan</groupId>
-  <artifactId>security-plan-application</artifactId>
+  <groupId>org.xwiki.contrib.security-advisory</groupId>
+  <artifactId>application-security-advisory</artifactId>
   <version>0.1-SNAPSHOT</version>
-  <name>Security Plan Application - Parent</name>
+  <name>Security Advisory Application - Parent</name>
   <description>Allow to handle the security issues properly.</description>
   <packaging>pom</packaging>
   <developers>
@@ -49,9 +49,9 @@
     </repository>
   </distributionManagement>
   <scm>
-    <connection>scm:git:git://github.com/xwiki-contrib/security-plan-application.git</connection>
-    <developerConnection>scm:git:git@github.com:xwiki-contrib/security-plan-application.git</developerConnection>
-    <url>https://github.com/xwiki-contrib/security-plan-application/tree/master</url>
+    <connection>scm:git:git://github.com/xwiki-contrib/security-advisory-application.git</connection>
+    <developerConnection>scm:git:git@github.com:xwiki-contrib/security-advisory-application.git</developerConnection>
+    <url>https://github.com/xwiki-contrib/security-advisory-application/tree/master</url>
     <tag>HEAD</tag>
   </scm>
   <properties>
@@ -59,7 +59,7 @@
     <xwiki.issueManagement.jira.id>SPAP</xwiki.issueManagement.jira.id>
   </properties>
   <modules>
-    <module>security-plan-application-ui</module>
-    <module>version-management-ui</module>
+    <module>application-security-advisory-ui</module>
+    <module>application-security-advisory-default</module>
   </modules>
 </project>
