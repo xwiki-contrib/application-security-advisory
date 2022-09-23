@@ -32,6 +32,8 @@ public class SecurityAdvisory
     private Date embargoDate;
     private boolean computeEmbargoDate;
 
+    private DocumentReference author;
+
     public SecurityAdvisory(DocumentReference documentReference)
     {
         this.documentReference = documentReference;
@@ -83,6 +85,17 @@ public class SecurityAdvisory
     public SecurityAdvisory setComputeEmbargoDate(boolean computeEmbargoDate)
     {
         this.computeEmbargoDate = computeEmbargoDate;
+        return this;
+    }
+
+    public DocumentReference getAuthor()
+    {
+        return author;
+    }
+
+    public SecurityAdvisory setAuthor(DocumentReference author)
+    {
+        this.author = author;
         return this;
     }
 }

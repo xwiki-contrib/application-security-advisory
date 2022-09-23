@@ -1,5 +1,8 @@
-org.xwiki.contrib.securityadvisory.internal.ComputeEmbargoDateScheduler
+org.xwiki.contrib.securityadvisory.internal.jobs.ComputeEmbargoDateScheduler
 org.xwiki.contrib.securityadvisory.internal.DefaultSecurityAdvisoryConfiguration
 org.xwiki.contrib.securityadvisory.internal.SecurityAdvisoriesManager
 org.xwiki.contrib.securityadvisory.internal.SecurityAdvisoryConfigurationSource
 org.xwiki.contrib.securityadvisory.internal.VersionReleasedManager
+org.xwiki.contrib.securityadvisory.internal.jobs.ComputeDisclosableScheduler
+org.xwiki.contrib.securityadvisory.internal.notifications.SecurityAdvisoryDisclosableEventDescriptor
+org.xwiki.contrib.securityadvisory.internal.notifications.SecurityAdvisoryEmbargoDateEventDescriptor

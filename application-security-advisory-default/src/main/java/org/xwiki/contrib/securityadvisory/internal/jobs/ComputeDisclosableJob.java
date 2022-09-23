@@ -17,7 +17,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.xwiki.contrib.securityadvisory.internal;
+package org.xwiki.contrib.securityadvisory.internal.jobs;
 
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -26,13 +26,12 @@ import org.quartz.JobExecutionException;
 import com.xpn.xwiki.plugin.scheduler.AbstractJob;
 import com.xpn.xwiki.web.Utils;
 
-
-public class ComputeEmbargoDateJob extends AbstractJob implements Job
+public class ComputeDisclosableJob extends AbstractJob implements Job
 {
     @Override
     protected void executeJob(JobExecutionContext jobContext) throws JobExecutionException
     {
-        ComputeEmbargoDateScheduler scheduler = Utils.getComponent(ComputeEmbargoDateScheduler.class);
-        scheduler.computeEmbargoDates();
+        ComputeDisclosableScheduler scheduler = Utils.getComponent(ComputeDisclosableScheduler.class);
+        scheduler.computeDisclosable();
     }
 }

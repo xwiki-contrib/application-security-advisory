@@ -17,7 +17,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.xwiki.contrib.securityadvisory.internal;
+package org.xwiki.contrib.securityadvisory.internal.jobs;
 
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -30,6 +30,8 @@ import javax.inject.Singleton;
 
 import org.xwiki.component.annotation.Component;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisory;
+import org.xwiki.contrib.securityadvisory.internal.SecurityAdvisoriesManager;
+import org.xwiki.contrib.securityadvisory.internal.VersionReleasedManager;
 
 @Component(roles = ComputeEmbargoDateScheduler.class)
 @Singleton

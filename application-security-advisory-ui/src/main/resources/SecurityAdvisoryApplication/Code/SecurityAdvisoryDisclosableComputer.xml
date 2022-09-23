@@ -20,29 +20,29 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 -->
 
-<xwikidoc version="1.5" reference="Scheduler.SecurityAdvisoryEmbargoDateComputer" locale="">
+<xwikidoc version="1.5" reference="Scheduler.SecurityAdvisoryDisclosableComputer" locale="">
   <web>Scheduler</web>
-  <name>SecurityAdvisoryEmbargoDateComputer</name>
+  <name>SecurityAdvisoryDisclosableComputer</name>
   <language/>
   <defaultLanguage/>
   <translation>0</translation>
   <creator>xwiki:XWiki.Admin</creator>
-  <parent>Scheduler.WebHome</parent>
+  <parent>WebHome</parent>
   <author>xwiki:XWiki.Admin</author>
   <originalMetadataAuthor>XWiki.Admin</originalMetadataAuthor>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
   <version>1.1</version>
-  <title>SecurityAdvisoryEmbargoDateComputer</title>
+  <title>SecurityAdvisoryDisclosableComputer</title>
   <comment/>
   <minorEdit>false</minorEdit>
   <syntaxId>xwiki/2.0</syntaxId>
   <hidden>true</hidden>
   <content/>
   <object>
-    <name>Scheduler.SecurityAdvisoryEmbargoDateComputer</name>
+    <name>Scheduler.SecurityAdvisoryDisclosableComputer</name>
     <number>0</number>
     <className>XWiki.SchedulerJobClass</className>
-    <guid>46eaeb98-fe7c-453c-95b1-ccc72ee528c5</guid>
+    <guid>2802c60a-3c2e-43c5-98b5-f3d0df74b126</guid>
     <class>
       <name>XWiki.SchedulerJobClass</name>
       <customClass/>
@@ -151,13 +151,13 @@
       <cron>0 0 12 * * ?</cron>
     </property>
     <property>
-      <jobClass>org.xwiki.contrib.securityadvisory.internal.jobs.ComputeEmbargoDateJob</jobClass>
+      <jobClass>org.xwiki.contrib.securityadvisory.internal.ComputeDisclosableJob</jobClass>
     </property>
     <property>
       <jobDescription/>
     </property>
     <property>
-      <jobName>Computation of security advisory embargo date</jobName>
+      <jobName>Computation of security advisory disclosable advisories</jobName>
     </property>
     <property>
       <script/>

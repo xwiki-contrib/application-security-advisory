@@ -62,8 +62,14 @@ public class SecurityAdvisoriesManager
     public List<SecurityAdvisory> getAdvisoriesWithStatus(String status, boolean computeEmbargoDate)
     {
         String statement = String.format("where doc.object(%1$s).status = :status and "
-            + "doc.object(%1$s).computeEmbargoDate = :computeEmbargoDate and embargoDate = ''",
+            + "doc.object(%1$s).computeEmbargoDate = :computeEmbargoDate",
             SECURITY_ADVISORY_CLASS);
+
+        if (computeEmbargoDate) {
+            statement += " and embargoDate = ''";
+        } else {
+            statement += " and embargoDate != ''";
+        }
 
         try {
             Query query = this.queryManager.createQuery(statement, Query.XWQL)
@@ -94,7 +100,8 @@ public class SecurityAdvisoriesManager
                 result.setAffectedVersions(xObject.getListValue("affectedVersions"))
                     .setPatchedVersions(xObject.getListValue("patchedVersions"))
                     .setEmbargoDate(xObject.getDateValue("embargoDate"))
-                    .setComputeEmbargoDate(xObject.getIntValue("computeEmbargoDate") == 1);
+                    .setComputeEmbargoDate(xObject.getIntValue("computeEmbargoDate") == 1)
+                    .setAuthor(document.getAuthorReference());
                 return result;
             }
         } catch (XWikiException e) {
@@ -112,6 +119,23 @@ public class SecurityAdvisoriesManager
             if (xObject != null) {
                 xObject.setDateValue("embargoDate", securityAdvisory.getEmbargoDate());
                 context.getWiki().saveDocument(document, "Set embargo date", context);
+            } else {
+                // TODO: throw some exception
+            }
+        } catch (XWikiException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void saveDisablosable(SecurityAdvisory securityAdvisory)
+    {
+        XWikiContext context = this.contextProvider.get();
+        try {
+            XWikiDocument document = context.getWiki().getDocument(securityAdvisory.getDocumentReference(), context);
+            BaseObject xObject = document.getXObject(this.documentReferenceResolver.resolve(SECURITY_ADVISORY_CLASS));
+            if (xObject != null) {
+                xObject.setStringValue("status", "disclosable");
+                context.getWiki().saveDocument(document, "Set disclosable status", context);
             } else {
                 // TODO: throw some exception
             }

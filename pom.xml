@@ -57,6 +57,7 @@
   <properties>
     <xwiki.release.jira.skip>false</xwiki.release.jira.skip>
     <xwiki.issueManagement.jira.id>SPAP</xwiki.issueManagement.jira.id>
+    <releasenotes.version>2.0</releasenotes.version>
   </properties>
   <modules>
     <module>application-security-advisory-ui</module>
