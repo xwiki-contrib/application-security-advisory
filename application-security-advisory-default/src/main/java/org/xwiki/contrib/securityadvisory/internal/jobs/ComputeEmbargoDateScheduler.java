@@ -19,6 +19,8 @@
  */
 package org.xwiki.contrib.securityadvisory.internal.jobs;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,7 +49,10 @@ public class ComputeEmbargoDateScheduler
 
     private Date computeEmbargoDate(Date latestDate)
     {
-        return Date.from(latestDate.toInstant().plus(30, ChronoUnit.DAYS));
+        LocalDateTime localDateTime =
+            LocalDateTime.from(latestDate.toInstant()).plus(EMBARGO_MONTH_DURATION, ChronoUnit.MONTHS);
+
+        return Date.from(Instant.from(localDateTime));
     }
 
     private Date getLatestDate(List<Date> dateList) {
