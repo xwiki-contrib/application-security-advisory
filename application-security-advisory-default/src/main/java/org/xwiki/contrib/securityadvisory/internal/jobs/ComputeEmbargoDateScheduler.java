@@ -47,7 +47,7 @@ public class ComputeEmbargoDateScheduler
 
     private Date computeEmbargoDate(Date latestDate)
     {
-        return Date.from(latestDate.toInstant().plus(EMBARGO_MONTH_DURATION, ChronoUnit.MONTHS));
+        return Date.from(latestDate.toInstant().plus(30, ChronoUnit.DAYS));
     }
 
     private Date getLatestDate(List<Date> dateList) {

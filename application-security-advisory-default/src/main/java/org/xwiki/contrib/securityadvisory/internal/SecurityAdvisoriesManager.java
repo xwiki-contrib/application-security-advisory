@@ -32,7 +32,6 @@ import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.DocumentReferenceResolver;
 import org.xwiki.query.Query;
 import org.xwiki.query.QueryException;
-import org.xwiki.query.QueryExecutor;
 import org.xwiki.query.QueryManager;
 
 import com.xpn.xwiki.XWikiContext;
@@ -51,9 +50,6 @@ public class SecurityAdvisoriesManager
     private QueryManager queryManager;
 
     @Inject
-    private QueryExecutor queryExecutor;
-
-    @Inject
     private Provider<XWikiContext> contextProvider;
 
     @Inject
@@ -61,22 +57,23 @@ public class SecurityAdvisoriesManager
 
     public List<SecurityAdvisory> getAdvisoriesWithStatus(String status, boolean computeEmbargoDate)
     {
-        String statement = String.format("where doc.object(%1$s).status = :status and "
-            + "doc.object(%1$s).computeEmbargo = :computeEmbargoDate",
+        String statement = String.format("from doc.object(%1$s) as objAdv where objAdv.status = :status and "
+            + "objAdv.computeEmbargo = :computeEmbargoDate",
             SECURITY_ADVISORY_CLASS);
 
         if (computeEmbargoDate) {
-            statement += String.format(" and doc.object(%1$s).embargoDate = ''", SECURITY_ADVISORY_CLASS);
+            statement += " and objAdv.embargoDate is null";
         } else {
-            statement += String.format(" and doc.object(%1$s).embargoDate != ''", SECURITY_ADVISORY_CLASS);
+            statement += " and objAdv.embargoDate is not null";
         }
 
+        int computeEmbargoValue = (computeEmbargoDate) ? 1 : 0;
         try {
             Query query = this.queryManager.createQuery(statement, Query.XWQL)
                 .bindValue("status", status)
-                .bindValue("computeEmbargoDate", computeEmbargoDate);
+                .bindValue("computeEmbargoDate", computeEmbargoValue);
             List<SecurityAdvisory> results = new ArrayList<>();
-            for (Object reference : this.queryExecutor.execute(query)) {
+            for (Object reference : query.execute()) {
                 DocumentReference documentReference = this.documentReferenceResolver.resolve(String.valueOf(reference));
                 SecurityAdvisory advisory = this.getAdvisoryFromDocument(documentReference);
                 if (advisory != null) {

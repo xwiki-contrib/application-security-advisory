@@ -27,7 +27,6 @@ import javax.inject.Singleton;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.query.Query;
 import org.xwiki.query.QueryException;
-import org.xwiki.query.QueryExecutor;
 import org.xwiki.query.QueryManager;
 
 @Component(roles = VersionReleasedManager.class)
@@ -39,17 +38,15 @@ public class VersionReleasedManager
     @Inject
     private QueryManager queryManager;
 
-    @Inject
-    private QueryExecutor queryExecutor;
-
     // TODO: introduce a cache
     public boolean isVersionReleased(String version)
     {
-        String statement = String.format("where doc.object(%1$s).released=1 and doc.object(%1$s).version=:version",
+        String statement = String.format("from doc.object(%s) as objRelease where objRelease.released=1 and "
+                + "objRelease.version=:version",
             RELEASE_NOTE_CLASS);
         try {
             Query query = this.queryManager.createQuery(statement, Query.XWQL).bindValue("version", version);
-            return this.queryExecutor.execute(query).size() > 0;
+            return query.execute().size() > 0;
         } catch (QueryException e) {
             throw new RuntimeException(e);
         }
@@ -57,14 +54,13 @@ public class VersionReleasedManager
 
     public Date getReleaseDate(String version)
     {
-        String statement = String.format("doc.object(%1$s).date "
-                + "where doc.object(%1$s).released=1 and doc.object(%1$s).version=:version",
+        String statement = String.format("select objRelease.date from Document doc, doc.object(%s) as objRelease "
+                + "where objRelease.released=1 and objRelease.version=:version",
             RELEASE_NOTE_CLASS);
         try {
             Query query = this.queryManager.createQuery(statement, Query.XWQL).bindValue("version", version);
             // TODO: the returned query execution might be directly a long, but that need to be tested.
-            String serializedDate = String.valueOf(this.queryExecutor.execute(query).get(0));
-            return new Date(Long.parseLong(serializedDate));
+            return (Date) query.execute().get(0);
         } catch (QueryException e) {
             throw new RuntimeException(e);
         }

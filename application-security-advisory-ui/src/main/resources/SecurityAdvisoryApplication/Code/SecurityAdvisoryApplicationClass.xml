@@ -69,6 +69,7 @@
       <displayType>input</displayType>
       <freeText/>
       <hint>All versions affected by the vulnerability</hint>
+      <largeStorage>0</largeStorage>
       <multiSelect>1</multiSelect>
       <name>affectedVersions</name>
       <number>5</number>
@@ -151,6 +152,7 @@
       <displayType>input</displayType>
       <freeText/>
       <hint>List of jira tickets code</hint>
+      <largeStorage>0</largeStorage>
       <multiSelect>1</multiSelect>
       <name>jiraTickets</name>
       <number>8</number>
@@ -175,6 +177,7 @@
       <displayType>input</displayType>
       <freeText/>
       <hint>Impacted maven modules using full package definition without version (e.g. org.xwiki.platform:xwiki-platform-oldcore)</hint>
+      <largeStorage>0</largeStorage>
       <multiSelect>1</multiSelect>
       <name>mavenModules</name>
       <number>4</number>
@@ -199,6 +202,7 @@
       <displayType>input</displayType>
       <freeText/>
       <hint>All versions that have been patched</hint>
+      <largeStorage>0</largeStorage>
       <multiSelect>1</multiSelect>
       <name>patchedVersions</name>
       <number>6</number>
@@ -223,6 +227,7 @@
       <displayType>input</displayType>
       <freeText/>
       <hint>Impacted product (e.g. xwiki-platform, xwiki-rendering, application-change-request, etc)</hint>
+      <largeStorage>0</largeStorage>
       <multiSelect>0</multiSelect>
       <name>product</name>
       <number>3</number>
@@ -242,11 +247,12 @@
     <status>
       <cache>0</cache>
       <customDisplay/>
-      <defaultValue/>
+      <defaultValue>draft</defaultValue>
       <disabled>0</disabled>
       <displayType>select</displayType>
       <freeText/>
       <hint>Status of the advisory</hint>
+      <largeStorage>0</largeStorage>
       <multiSelect>0</multiSelect>
       <name>status</name>
       <number>1</number>
