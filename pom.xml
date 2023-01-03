@@ -56,7 +56,7 @@
   </scm>
   <properties>
     <xwiki.release.jira.skip>false</xwiki.release.jira.skip>
-    <xwiki.issueManagement.jira.id>SPAP</xwiki.issueManagement.jira.id>
+    <xwiki.issueManagement.jira.id>SPAPP</xwiki.issueManagement.jira.id>
     <releasenotes.version>2.0</releasenotes.version>
   </properties>
   <modules>
