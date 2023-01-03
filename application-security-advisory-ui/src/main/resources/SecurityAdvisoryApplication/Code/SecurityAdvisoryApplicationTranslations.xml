@@ -49,7 +49,7 @@ SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_product_hint=I
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_mavenModules=Maven modules
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_mavenModules_hint=Impacted maven modules using full package definition without version (e.g. org.xwiki.platform:xwiki-platform-oldcore)
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_affectedVersions=Affected versions
-SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_affectedVersions_hint=All versions affected by the vulnerability (operators such as &lt;, &lt;=, &gt; and &gt;= are accepted here)
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_affectedVersions_hint=All versions affected by the vulnerability before the fix, use XWiki version ranges syntax (for example [10.11.1,10.12), [11.10,) also documented at https://extensions.xwiki.org/xwiki/bin/view/Extension/Extension%20Module/Versions ) 
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_patchedVersions=Patched versions
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_patchedVersions_hint=All versions that have been patched (only single versions are accepted here, operators are not allowed)
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_advisoryLink=Advisory Link
