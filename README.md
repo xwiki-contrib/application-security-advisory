@@ -11,4 +11,4 @@ This application was hacked during XWiki SAS Seminar 2021, to help handling the 
 * License: LGPL 2.1
 * Translations: N/A
 * Sonar Dashboard: N/A
-* Continuous Integration Status: [![Build Status](https://ci.xwiki.org/buildStatus/icon?job=XWiki+Contrib%2Fsecurity-advisory-application%2Fmain)](https://ci.xwiki.org/job/XWiki%20Contrib/job/security-advisory-application/job/main/)
+* Continuous Integration Status: [![Build Status](https://ci.xwiki.org/buildStatus/icon?job=XWiki+Contrib%2Fapplication-security-advisory%2Fmaster)](https://ci.xwiki.org/job/XWiki%20Contrib/job/application-security-advisory/job/master/)
