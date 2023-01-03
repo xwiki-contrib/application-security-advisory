@@ -29,7 +29,6 @@
   <creator>xwiki:XWiki.Admin</creator>
   <parent>Main.WebHome</parent>
   <author>xwiki:XWiki.Admin</author>
-  <originalMetadataAuthor>XWiki.Admin</originalMetadataAuthor>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
   <version>1.1</version>
   <title>SecurityAdvisoryMacros</title>
@@ -38,35 +37,18 @@
   <syntaxId>xwiki/2.1</syntaxId>
   <hidden>true</hidden>
   <content>{{velocity output="false"}}
-#macro (isProductXS $product $result)
-  #set ($isXS = $stringtool.startsWithIgnoreCase($product, "xwiki"))
-  #setVariable("$result", $isXS)
-#end
-
-#macro (isVersionReleased $product $productVersion $result)
-  ## TODO: check the product later to retrieve RN from different product
-  #isProductXS($product $isXS)
-  #if ($isXS)
-    ## Query in release notes if XS is released
-    #set ($query = "where doc.object(ReleaseNotes.Code.ReleaseNoteClass).released=1 and doc.object(ReleaseNotes.Code.ReleaseNoteClass).version=:version")
-    #set ($countResult = $services.query.xwql($query).bindValue('version', $productVersion).count())
-    #set ($isReleased = ($countResult &gt; 0))
-  #else
-    #set ($isReleased = false)
-  #end
-  #setVariable("$result", $isReleased)
-#end
-
 #macro (displayVersions $product $versionList)
   &lt;ul class="version-list"&gt;
   #foreach ($version in $versionList)
-   #isVersionReleased($product $version $isReleased)
+   #set ($computeReleased = $services.securityadvisory.isSingleVersion($version))
    &lt;li&gt;
-     $version
-     #if ($isReleased)
-       &lt;span class="label label-success"&gt;released&lt;/span&gt;
-     #else
-       &lt;span class="label label-warning"&gt;not released&lt;/span&gt;
+     $escapetool.xml($version)
+     #if ($computeReleased)
+       #if ($services.securityadvisory.isReleased($product,$version))
+         &lt;span class="label label-success"&gt;released&lt;/span&gt;
+       #else
+         &lt;span class="label label-warning"&gt;not released&lt;/span&gt;
+       #end
      #end
   &lt;/li&gt;
   #end

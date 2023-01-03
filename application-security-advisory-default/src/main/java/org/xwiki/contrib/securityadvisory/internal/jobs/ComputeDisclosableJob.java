@@ -22,16 +22,28 @@ package org.xwiki.contrib.securityadvisory.internal.jobs;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.xwiki.contrib.securityadvisory.SecurityAdvisoryException;
+import org.xwiki.contrib.securityadvisory.internal.SecurityAdvisoriesManager;
 
 import com.xpn.xwiki.plugin.scheduler.AbstractJob;
 import com.xpn.xwiki.web.Utils;
 
+/**
+ * Job in charge of checking if an advisory is now disclosable.
+ *
+ * @version $Id$
+ * @since 1.0
+ */
 public class ComputeDisclosableJob extends AbstractJob implements Job
 {
     @Override
     protected void executeJob(JobExecutionContext jobContext) throws JobExecutionException
     {
-        ComputeDisclosableScheduler scheduler = Utils.getComponent(ComputeDisclosableScheduler.class);
-        scheduler.computeDisclosable();
+        SecurityAdvisoriesManager advisoriesManager = Utils.getComponent(SecurityAdvisoriesManager.class);
+        try {
+            advisoriesManager.computeDisclosable();
+        } catch (SecurityAdvisoryException e) {
+            throw new JobExecutionException("Error when computing disclosable advisories", e);
+        }
     }
 }

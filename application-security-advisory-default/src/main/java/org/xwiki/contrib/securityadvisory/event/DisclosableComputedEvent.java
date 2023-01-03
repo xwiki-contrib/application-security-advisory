@@ -21,6 +21,14 @@ package org.xwiki.contrib.securityadvisory.event;
 
 import org.xwiki.observation.event.Event;
 
+/**
+ * Event triggered whenever a security advisory is marked disclosable.
+ * The source of the event should be the {@link org.xwiki.contrib.securityadvisory.SecurityAdvisory} that is now
+ * disclosable.
+ *
+ * @version $Id$
+ * @since 1.0
+ */
 public class DisclosableComputedEvent implements Event
 {
     @Override

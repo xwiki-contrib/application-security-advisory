@@ -20,18 +20,26 @@
 package org.xwiki.contrib.securityadvisory.internal.notifications;
 
 import javax.inject.Named;
+import javax.inject.Singleton;
 
 import org.xwiki.component.annotation.Component;
 import org.xwiki.eventstream.RecordableEventDescriptor;
 
+/**
+ * Event descriptor for {@link DisclosableTargetableEvent}.
+ *
+ * @version $Id$
+ * @since 1.0
+ */
 @Component
-@Named("org.xwiki.contrib.securityadvisory.internal.notifications.SecurityAdvisoryDisclosableEventDescriptor")
+@Named("org.xwiki.contrib.securityadvisory.internal.notifications.DisclosableTargetableEvent")
+@Singleton
 public class SecurityAdvisoryDisclosableEventDescriptor implements RecordableEventDescriptor
 {
     @Override
     public String getEventType()
     {
-        return SecurityAdvisoryDisclosableEventDescriptor.class.getCanonicalName();
+        return DisclosableTargetableEvent.class.getCanonicalName();
     }
 
     @Override

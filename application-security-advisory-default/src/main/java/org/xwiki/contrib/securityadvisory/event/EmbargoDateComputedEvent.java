@@ -21,6 +21,14 @@ package org.xwiki.contrib.securityadvisory.event;
 
 import org.xwiki.observation.event.Event;
 
+/**
+ * Event triggered whenever the embargo date of an advisory has been computed.
+ * The source of the event should be the {@link org.xwiki.contrib.securityadvisory.SecurityAdvisory} for which the
+ * embargo date has been computed.
+ *
+ * @version $Id$
+ * @since 1.0
+ */
 public class EmbargoDateComputedEvent implements Event
 {
     @Override

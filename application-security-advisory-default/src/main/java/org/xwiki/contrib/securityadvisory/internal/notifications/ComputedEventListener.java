@@ -24,11 +24,14 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Provider;
+import javax.inject.Singleton;
 
+import org.slf4j.Logger;
+import org.xwiki.component.annotation.Component;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisory;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryConfiguration;
-import org.xwiki.contrib.securityadvisory.SecurityAdvisoryException;
 import org.xwiki.contrib.securityadvisory.event.DisclosableComputedEvent;
 import org.xwiki.contrib.securityadvisory.event.EmbargoDateComputedEvent;
 import org.xwiki.eventstream.RecordableEvent;
@@ -36,17 +39,31 @@ import org.xwiki.model.reference.EntityReferenceSerializer;
 import org.xwiki.observation.AbstractEventListener;
 import org.xwiki.observation.ObservationManager;
 import org.xwiki.observation.event.Event;
+import org.xwiki.user.UserReferenceSerializer;
 
 import com.xpn.xwiki.XWikiContext;
 import com.xpn.xwiki.XWikiException;
 import com.xpn.xwiki.doc.XWikiDocument;
 
+/**
+ * Listener of {@link DisclosableComputedEvent} and {@link EmbargoDateComputedEvent} in charge of sending the
+ * appropriate recordable events.
+ *
+ * @version $Id$
+ * @since 1.0
+ */
+@Component
+@Named(ComputedEventListener.NAME)
+@Singleton
 public class ComputedEventListener extends AbstractEventListener
 {
     static final String NAME = "SecurityAdvisoryComputedEventListener";
 
     @Inject
     private SecurityAdvisoryConfiguration securityAdvisoryConfiguration;
+
+    @Inject
+    private UserReferenceSerializer<String> userReferenceSerializer;
 
     @Inject
     private EntityReferenceSerializer<String> entityReferenceSerializer;
@@ -57,6 +74,12 @@ public class ComputedEventListener extends AbstractEventListener
     @Inject
     private Provider<XWikiContext> contextProvider;
 
+    @Inject
+    private Logger logger;
+
+    /**
+     * Default constructor.
+     */
     public ComputedEventListener()
     {
         super(NAME, Arrays.asList(new DisclosableComputedEvent(), new EmbargoDateComputedEvent()));
@@ -65,14 +88,10 @@ public class ComputedEventListener extends AbstractEventListener
     @Override
     public void onEvent(Event event, Object source, Object data)
     {
-        SecurityAdvisory securityAdvisory = (SecurityAdvisory) data;
+        SecurityAdvisory securityAdvisory = (SecurityAdvisory) source;
         Set<String> targets = new HashSet<>();
-        targets.add(this.entityReferenceSerializer.serialize(securityAdvisory.getAuthor()));
-        try {
-            targets.add(this.entityReferenceSerializer.serialize(securityAdvisoryConfiguration.getSecurityGroup()));
-        } catch (SecurityAdvisoryException e) {
-            throw new RuntimeException(e);
-        }
+        targets.add(this.userReferenceSerializer.serialize(securityAdvisory.getAuthor()));
+        targets.add(this.entityReferenceSerializer.serialize(securityAdvisoryConfiguration.getSecurityGroup()));
 
         RecordableEvent recordableEvent;
         if (event instanceof DisclosableComputedEvent) {
@@ -82,11 +101,12 @@ public class ComputedEventListener extends AbstractEventListener
         }
         XWikiContext context = this.contextProvider.get();
         try {
-            XWikiDocument document = context.getWiki().getDocument(securityAdvisory.getDocumentReference(), context);
+            XWikiDocument document = context.getWiki().getDocument(securityAdvisory.getHolderReference(), context);
             this.observationManager.notify(recordableEvent,
                 "org.xwiki.contrib.security-advisory:application-security-advisory-default", document);
         } catch (XWikiException e) {
-            throw new RuntimeException(e);
+            this.logger.error("Error while getting the document [{}] for sending advisory notifications",
+                securityAdvisory.getHolderReference(), e);
         }
     }
 }

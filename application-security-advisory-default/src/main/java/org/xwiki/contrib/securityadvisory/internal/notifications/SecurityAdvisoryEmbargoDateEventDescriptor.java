@@ -20,18 +20,26 @@
 package org.xwiki.contrib.securityadvisory.internal.notifications;
 
 import javax.inject.Named;
+import javax.inject.Singleton;
 
 import org.xwiki.component.annotation.Component;
 import org.xwiki.eventstream.RecordableEventDescriptor;
 
+/**
+ * Event descriptor for {@link EmbargoDateTargetableEvent}.
+ *
+ * @version $Id$
+ * @since 1.0
+ */
 @Component
-@Named("org.xwiki.contrib.securityadvisory.internal.notifications.SecurityAdvisoryEmbargoDateEventDescriptor")
+@Named("org.xwiki.contrib.securityadvisory.internal.notifications.EmbargoDateTargetableEvent")
+@Singleton
 public class SecurityAdvisoryEmbargoDateEventDescriptor implements RecordableEventDescriptor
 {
     @Override
     public String getEventType()
     {
-        return SecurityAdvisoryEmbargoDateEventDescriptor.class.getCanonicalName();
+        return EmbargoDateTargetableEvent.class.getCanonicalName();
     }
 
     @Override

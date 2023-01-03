@@ -29,7 +29,6 @@
   <creator>xwiki:XWiki.Admin</creator>
   <parent>Main.WebHome</parent>
   <author>xwiki:XWiki.Admin</author>
-  <originalMetadataAuthor>XWiki.Admin</originalMetadataAuthor>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
   <version>1.1</version>
   <title>Security Advisory Application</title>
@@ -38,7 +37,7 @@
   <syntaxId>xwiki/2.1</syntaxId>
   <hidden>true</hidden>
   <content>{{velocity}}
-#set ($securityEntrySpace = "SecurityAdvisoryApplication.SecurityEntrySpace")
+#set ($securityEntrySpace = "SecurityAdvisoryApplication.SecurityEntries")
 #set ($securityEntrySpaceRef = $services.model.resolveSpace($securityEntrySpace))
 ## FIXME: Do we keep it like that?
 #set ($allUsersGroup = "XWiki.XWikiAllGroup")
@@ -55,11 +54,11 @@
 #end
 #set ($columnsProperties = {
   'status': {},
-  'product': {},
+  'product': {"type": "suggest"},
   'doc.title': {"link":"view"},
-  'doc.date': {},
-  'affectedVersions': {},
-  'patchedVersions': {},
+  'affectedVersions': {"type": "suggest"},
+  'patchedVersions': {"type": "suggest"},
+  'embargoDate': {"html": true},
   'doc.author': {"link":"author"},
   '_actions': {"sortable":false,"filterable":false,"html":true,"actions":["edit","delete"]}
 })
@@ -72,7 +71,7 @@
   'selectedColumn': 'status',
   'defaultOrder': 'asc'
 })
-#set ($columns = ['status', 'product', 'doc.title', 'doc.date', 'affectedVersions', 'patchedVersions', 'doc.author', '_actions'])
+#set ($columns = ['status', 'product', 'doc.title', 'affectedVersions', 'patchedVersions', 'doc.author', 'embargoDate', '_actions'])
 #livetable('securityadvisoryapplication' $columns $columnsProperties $options)
 {{/velocity}}</content>
   <object>
@@ -197,6 +196,7 @@
         <name>code</name>
         <number>2</number>
         <prettyName>Code</prettyName>
+        <restricted>0</restricted>
         <rows>20</rows>
         <size>50</size>
         <unmodifiable>0</unmodifiable>
@@ -246,54 +246,21 @@
     <property>
       <code>'use strict';
 require(["jquery", "xwiki-meta"], function ($, xm) {
-  
-  // FIXME: this needs to be finish to bind it when the modal is created, however the modal popup doesn't provide an event right now
-  // so we probably need to use a mutation observer for this.
-  var listenEntryAdd = function() {
-    var entryNamePopup = $('#entryNamePopup');
-    var entryTitle = entryNamePopup.find('input[type="text"]');
-    var entryAdd = entryNamePopup.find('input[type="image"]');
-    var uidManager = XWiki.Model.resolve('SecurityAdvisoryApplication.Code.AdvisoryUIDManager', XWiki.EntityType.DOCUMENT);
+  var uidManager = XWiki.Model.resolve('SecurityAdvisoryApplication.Code.AdvisoryUIDManager', XWiki.EntityType.DOCUMENT);
 
-    var redirectToPage = function (title) {
-      var queryString = "action=getuid&amp;title=" + title + "&amp;form_token=" + xm.form_token;
-      var url = new XWiki.Document(uidManager).getURL('view', queryString);
-      window.location.href=url;
-    };
-    
-    entryAdd.off('click');
-    entryAdd.on('click', function() {
-      redirectToPage(entryTitle.val());
-    });
-    entryTitle.on('keydown', function (event) {
-      if (event.key == "Enter") {
-        event.preventDefault(); // FIXME: this does not work, the other listener is called in parallel.
-        redirectToPage(entryTitle.val());
-      }
+  var redirectToPage = function () {
+    var queryString = "action=getuid&amp;form_token=" + xm.form_token;
+    var url = new XWiki.Document(uidManager).getURL('view', queryString);
+    window.location.href=url;
+  };
+
+  var initialize = function () {
+    $('a.action.add').on('click', function() {
+      redirectToPage();
     });
   };
-  
-  var onMutations = function (mutations) {
-    for (var i = 0; i &lt; mutations.length; i++) {
-      var mutation = mutations[i];
 
-      for (var j = 0; j &lt; mutation.addedNodes.length; j++) {
-        var element = mutation.addedNodes[j];
-        var selector = ".xdialog-box";
-
-        if ($(element).find(selector)) {
-          listenEntryAdd();
-        }
-      }
-    }
-  };
-  
-  var initMutationObserver = function() {
-    var observer = new MutationObserver(onMutations);
-    observer.observe(document, { childList: true, subtree : true, attributes : false});
-  };
-  
-  initMutationObserver() &amp;&amp; document.observe("xwiki:dom:loaded", initMutationObserver);
+  initialize() &amp;&amp; document.observe("xwiki:dom:loaded", initialize);
 });</code>
     </property>
     <property>
@@ -346,7 +313,7 @@ require(["jquery", "xwiki-meta"], function ($, xm) {
         <separators>|, </separators>
         <size>5</size>
         <unmodifiable>0</unmodifiable>
-        <values>action=Action|doc.reference=Document|icon.theme=Icon theme|locale=Language|rendering.defaultsyntax=Default syntax|rendering.restricted=Restricted|rendering.targetsyntax=Target syntax|request.base=Request base URL|request.cookies|request.parameters=Request parameters|request.url=Request URL|request.wiki=Request wiki|user=User|wiki=Wiki</values>
+        <values>action=Action|doc.reference=Document|icon.theme=Icon theme|locale=Language|rendering.defaultsyntax=Default syntax|rendering.restricted=Restricted|rendering.targetsyntax=Target syntax|request.base=Request base URL|request.cookies|request.headers|request.parameters=Request parameters|request.remoteAddr|request.url=Request URL|request.wiki=Request wiki|user=User|wiki=Wiki</values>
         <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
       </async_context>
       <async_enabled>
@@ -366,6 +333,7 @@ require(["jquery", "xwiki-meta"], function ($, xm) {
         <name>content</name>
         <number>1</number>
         <prettyName>Executed Content</prettyName>
+        <restricted>0</restricted>
         <rows>25</rows>
         <size>120</size>
         <unmodifiable>0</unmodifiable>
@@ -396,6 +364,7 @@ require(["jquery", "xwiki-meta"], function ($, xm) {
         <name>parameters</name>
         <number>7</number>
         <prettyName>Extension Parameters</prettyName>
+        <restricted>0</restricted>
         <rows>10</rows>
         <size>40</size>
         <unmodifiable>0</unmodifiable>

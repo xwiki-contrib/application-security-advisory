@@ -29,7 +29,6 @@
   <creator>xwiki:XWiki.Admin</creator>
   <parent>SecurityAdvisoryApplication.Code.WebHome</parent>
   <author>xwiki:XWiki.Admin</author>
-  <originalMetadataAuthor>XWiki.Admin</originalMetadataAuthor>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
   <version>1.1</version>
   <title>AdvisoryUIDManager</title>
@@ -41,12 +40,9 @@
 #if ($request.get('action') == "getuid")
   #if ($services.csrf.isTokenValid($request.get('form_token')))
     #set ($template = "SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationTemplate")
-    #set ($spaceReference = $services.model.resolveSpace("SecurityAdvisoryApplication.SecurityEntries"))
-    ## FIXME: We should use a proper script service for that later
-    #set ($advisoryUUID = "Advisory-$mathtool.random(0,1000000)")
-    #set ($pageReference = $services.model.createDocumentReference($advisoryUUID, $spaceReference))
+    #set ($pageReference = $services.securityadvisory.getNewAdvisoryReference())
     #set ($pageDoc = $xwiki.getDocument($pageReference))
-    #set ($pageURL = $xwiki.getURL($pageReference, "edit", "title=$escapetool.url($request.get('title'))&amp;template=$template"))
+    #set ($pageURL = $xwiki.getURL($pageReference, "edit", "template=$template"))
     #set ($discard = $response.sendRedirect($pageURL))
   #else
     #set ($discard = $response.sendError(403, 'Bad CSRF token'))

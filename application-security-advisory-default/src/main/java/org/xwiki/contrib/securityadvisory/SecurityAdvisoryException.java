@@ -19,13 +19,30 @@
  */
 package org.xwiki.contrib.securityadvisory;
 
+/**
+ * Generic exception for the security advisory application.
+ *
+ * @version $Id$
+ * @since 1.0
+ */
 public class SecurityAdvisoryException extends Exception
 {
+    /**
+     * Constructor with only a message.
+     *
+     * @param message the message of the exception.
+     */
     public SecurityAdvisoryException(String message)
     {
         super(message);
     }
 
+    /**
+     * Default constructor.
+     *
+     * @param message the message of the exception.
+     * @param e root cause of the exception
+     */
     public SecurityAdvisoryException(String message, Throwable e)
     {
         super(message, e);

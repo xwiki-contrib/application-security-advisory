@@ -29,7 +29,6 @@
   <creator>xwiki:XWiki.Admin</creator>
   <parent>SecurityAdvisoryApplication.WebHome</parent>
   <author>xwiki:XWiki.Admin</author>
-  <originalMetadataAuthor>XWiki.Admin</originalMetadataAuthor>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
   <version>1.1</version>
   <title>SecurityAdvisoryApplication Class</title>
@@ -101,6 +100,20 @@
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
     </computeEmbargo>
+    <cve>
+      <customDisplay/>
+      <disabled>0</disabled>
+      <hint>CVE identifier when issued</hint>
+      <name>cve</name>
+      <number>13</number>
+      <picker>0</picker>
+      <prettyName>CVE</prettyName>
+      <size>30</size>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+    </cve>
     <cvss>
       <customDisplay/>
       <disabled>0</disabled>
@@ -247,7 +260,7 @@
     <status>
       <cache>0</cache>
       <customDisplay/>
-      <defaultValue>draft</defaultValue>
+      <defaultValue>DRAFT</defaultValue>
       <disabled>0</disabled>
       <displayType>select</displayType>
       <freeText/>
@@ -266,7 +279,7 @@
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
       <validationRegExp/>
-      <values>draft=Draft|completed=Completed|announced=Announced|disclosable=Disclosable|disclosed=Disclosed</values>
+      <values>DRAFT=Draft|COMPLETED=Completed|ANNOUNCED=Announced|DISCLOSABLE=Disclosable|DISCLOSED=Disclosed|DISCARDED=Discarded</values>
       <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
     </status>
     <title1>

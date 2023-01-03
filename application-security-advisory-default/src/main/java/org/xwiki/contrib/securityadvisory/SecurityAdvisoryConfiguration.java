@@ -24,12 +24,27 @@ import java.time.temporal.TemporalUnit;
 import org.xwiki.component.annotation.Role;
 import org.xwiki.model.reference.DocumentReference;
 
+/**
+ * Configuration API for the application.
+ *
+ * @version $Id$
+ * @since 1.0
+ */
 @Role
 public interface SecurityAdvisoryConfiguration
 {
-    TemporalUnit getEmbargoDurationUnit() throws SecurityAdvisoryException;
+    /**
+     * @return the duration unit to use for embargo date.
+     */
+    TemporalUnit getEmbargoDurationUnit();
 
-    int getDefaultEmbargoDuration() throws SecurityAdvisoryException;
+    /**
+     * @return the actual embargo date duration.
+     */
+    long getDefaultEmbargoDuration();
 
-    DocumentReference getSecurityGroup() throws SecurityAdvisoryException;
+    /**
+     * @return the reference of the security group to use for notifications targets
+     */
+    DocumentReference getSecurityGroup();
 }

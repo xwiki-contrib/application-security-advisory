@@ -29,7 +29,6 @@
   <creator>xwiki:XWiki.Admin</creator>
   <parent>WebHome</parent>
   <author>xwiki:XWiki.Admin</author>
-  <originalMetadataAuthor>XWiki.Admin</originalMetadataAuthor>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
   <version>1.1</version>
   <title>SecurityAdvisoryDisclosableComputer</title>
@@ -151,7 +150,7 @@
       <cron>0 0 12 * * ?</cron>
     </property>
     <property>
-      <jobClass>org.xwiki.contrib.securityadvisory.internal.ComputeDisclosableJob</jobClass>
+      <jobClass>org.xwiki.contrib.securityadvisory.internal.jobs.ComputeDisclosableJob</jobClass>
     </property>
     <property>
       <jobDescription/>

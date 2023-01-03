@@ -24,10 +24,21 @@ import java.util.Set;
 import org.xwiki.eventstream.RecordableEvent;
 import org.xwiki.eventstream.TargetableEvent;
 
+/**
+ * Event to notify users about advisories ready to be disclosed.
+ *
+ * @version $Id$
+ * @since 1.0
+ */
 public class DisclosableTargetableEvent implements TargetableEvent, RecordableEvent
 {
     private final Set<String> targets;
 
+    /**
+     * Default constructor.
+     *
+     * @param targets targeted users or groups
+     */
     public DisclosableTargetableEvent(Set<String> targets)
     {
         this.targets = targets;

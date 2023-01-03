@@ -34,6 +34,7 @@
   <properties>
     <!-- Needed for the scheduler jobs -->
     <xwiki.extension.namespaces>{root}</xwiki.extension.namespaces>
+    <xwiki.jacoco.instructionRatio>0.04</xwiki.jacoco.instructionRatio>
   </properties>
   <dependencies>
     <dependency>
@@ -50,6 +51,17 @@
       <groupId>org.xwiki.platform</groupId>
       <artifactId>xwiki-platform-query-manager</artifactId>
       <version>${platform.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.xwiki.commons</groupId>
+      <artifactId>xwiki-commons-tool-test-component</artifactId>
+      <scope>test</scope>
+      <version>${commons.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>

@@ -29,10 +29,15 @@ import javax.inject.Singleton;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.configuration.ConfigurationSource;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryConfiguration;
-import org.xwiki.contrib.securityadvisory.SecurityAdvisoryException;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.DocumentReferenceResolver;
 
+/**
+ * Default implementation of {@link SecurityAdvisoryConfiguration}.
+ *
+ * @version $Id$
+ * @since 1.0
+ */
 @Component
 @Singleton
 public class DefaultSecurityAdvisoryConfiguration implements SecurityAdvisoryConfiguration
@@ -45,20 +50,20 @@ public class DefaultSecurityAdvisoryConfiguration implements SecurityAdvisoryCon
     private DocumentReferenceResolver<String> documentReferenceResolver;
 
     @Override
-    public TemporalUnit getEmbargoDurationUnit() throws SecurityAdvisoryException
+    public TemporalUnit getEmbargoDurationUnit()
     {
-        String embargoDurationUnit = this.configurationSource.getProperty("embargoDurationUnit", "months");
+        String embargoDurationUnit = this.configurationSource.getProperty("embargoDurationUnit", "days");
         return ChronoUnit.valueOf(embargoDurationUnit.toUpperCase());
     }
 
     @Override
-    public int getDefaultEmbargoDuration() throws SecurityAdvisoryException
+    public long getDefaultEmbargoDuration()
     {
-        return this.configurationSource.getProperty("defaultEmbargoDuration", 3);
+        return this.configurationSource.getProperty("defaultEmbargoDuration", 90);
     }
 
     @Override
-    public DocumentReference getSecurityGroup() throws SecurityAdvisoryException
+    public DocumentReference getSecurityGroup()
     {
         String securityGroup = this.configurationSource.getProperty("securityGroup", "XWiki.XWikiAdminGroup");
         return this.documentReferenceResolver.resolve(securityGroup);
