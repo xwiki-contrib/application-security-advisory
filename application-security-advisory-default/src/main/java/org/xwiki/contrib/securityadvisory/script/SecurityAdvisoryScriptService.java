@@ -75,7 +75,7 @@ public class SecurityAdvisoryScriptService implements ScriptService
     }
 
     /**
-     * Check if the given string is a single version (e.g. 14.4.4) or a range of versions (e.g. > 14.4)
+     * Check if the given string is a single version (e.g. 14.4.4) or a range of versions (e.g. &gt; 14.4)
      *
      * @param version the version string to check if it's single or not
      * @return {@code true} if the version does not contain any operator and matches our version definition.
