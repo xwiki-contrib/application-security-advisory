@@ -25,10 +25,10 @@
   <parent>
     <groupId>org.xwiki.contrib.security-advisory</groupId>
     <artifactId>application-security-advisory</artifactId>
-    <version>1.0</version>
+    <version>1.1-SNAPSHOT</version>
   </parent>
   <artifactId>application-security-advisory-ui</artifactId>
-  <version>1.0</version>
+  <version>1.1-SNAPSHOT</version>
   <name>Security Advisory Application - UI</name>
   <packaging>xar</packaging>
   <properties>
