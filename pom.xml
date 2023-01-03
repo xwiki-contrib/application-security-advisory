@@ -49,9 +49,9 @@
     </repository>
   </distributionManagement>
   <scm>
-    <connection>scm:git:git://github.com/xwiki-contrib/security-advisory-application.git</connection>
-    <developerConnection>scm:git:git@github.com:xwiki-contrib/security-advisory-application.git</developerConnection>
-    <url>https://github.com/xwiki-contrib/security-advisory-application/tree/master</url>
+    <connection>scm:git:git://github.com/xwiki-contrib/application-security-advisory.git</connection>
+    <developerConnection>scm:git:git@github.com:xwiki-contrib/application-security-advisory.git</developerConnection>
+    <url>https://github.com/xwiki-contrib/application-security-advisory/tree/master</url>
     <tag>HEAD</tag>
   </scm>
   <properties>
