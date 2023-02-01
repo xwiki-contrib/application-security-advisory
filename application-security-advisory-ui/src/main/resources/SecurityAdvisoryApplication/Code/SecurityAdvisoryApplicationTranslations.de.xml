@@ -1,1 +1,127 @@
+<?xml version="1.1" encoding="UTF-8"?>
 
+<!--
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+-->
+
+<xwikidoc version="1.5" reference="SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationTranslations" locale="de">
+  <web>SecurityAdvisoryApplication.Code</web>
+  <name>SecurityAdvisoryApplicationTranslations</name>
+  <language>de</language>
+  <defaultLanguage>en</defaultLanguage>
+  <translation>1</translation>
+  <creator>xwiki:XWiki.Admin</creator>
+  <parent>SecurityAdvisoryApplicationClass</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <version>1.1</version>
+  <title/>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>plain/1.0</syntaxId>
+  <hidden>true</hidden>
+  <content># Class fields
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_status=Status
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_status_draft=Entwurf
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_status_completed=Abgeschlossen
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_status_announced=Angekündigt
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_status_disclosed=Offengelegt
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_title1=Titel
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_title_hint=Titel des Hinweises
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_product=Produkt
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_product_hint=Betroffenes Produkt (z. B. xwiki-platform, xwiki-rendering, application-change-request, usw.)
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_mavenModules=Maven-Module
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_mavenModules_hint=Betroffene Maven-Module mit vollständiger Paketdefinition ohne Version (z.B. org.xwiki.platform:xwiki-platform-oldcore)
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_affectedVersions=Betroffene Versionen
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_affectedVersions_hint=Alle von der Sicherheitslücke betroffenen Versionen (Operatoren wie &lt;, &lt;=, &gt; und &gt;= werden hier akzeptiert)
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_patchedVersions=Gepatchte Versionen
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_patchedVersions_hint=Alle Versionen, die gepatcht wurden (nur einzelne Versionen werden hier akzeptiert, Operatoren sind nicht erlaubt)
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_advisoryLink=Advisory-Link
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_advisoryLink_hint=Link zu dem erstellten Github Advisory
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_jiraTickets=Jira-Tickets
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_jiraTickets_hint=Liste der Jira-Tickets (sollte nur den Ticketschlüssel enthalten, keine vollständigen Links)
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_computeEmbargo=Sperrdatum berechnen
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_computeEmbargo_hint=Festlegen, ob das Sperrdatum automatisch aus den Versionen berechnet werden soll oder nicht.
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_embargoDate=Sperrdatum
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_embargoDate_hint=Ein bestimmtes Sperrdatum festlegen: Dieses wird nur berücksichtigt, wenn das Kennzeichen Sperrdatum berechnen nicht markiert ist.
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvss=CVSS-Score
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvss_hint=Wert des berechneten CVSS in Form einer Zeichenkette.
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_description=Beschreibung
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_description_hint=Vollständiger Inhalt des Hinweises.
+
+# Sheet keys
+securityadvisoryapplication.sheet.description=Diese Seite steuert, wie die Seiten der Security Advisory Application sowohl im Anzeige- als auch im Bearbeitungsmodus angezeigt werden.
+securityadvisoryapplication.sheet.noObject=Die aktuelle Seite verfügt nicht über das erwartete Objekt Security Advisory Application.
+securityadvisoryapplication.sheet.noFields=Die Anwendung Security Advisory Application hat keine Felder, die angezeigt werden können.
+
+# Live table generic keys
+securityadvisoryapplication.livetable.doc.title=Titel der Seite
+securityadvisoryapplication.livetable.doc.name=Name der Seite
+securityadvisoryapplication.livetable.doc.space=Bereich
+securityadvisoryapplication.livetable.doc.fullname=Vollständiger Name der Seite
+securityadvisoryapplication.livetable.doc.location=Speicherort
+securityadvisoryapplication.livetable.doc.author=Letzter Autor
+securityadvisoryapplication.livetable.doc.creator=Ersteller
+securityadvisoryapplication.livetable.doc.date=Datum
+securityadvisoryapplication.livetable.doc.creationDate=Erstelldatum
+securityadvisoryapplication.livetable._avatar=Avatar
+securityadvisoryapplication.livetable._images=Bilder
+securityadvisoryapplication.livetable._attachments=Anhänge
+securityadvisoryapplication.livetable._actions=Aktionen
+securityadvisoryapplication.livetable._actions.edit=Bearbeiten
+securityadvisoryapplication.livetable._actions.delete=Löschen
+securityadvisoryapplication.livetable.emptyvalue=-
+
+# Live table specific keys
+securityadvisoryapplication.livetable.status=Status
+securityadvisoryapplication.livetable.title1=Titel
+securityadvisoryapplication.livetable.product=Produkt
+securityadvisoryapplication.livetable.mavenModules=Maven-Module
+securityadvisoryapplication.livetable.affectedVersions=Betroffene Versionen
+securityadvisoryapplication.livetable.patchedVersions=Gepatchte Versionen
+securityadvisoryapplication.livetable.advisoryLink=Advisory-Link
+securityadvisoryapplication.livetable.jiraTickets=Jira-Tickets
+securityadvisoryapplication.livetable.computeEmbargo=Sperrdatum errechnen
+securityadvisoryapplication.livetable.embargoDate=Sperrdatum
+securityadvisoryapplication.livetable.cvss=CVSS-Score
+securityadvisoryapplication.livetable.description=Beschreibung
+
+# Other keys
+securityadvisoryapplication.entry.name=Security Advisory Application
+securityadvisoryapplication.home.right.warning=Der {0}Sicherheitseintragsraum{1} ist derzeit für alle Benutzer offen: Sie sollten den Zugriff darauf beschränken.
+
+# Configuration
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_embargoDurationUnit=Einheit der Dauer, die für die Berechnung des Sperrdatums zu verwenden ist
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_embargoDurationUnit.hint=Die Einheit basiert auf ChronoUnit-Werten (z. B. Minuten, Stunden, Tage, Wochen, Monate usw.)
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_defaultEmbargoDuration=Für die Berechnung des Sperrdatums zu verwendender Wert der Dauer
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_defaultEmbargoDuration.hint=Dieser Wert wird mit seiner Einheit zum Datum der letzten gepatchten Veröffentlichung des Hinweises addiert
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_securityGroup=Die Gruppe der Zielnutzer für die Benachrichtigung über die Sicherheitshinweise
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_securityGroup.hint=Die Nutzer dieser Gruppe werden automatisch benachrichtigt, wenn ein Hinweis zur Veröffentlichung bereit ist.
+
+# Sheet Explanations
+securityadvisoryapplication.sheet.nextstep.DRAFT=Sie bearbeiten gerade einen Hinweis-Entwurf. Sobald er fertig ist, kann er mit der Schaltfläche oben auf der Seite als abgeschlossen markieren werden.
+securityadvisoryapplication.sheet.nextstep.COMPLETED=Nach Fertigstellung des Hinweises sollte er auf den in der Sicherheitsrichtlinie festgelegten Kanälen bekannt geben werden. Sobald der Hinweis angekündigt ist, kann der Status mit der Schaltfläche oben auf der Seite geändert werden.
+securityadvisoryapplication.sheet.nextstep.ANNOUNCED=Dieser Hinweis wurde angekündigt. Er wird automatisch als veröffentlichungspflichtig markiert, wenn das Sperrdatum erreicht ist. Es ist möglich, dass das Sperrdatum noch nicht berechnet wurde, wenn die gepatchten Versionen noch nicht veröffentlicht wurden. 
+securityadvisoryapplication.sheet.nextstep.DISCLOSABLE=Dieser Hinweis kann nun gemäß seinem Sperrdatum veröffentlicht werden. Sie sollten ein CVE anfordern und es veröffentlichen. Sobald dies geschehen ist, müssen Sie es mit der Schaltfläche oben auf der Seite als offengelegt markieren.
+securityadvisoryapplication.sheet.nextstep.DISCLOSED=Dieser Hinweis wurde veröffentlicht und ist nun allgemein zugänglich.
+
+# Deprecated keys
+securityadvisoryapplication.dataSpace.title=Daten
+</content>
+  </xwikidoc>
