@@ -53,6 +53,7 @@
 {{/warning}}
 #end
 #set ($columnsProperties = {
+  'doc.date': {"type":"date"},
   'status': {},
   'product': {"type": "suggest"},
   'doc.title': {"link":"view"},
@@ -71,7 +72,7 @@
   'selectedColumn': 'status',
   'defaultOrder': 'asc'
 })
-#set ($columns = ['status', 'product', 'doc.title', 'affectedVersions', 'patchedVersions', 'doc.author', 'embargoDate', '_actions'])
+#set ($columns = ['doc.date','status', 'product', 'doc.title', 'affectedVersions', 'patchedVersions', 'doc.author', 'embargoDate', '_actions'])
 #livetable('securityadvisoryapplication' $columns $columnsProperties $options)
 {{/velocity}}</content>
   <object>
