@@ -49,6 +49,12 @@
       <version>${releasenotes.version}</version>
       <type>xar</type>
     </dependency>
+    <dependency>
+      <groupId>org.webjars.npm</groupId>
+      <artifactId>turingpointde__cvss.js</artifactId>
+      <version>1.4.7</version>
+      <scope>runtime</scope>
+    </dependency>
     <!-- TODO: Add Jira macro dependency ? -->
   </dependencies>
 </project>

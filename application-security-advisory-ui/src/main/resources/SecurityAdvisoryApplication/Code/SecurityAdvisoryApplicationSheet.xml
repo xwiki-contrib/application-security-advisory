@@ -211,7 +211,9 @@ $services.localization.render("securityadvisoryapplication.sheet.nextstep.$curre
         $escapetool.xml($services.localization.render('SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvss_hint'))
       &lt;/span&gt;
     &lt;/dt&gt;
-    &lt;dd&gt;$doc.display('cvss')&lt;/dd&gt;
+    &lt;dd class="cvss-value"&gt;$doc.display('cvss')&lt;/dd&gt;
+    &lt;dt&gt;$services.localization.render('securityadvisoryapplication.sheet.severity')&lt;/dt&gt;
+    &lt;dd class="cvss-score"&gt;&lt;/dd&gt;
     &lt;dt #if (!$editing &amp;&amp; $hasEdit)
         class="editableProperty"
         data-property="$escapetool.xml($services.model.serialize($object.getPropertyReference('description')))"
@@ -368,6 +370,126 @@ require(['jquery', 'xwiki-meta'], function ($, xm) {
     </property>
     <property>
       <use>currentPage</use>
+    </property>
+  </object>
+  <object>
+    <name>SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationSheet</name>
+    <number>1</number>
+    <className>XWiki.JavaScriptExtension</className>
+    <guid>d8a1cdc5-acc8-43e2-b590-0993b6c2c70e</guid>
+    <class>
+      <name>XWiki.JavaScriptExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <defaultValue>long</defaultValue>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <freeText>forbidden</freeText>
+        <largeStorage>0</largeStorage>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>5</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <contenttype>PureText</contenttype>
+        <disabled>0</disabled>
+        <editor>PureText</editor>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Code</prettyName>
+        <restricted>0</restricted>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>4</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <freeText>forbidden</freeText>
+        <largeStorage>0</largeStorage>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>3</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage|onDemand|always</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <property>
+      <cache>long</cache>
+    </property>
+    <property>
+      <code>require(['jquery',"$services.webjars.url('org.webjars.npm:turingpointde__cvss.js', 'dist/production.min.js')"], function($) {
+  var initCvss = function () {
+    var severity = $('.cvss-value').text();
+    computeSeverity(severity);
+    
+    $('input[name=SecurityAdvisoryApplication\\.Code\\.SecurityAdvisoryApplicationClass_0_cvss]').on('change', function() {
+      computeSeverity($(this).val());
+    });
+    $(document).on('xwiki:dom:updated', initCvss);
+  };
+  
+  var computeSeverity = function (textSeverity) {
+    if (textSeverity) {
+      var computedCvss = CVSS(textSeverity);
+      console.log(computedCvss);
+      var displaySeverity = computedCvss.getRating() + " (" + computedCvss.getScore() + ")";
+      $('.cvss-score').text(displaySeverity);
+    }
+  };
+  (XWiki.isInitialized &amp;&amp; initCvss()) || $(document).on('xwiki:dom:loading', initCvss);
+});</code>
+    </property>
+    <property>
+      <name>Handle CVSS calculator</name>
+    </property>
+    <property>
+      <parse>1</parse>
+    </property>
+    <property>
+      <use>onDemand</use>
     </property>
   </object>
   <object>

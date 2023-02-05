@@ -120,6 +120,7 @@ securityadvisoryapplication.sheet.nextstep.COMPLETED=Now the advisory is complet
 securityadvisoryapplication.sheet.nextstep.ANNOUNCED=This advisory has been announced. It will be automatically marked as disclosable when the embargo date will be reached. It's possible that the embargo date is not yet computed if the patched versions are not released yet. 
 securityadvisoryapplication.sheet.nextstep.DISCLOSABLE=This advisory can now be disclosed according to its embargo date. You should request a CVE and publish it. Once done you need to mark it disclosed with the button on top of the page.
 securityadvisoryapplication.sheet.nextstep.DISCLOSED=This advisory has been disclosed and is now public.
+securityadvisoryapplication.sheet.severity=Severity
 
 # Deprecated keys
 securityadvisoryapplication.dataSpace.title=Data
