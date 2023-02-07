@@ -120,6 +120,7 @@ securityadvisoryapplication.sheet.nextstep.COMPLETED=Nach Fertigstellung des Hin
 securityadvisoryapplication.sheet.nextstep.ANNOUNCED=Dieser Hinweis wurde angekündigt. Er wird automatisch als veröffentlichungspflichtig markiert, wenn das Sperrdatum erreicht ist. Es ist möglich, dass das Sperrdatum noch nicht berechnet wurde, wenn die gepatchten Versionen noch nicht veröffentlicht wurden. 
 securityadvisoryapplication.sheet.nextstep.DISCLOSABLE=Dieser Hinweis kann nun gemäß seinem Sperrdatum veröffentlicht werden. Sie sollten ein CVE anfordern und es veröffentlichen. Sobald dies geschehen ist, müssen Sie es mit der Schaltfläche oben auf der Seite als offengelegt markieren.
 securityadvisoryapplication.sheet.nextstep.DISCLOSED=Dieser Hinweis wurde veröffentlicht und ist nun allgemein zugänglich.
+securityadvisoryapplication.sheet.severity=Schweregrad
 
 # Deprecated keys
 securityadvisoryapplication.dataSpace.title=Daten
