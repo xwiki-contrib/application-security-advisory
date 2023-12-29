@@ -98,31 +98,31 @@ securityadvisoryapplication.livetable.patchedVersions=이 저장되었지만, �
 securityadvisoryapplication.livetable.advisoryLink=이 저장되었지만, 일부 새롭게 실패한 검사가 있습니다: 일치하지 않는 콜론(:)
 securityadvisoryapplication.livetable.jiraTickets=이 저장되었지만, 일부 새롭게 실패한 검사가 있습니다: 일치하지 않는 마침표(.)
 securityadvisoryapplication.livetable.computeEmbargo=이 저장되었지만, 일부 새롭게 실패한 검사가 있습니다: 일치하지 않는 콜론(:)
-### Missing: securityadvisoryapplication.livetable.embargoDate=Embargo date
-### Missing: securityadvisoryapplication.livetable.cvss=CVSS Score
-### Missing: securityadvisoryapplication.livetable.description=Description
+securityadvisoryapplication.livetable.embargoDate=금수조치 날짜
+securityadvisoryapplication.livetable.cvss=CVSS 점수
+securityadvisoryapplication.livetable.description=설명
 
 # Other keys
-### Missing: securityadvisoryapplication.entry.name=Security Advisory Application
-### Missing: securityadvisoryapplication.home.right.warning=The {0}security entry space{1} is currently open to any users: you should restrict its access.
+securityadvisoryapplication.entry.name=보안 권고 신청
+securityadvisoryapplication.home.right.warning={0}보안 진입 공간{1}은 현재 모든 사용자에게 열려 있으므로 액세스를 제한해야 합니다.
 
 # Configuration
-### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_embargoDurationUnit=Unit of the duration to use for the embargo computation
-### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_embargoDurationUnit.hint=The unit is based on ChronoUnit values (e.g. minutes, hours, days, weeks, months, etc)
-### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_defaultEmbargoDuration=Duration value to use for the embargo computation
-### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_defaultEmbargoDuration.hint=This value computed with its unit will be added to the date of the latest patched release date for the advisory publication
-### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_securityGroup=The group of targeted users for advisories notifications
-### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_securityGroup.hint=The users of this group will automatically receive notifications when an advisory is ready to be published.
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_embargoDurationUnit=엠바고 계산에 사용되는 기간의 단위
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_embargoDurationUnit.hint=단위는 ChronoUnit 값(예: 분, 시간, 일, 주, 월 등)을 기반으로 합니다.
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_defaultEmbargoDuration=엠바고 계산에 사용할 기간 값
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_defaultEmbargoDuration.hint=해당 단위로 계산된 이 값은 권고 발행물의 최신 패치 릴리스 날짜에 추가됩니다.
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_securityGroup=권고 알림 대상 사용자 그룹
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_securityGroup.hint=이 그룹의 사용자는 권고를 게시할 준비가 되면 자동으로 알림을 받게 됩니다.
 
 # Sheet Explanations
-### Missing: securityadvisoryapplication.sheet.nextstep.DRAFT=You're currently editing a draft of the advisory. Once it is complete you can mark it as completed with the button on top of the page.
-### Missing: securityadvisoryapplication.sheet.nextstep.COMPLETED=Now the advisory is complete, you should announce it to the dedicated channels defined in the security policy. Once the advisory is announced you can switch its status with the button on top of the page.
-### Missing: securityadvisoryapplication.sheet.nextstep.ANNOUNCED=This advisory has been announced. It will be automatically marked as disclosable when the embargo date will be reached. It's possible that the embargo date is not yet computed if the patched versions are not released yet. 
-### Missing: securityadvisoryapplication.sheet.nextstep.DISCLOSABLE=This advisory can now be disclosed according to its embargo date. You should request a CVE and publish it. Once done you need to mark it disclosed with the button on top of the page.
-### Missing: securityadvisoryapplication.sheet.nextstep.DISCLOSED=This advisory has been disclosed and is now public.
-### Missing: securityadvisoryapplication.sheet.severity=Severity
+securityadvisoryapplication.sheet.nextstep.DRAFT=현재 권고 초안을 편집 중입니다. 완료되면 페이지 상단의 버튼을 사용하여 완료로 표시할 수 있습니다.
+securityadvisoryapplication.sheet.nextstep.COMPLETED=이제 권고가 완료되었으므로 보안 정책에 정의된 전용 채널에 이를 공지해야 합니다. 권고가 발표되면 페이지 상단에 있는 버튼을 사용하여 상태를 전환할 수 있습니다.
+securityadvisoryapplication.sheet.nextstep.ANNOUNCED=이 권고가 발표되었습니다. 수출 금지 날짜에 도달하면 자동으로 공개 가능으로 표시됩니다. 패치된 버전이 아직 출시되지 않은 경우 엠바고 날짜가 아직 계산되지 않았을 수 있습니다. 
+securityadvisoryapplication.sheet.nextstep.DISCLOSABLE=이제 이 권고는 금수 조치 날짜에 따라 공개될 수 있습니다. CVE를 요청하고 게시해야 합니다. 완료되면 페이지 상단의 버튼을 사용하여 공개로 표시해야 합니다.
+securityadvisoryapplication.sheet.nextstep.DISCLOSED=이 권고는 공개되었으며 현재 공개되었습니다.
+securityadvisoryapplication.sheet.severity=심각성
 
 # Deprecated keys
-### Missing: securityadvisoryapplication.dataSpace.title=Data
+securityadvisoryapplication.dataSpace.title=데이터
 </content>
   </xwikidoc>
