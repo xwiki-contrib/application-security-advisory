@@ -68,36 +68,36 @@ SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_description_hi
 # Sheet keys
 securityadvisoryapplication.sheet.description=이 페이지는 보기 및 편집 모드 모두에서 보안 권고 응용 프로그램 페이지가 표시되는 방식을 제어합니다.
 securityadvisoryapplication.sheet.noObject=현재 페이지에는 예상되는 보안 권고 응용 프로그램 개체가 없습니다.
-### Missing: securityadvisoryapplication.sheet.noFields=The Security Advisory Application application doesn't have any fields to display.
+securityadvisoryapplication.sheet.noFields=삭제 진행 중...
 
 # Live table generic keys
-### Missing: securityadvisoryapplication.livetable.doc.title=Page Title
-### Missing: securityadvisoryapplication.livetable.doc.name=Page Name
-### Missing: securityadvisoryapplication.livetable.doc.space=Space
-### Missing: securityadvisoryapplication.livetable.doc.fullname=Page full name
-### Missing: securityadvisoryapplication.livetable.doc.location=Location
-### Missing: securityadvisoryapplication.livetable.doc.author=Last Author
-### Missing: securityadvisoryapplication.livetable.doc.creator=Creator
-### Missing: securityadvisoryapplication.livetable.doc.date=Date
-### Missing: securityadvisoryapplication.livetable.doc.creationDate=Creation Date
-### Missing: securityadvisoryapplication.livetable._avatar=Avatar
-### Missing: securityadvisoryapplication.livetable._images=Images
-### Missing: securityadvisoryapplication.livetable._attachments=Attachments
-### Missing: securityadvisoryapplication.livetable._actions=Actions
-### Missing: securityadvisoryapplication.livetable._actions.edit=Edit
-### Missing: securityadvisoryapplication.livetable._actions.delete=Delete
-### Missing: securityadvisoryapplication.livetable.emptyvalue=-
+securityadvisoryapplication.livetable.doc.title=삭제 진행 중...
+securityadvisoryapplication.livetable.doc.name=삭제 진행 중...
+securityadvisoryapplication.livetable.doc.space=삭제 진행 중...
+securityadvisoryapplication.livetable.doc.fullname=삭제 진행 중...
+securityadvisoryapplication.livetable.doc.location=삭제 진행 중...
+securityadvisoryapplication.livetable.doc.author=삭제 진행 중...
+securityadvisoryapplication.livetable.doc.creator=삭제 진행 중...
+securityadvisoryapplication.livetable.doc.date=삭제 진행 중...
+securityadvisoryapplication.livetable.doc.creationDate=삭제 진행 중...
+securityadvisoryapplication.livetable._avatar=삭제 진행 중...
+securityadvisoryapplication.livetable._images=삭제 진행 중...
+securityadvisoryapplication.livetable._attachments=삭제 진행 중...
+securityadvisoryapplication.livetable._actions=삭제 진행 중...
+securityadvisoryapplication.livetable._actions.edit=이 저장되었지만, 일부 새롭게 실패한 검사가 있습니다: 일치하지 않는 마침표(.), 일치하지 않는 물음표(?)
+securityadvisoryapplication.livetable._actions.delete=이 저장되었지만, 일부 새롭게 실패한 검사가 있습니다: 일치하지 않는 마침표(.), 일치하지 않는 물음표(?)
+securityadvisoryapplication.livetable.emptyvalue=이 저장되었지만, 일부 새롭게 실패한 검사가 있습니다: 일치하지 않는 마침표(.), 일치하지 않는 물음표(?)
 
 # Live table specific keys
-### Missing: securityadvisoryapplication.livetable.status=status
-### Missing: securityadvisoryapplication.livetable.title1=Title
-### Missing: securityadvisoryapplication.livetable.product=product
-### Missing: securityadvisoryapplication.livetable.mavenModules=Maven modules
-### Missing: securityadvisoryapplication.livetable.affectedVersions=Affected versions
-### Missing: securityadvisoryapplication.livetable.patchedVersions=Patched versions
-### Missing: securityadvisoryapplication.livetable.advisoryLink=Advisory Link
-### Missing: securityadvisoryapplication.livetable.jiraTickets=JIRA Tickets
-### Missing: securityadvisoryapplication.livetable.computeEmbargo=compute embargo
+securityadvisoryapplication.livetable.status=이 저장되었지만, 일부 새롭게 실패한 검사가 있습니다: 일치하지 않는 마침표(.)
+securityadvisoryapplication.livetable.title1=이 저장되었지만, 일부 새롭게 실패한 검사가 있습니다: 일치하지 않는 마침표(.)
+securityadvisoryapplication.livetable.product=이 저장되었지만, 일부 새롭게 실패한 검사가 있습니다: 일치하지 않는 마침표(.)
+securityadvisoryapplication.livetable.mavenModules=이 저장되었지만, 일부 새롭게 실패한 검사가 있습니다: 일치하지 않는 콜론(:)
+securityadvisoryapplication.livetable.affectedVersions=이 저장되었지만, 일부 새롭게 실패한 검사가 있습니다: 일치하지 않는 마침표(.)
+securityadvisoryapplication.livetable.patchedVersions=이 저장되었지만, 일부 새롭게 실패한 검사가 있습니다: 일치하지 않는 콜론(:)
+securityadvisoryapplication.livetable.advisoryLink=이 저장되었지만, 일부 새롭게 실패한 검사가 있습니다: 일치하지 않는 콜론(:)
+securityadvisoryapplication.livetable.jiraTickets=이 저장되었지만, 일부 새롭게 실패한 검사가 있습니다: 일치하지 않는 마침표(.)
+securityadvisoryapplication.livetable.computeEmbargo=이 저장되었지만, 일부 새롭게 실패한 검사가 있습니다: 일치하지 않는 콜론(:)
 ### Missing: securityadvisoryapplication.livetable.embargoDate=Embargo date
 ### Missing: securityadvisoryapplication.livetable.cvss=CVSS Score
 ### Missing: securityadvisoryapplication.livetable.description=Description
