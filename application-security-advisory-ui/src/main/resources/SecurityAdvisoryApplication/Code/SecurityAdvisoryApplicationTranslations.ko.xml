@@ -63,41 +63,41 @@ SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_embargoDate_hi
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvss=CVSS 점수
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvss_hint=문자열 형식으로 계산된 CVSS의 값입니다.
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_description=설명
-SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_description_hint=역이 저장되었지만, 일부 새롭게 실패한 검사가 있습니다: 일치하지 않는 마침표(.)
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_description_hint=권고의 전체 내용.
 
 # Sheet keys
 securityadvisoryapplication.sheet.description=이 페이지는 보기 및 편집 모드 모두에서 보안 권고 응용 프로그램 페이지가 표시되는 방식을 제어합니다.
 securityadvisoryapplication.sheet.noObject=현재 페이지에는 예상되는 보안 권고 응용 프로그램 개체가 없습니다.
-securityadvisoryapplication.sheet.noFields=삭제 진행 중...
+securityadvisoryapplication.sheet.noFields=보안 권고 애플리케이션 애플리케이션에는 표시할 필드가 없습니다.
 
 # Live table generic keys
-securityadvisoryapplication.livetable.doc.title=삭제 진행 중...
-securityadvisoryapplication.livetable.doc.name=삭제 진행 중...
-securityadvisoryapplication.livetable.doc.space=삭제 진행 중...
-securityadvisoryapplication.livetable.doc.fullname=삭제 진행 중...
-securityadvisoryapplication.livetable.doc.location=삭제 진행 중...
-securityadvisoryapplication.livetable.doc.author=삭제 진행 중...
-securityadvisoryapplication.livetable.doc.creator=삭제 진행 중...
-securityadvisoryapplication.livetable.doc.date=삭제 진행 중...
-securityadvisoryapplication.livetable.doc.creationDate=삭제 진행 중...
-securityadvisoryapplication.livetable._avatar=삭제 진행 중...
-securityadvisoryapplication.livetable._images=삭제 진행 중...
-securityadvisoryapplication.livetable._attachments=삭제 진행 중...
-securityadvisoryapplication.livetable._actions=삭제 진행 중...
-securityadvisoryapplication.livetable._actions.edit=이 저장되었지만, 일부 새롭게 실패한 검사가 있습니다: 일치하지 않는 마침표(.), 일치하지 않는 물음표(?)
-securityadvisoryapplication.livetable._actions.delete=이 저장되었지만, 일부 새롭게 실패한 검사가 있습니다: 일치하지 않는 마침표(.), 일치하지 않는 물음표(?)
-securityadvisoryapplication.livetable.emptyvalue=이 저장되었지만, 일부 새롭게 실패한 검사가 있습니다: 일치하지 않는 마침표(.), 일치하지 않는 물음표(?)
+securityadvisoryapplication.livetable.doc.title=페이지 제목
+securityadvisoryapplication.livetable.doc.name=페이지 이름
+securityadvisoryapplication.livetable.doc.space=공간
+securityadvisoryapplication.livetable.doc.fullname=페이지 전체 이름
+securityadvisoryapplication.livetable.doc.location=위치
+securityadvisoryapplication.livetable.doc.author=마지막 저자
+securityadvisoryapplication.livetable.doc.creator=창조자
+securityadvisoryapplication.livetable.doc.date=날짜
+securityadvisoryapplication.livetable.doc.creationDate=생산 일
+securityadvisoryapplication.livetable._avatar=화신
+securityadvisoryapplication.livetable._images=이미지
+securityadvisoryapplication.livetable._attachments=첨부파일
+securityadvisoryapplication.livetable._actions=행위
+securityadvisoryapplication.livetable._actions.edit=편집하다
+securityadvisoryapplication.livetable._actions.delete=삭제
+securityadvisoryapplication.livetable.emptyvalue=-
 
 # Live table specific keys
-securityadvisoryapplication.livetable.status=이 저장되었지만, 일부 새롭게 실패한 검사가 있습니다: 일치하지 않는 마침표(.)
-securityadvisoryapplication.livetable.title1=이 저장되었지만, 일부 새롭게 실패한 검사가 있습니다: 일치하지 않는 마침표(.)
-securityadvisoryapplication.livetable.product=이 저장되었지만, 일부 새롭게 실패한 검사가 있습니다: 일치하지 않는 마침표(.)
-securityadvisoryapplication.livetable.mavenModules=이 저장되었지만, 일부 새롭게 실패한 검사가 있습니다: 일치하지 않는 콜론(:)
-securityadvisoryapplication.livetable.affectedVersions=이 저장되었지만, 일부 새롭게 실패한 검사가 있습니다: 일치하지 않는 마침표(.)
-securityadvisoryapplication.livetable.patchedVersions=이 저장되었지만, 일부 새롭게 실패한 검사가 있습니다: 일치하지 않는 콜론(:)
-securityadvisoryapplication.livetable.advisoryLink=이 저장되었지만, 일부 새롭게 실패한 검사가 있습니다: 일치하지 않는 콜론(:)
-securityadvisoryapplication.livetable.jiraTickets=이 저장되었지만, 일부 새롭게 실패한 검사가 있습니다: 일치하지 않는 마침표(.)
-securityadvisoryapplication.livetable.computeEmbargo=이 저장되었지만, 일부 새롭게 실패한 검사가 있습니다: 일치하지 않는 콜론(:)
+securityadvisoryapplication.livetable.status=상태
+securityadvisoryapplication.livetable.title1=제목
+securityadvisoryapplication.livetable.product=제품
+securityadvisoryapplication.livetable.mavenModules=메이븐 모듈
+securityadvisoryapplication.livetable.affectedVersions=영향을 받는 버전
+securityadvisoryapplication.livetable.patchedVersions=패치된 버전
+securityadvisoryapplication.livetable.advisoryLink=자문 링크
+securityadvisoryapplication.livetable.jiraTickets=지라 티켓
+securityadvisoryapplication.livetable.computeEmbargo=금수조치를 계산하다
 securityadvisoryapplication.livetable.embargoDate=금수조치 날짜
 securityadvisoryapplication.livetable.cvss=CVSS 점수
 securityadvisoryapplication.livetable.description=설명
@@ -108,9 +108,9 @@ securityadvisoryapplication.home.right.warning={0}보안 진입 공간{1}은 현
 
 # Configuration
 SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_embargoDurationUnit=엠바고 계산에 사용되는 기간의 단위
-SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_embargoDurationUnit.hint=단위는 ChronoUnit 값(예: 분, 시간, 일, 주, 월 등)을 기반으로 합니다.
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_embargoDurationUnit.hint=단위는 ChronoUnit 값(예: 분, 시간, 일, 주, 월 등)을 기반으로 합니다
 SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_defaultEmbargoDuration=엠바고 계산에 사용할 기간 값
-SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_defaultEmbargoDuration.hint=해당 단위로 계산된 이 값은 권고 발행물의 최신 패치 릴리스 날짜에 추가됩니다.
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_defaultEmbargoDuration.hint=해당 단위로 계산된 이 값은 권고 발행물의 최신 패치 릴리스 날짜에 추가됩니다
 SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_securityGroup=권고 알림 대상 사용자 그룹
 SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_securityGroup.hint=이 그룹의 사용자는 권고를 게시할 준비가 되면 자동으로 알림을 받게 됩니다.
 
