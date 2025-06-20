@@ -622,6 +622,8 @@ require(['jquery', 'xwiki-meta'], function ($, xm) {
     <property>
       <content>{{velocity}}
 #set ($status = $doc.getValue('status'))
+#set ($object = $doc.getObject('SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass'))
+#if ($object)
 #if ($status == 'DRAFT')
   #set ($statusClass = "default")
 #elseif ($status == 'COMPLETED')
@@ -639,6 +641,7 @@ require(['jquery', 'xwiki-meta'], function ($, xm) {
 {{html}}
 &lt;span class="label advisory-status label-$statusClass" title="$escapetool.xml($doc.display('status'))"&gt;$doc.display('status')&lt;/span&gt;
 {{/html}}
+#end
 {{/velocity}}</content>
     </property>
     <property>
@@ -781,6 +784,8 @@ require(['jquery', 'xwiki-meta'], function ($, xm) {
     </property>
     <property>
       <content>{{velocity}}
+#set ($object = $doc.getObject('SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass'))
+#if ($object)
 #set ($status = $doc.getValue('status'))
 #set ($editing = $xcontext.action == 'edit')
 #if (!$editing)
@@ -795,6 +800,7 @@ require(['jquery', 'xwiki-meta'], function ($, xm) {
 #end
 &lt;/div&gt;
 {{/html}}
+#end
 #end
 {{/velocity}}</content>
     </property>
