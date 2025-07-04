@@ -45,81 +45,82 @@ SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_status_disclos
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_title1=Titre
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_title_hint=Titre de l'avertissement
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_product=produit
-### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_product_hint=Impacted product (e.g. xwiki-platform, xwiki-rendering, application-change-request, etc)
-### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_mavenModules=Maven modules
-### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_mavenModules_hint=Impacted maven modules using full package definition without version (e.g. org.xwiki.platform:xwiki-platform-oldcore)
-### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_affectedVersions=Affected versions
-### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_affectedVersions_hint=All versions affected by the vulnerability (operators such as &lt;, &lt;=, &gt; and &gt;= are accepted here)
-### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_patchedVersions=Patched versions
-### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_patchedVersions_hint=All versions that have been patched (only single versions are accepted here, operators are not allowed)
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_product_hint=Produit impacté (par exemple xwiki-platform, xwiki-rendering, application-change-request, etc.)
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_mavenModules=Modules Maven
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_mavenModules_hint=Modules Maven impactés utilisant la définition du package complet sans version (par exemple org.xwiki.platform:xwiki-platform-oldcore)
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_affectedVersions=Versions impactées
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_affectedVersions_hint=Toutes les versions impactées par la faille (les signes comme &lt;, &lt;=, &gt; et &gt;= sont acceptés ici)
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_patchedVersions=Versions corrigées
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_patchedVersions_hint=Toutes les versions ayant été corrigées (seules des versions uniques sont acceptées ici, les signes ne sont pas autorisés)
 ### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_advisoryLink=Advisory Link
-### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_advisoryLink_hint=Link of the github advisory that has been created
-### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_jiraTickets=JIRA Tickets
-### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_jiraTickets_hint=List of jira tickets (should be only the ticket key, no full links)
-### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_computeEmbargo=compute embargo
-### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_computeEmbargo_hint=Define if the embargo date should be computed automatically from versions or not.
-### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_embargoDate=Embargo date
-### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_embargoDate_hint=Define a specific embargo date: this one is only taken into account if the compute embargo date flag is not checked.
-### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvss=CVSS Score
-### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvss_hint=Value of the computed CVSS on the string form.
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_advisoryLink_hint=Lien vers l'avis github qui a été créé
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_jiraTickets=Tickets JIRA
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_jiraTickets_hint=Liste des tickets Jira (clés de ticket, pas les liens complets)
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_computeEmbargo=Calculer le délai d'embargo
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_computeEmbargo_hint=Définis si le délai d'embargo doit être calculé automatiquement sur la base du numéro de version ou non.
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_embargoDate=Date de fin d'embargo
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_embargoDate_hint=Définis une date spécifique d'embargo : celle-ci est prise en compte seulement si le calcul automatique de la date d'embargo n'est pas coché.
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvss=Score CVSS
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvss_hint=Valeur du CVSS calculé sur la chaîne de caractères.
 ### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_description=Description
 ### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_description_hint=Full content of the advisory.
 
 # Sheet keys
-### Missing: securityadvisoryapplication.sheet.description=This page controls how Security Advisory Application pages are displayed in both view and edit modes.
-### Missing: securityadvisoryapplication.sheet.noObject=The current page doesn't have the expected Security Advisory Application object.
-### Missing: securityadvisoryapplication.sheet.noFields=The Security Advisory Application application doesn't have any fields to display.
+securityadvisoryapplication.sheet.description=Cette page contrôle comment les pages de l'application Security Advisory sont affichées à la fois en mode consultation et édition.
+securityadvisoryapplication.sheet.noObject=La page courante n'a pas l'objet Security Advisory Application attendu.
+securityadvisoryapplication.sheet.noFields=L'application Security Advisory n'a aucun champ à afficher.
 
 # Live table generic keys
-### Missing: securityadvisoryapplication.livetable.doc.title=Page Title
+securityadvisoryapplication.livetable.doc.title=Titre de la page
 ### Missing: securityadvisoryapplication.livetable.doc.name=Page Name
-### Missing: securityadvisoryapplication.livetable.doc.space=Space
+securityadvisoryapplication.livetable.doc.space=Espace
 ### Missing: securityadvisoryapplication.livetable.doc.fullname=Page full name
-### Missing: securityadvisoryapplication.livetable.doc.location=Location
-### Missing: securityadvisoryapplication.livetable.doc.author=Last Author
-### Missing: securityadvisoryapplication.livetable.doc.creator=Creator
+securityadvisoryapplication.livetable.doc.location=Emplacement
+securityadvisoryapplication.livetable.doc.author=Dernier auteur
+securityadvisoryapplication.livetable.doc.creator=Créateur
 ### Missing: securityadvisoryapplication.livetable.doc.date=Date
 ### Missing: securityadvisoryapplication.livetable.doc.creationDate=Creation Date
 ### Missing: securityadvisoryapplication.livetable._avatar=Avatar
 ### Missing: securityadvisoryapplication.livetable._images=Images
-### Missing: securityadvisoryapplication.livetable._attachments=Attachments
+securityadvisoryapplication.livetable._attachments=Pièces jointes
 ### Missing: securityadvisoryapplication.livetable._actions=Actions
-### Missing: securityadvisoryapplication.livetable._actions.edit=Edit
+securityadvisoryapplication.livetable._actions.edit=Éditer
 ### Missing: securityadvisoryapplication.livetable._actions.delete=Delete
 ### Missing: securityadvisoryapplication.livetable.emptyvalue=-
 
 # Live table specific keys
 ### Missing: securityadvisoryapplication.livetable.status=status
-### Missing: securityadvisoryapplication.livetable.title1=Title
-### Missing: securityadvisoryapplication.livetable.product=product
-### Missing: securityadvisoryapplication.livetable.mavenModules=Maven modules
-### Missing: securityadvisoryapplication.livetable.affectedVersions=Affected versions
-### Missing: securityadvisoryapplication.livetable.patchedVersions=Patched versions
+securityadvisoryapplication.livetable.title1=Titre
+securityadvisoryapplication.livetable.product=produit
+securityadvisoryapplication.livetable.mavenModules=Modules Maven
+securityadvisoryapplication.livetable.affectedVersions=Versions impactées
+securityadvisoryapplication.livetable.patchedVersions=Versions corrigées
 ### Missing: securityadvisoryapplication.livetable.advisoryLink=Advisory Link
-### Missing: securityadvisoryapplication.livetable.jiraTickets=JIRA Tickets
-### Missing: securityadvisoryapplication.livetable.computeEmbargo=compute embargo
-### Missing: securityadvisoryapplication.livetable.embargoDate=Embargo date
-### Missing: securityadvisoryapplication.livetable.cvss=CVSS Score
+securityadvisoryapplication.livetable.jiraTickets=Tickets JIRA
+securityadvisoryapplication.livetable.computeEmbargo=Caluler la date d'embargo
+securityadvisoryapplication.livetable.embargoDate=Date d'embargo
+securityadvisoryapplication.livetable.cvss=Score CVSS
 ### Missing: securityadvisoryapplication.livetable.description=Description
 
 # Other keys
 ### Missing: securityadvisoryapplication.entry.name=Security Advisory Application
-### Missing: securityadvisoryapplication.home.right.warning=The {0}security entry space{1} is currently open to any users: you should restrict its access.
+securityadvisoryapplication.home.right.warning=L'' {0}espace relatif à la sécurité{1} est actuellement ouvert à tous les utilisateurs : vous devriez restreindre son accès.
 
 # Configuration
-### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_embargoDurationUnit=Unit of the duration to use for the embargo computation
-### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_embargoDurationUnit.hint=The unit is based on ChronoUnit values (e.g. minutes, hours, days, weeks, months, etc)
-### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_defaultEmbargoDuration=Duration value to use for the embargo computation
-### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_defaultEmbargoDuration.hint=This value computed with its unit will be added to the date of the latest patched release date for the advisory publication
-### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_securityGroup=The group of targeted users for advisories notifications
-### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_securityGroup.hint=The users of this group will automatically receive notifications when an advisory is ready to be published.
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_embargoDurationUnit=Unité à utiliser pour le calcul de la date d'embargo
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_embargoDurationUnit.hint=L'unité utilisée est basée sur les valeurs ChronoUnit (par exemple minutes, hours, days, weeks, months, etc.)
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_defaultEmbargoDuration=Valeur de la durée à utiliser pour le calcul de l'embargo
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_defaultEmbargoDuration.hint=Cette valeur calculée, avec l'unité correspondante, sera ajoutée à la date de sortie de la dernière version bénéficiant de la correction pour l'avis de sécurité
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_securityGroup=Le groupe d'utilisateurs visés par les notifications d'avis
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_securityGroup.hint=Les utilisateurs de ce groupe recevront automatiquement des notifications quand un avis est prêt à être publié.
 
 # Sheet Explanations
-### Missing: securityadvisoryapplication.sheet.nextstep.DRAFT=You're currently editing a draft of the advisory. Once it is complete you can mark it as completed with the button on top of the page.
-### Missing: securityadvisoryapplication.sheet.nextstep.COMPLETED=Now the advisory is complete, you should announce it to the dedicated channels defined in the security policy. Once the advisory is announced you can switch its status with the button on top of the page.
-### Missing: securityadvisoryapplication.sheet.nextstep.ANNOUNCED=This advisory has been announced. It will be automatically marked as disclosable when the embargo date will be reached. It's possible that the embargo date is not yet computed if the patched versions are not released yet. 
-### Missing: securityadvisoryapplication.sheet.nextstep.DISCLOSABLE=This advisory can now be disclosed according to its embargo date. You should request a CVE and publish it. Once done you need to mark it disclosed with the button on top of the page.
-### Missing: securityadvisoryapplication.sheet.nextstep.DISCLOSED=This advisory has been disclosed and is now public.
+securityadvisoryapplication.sheet.nextstep.DRAFT=Vous éditez actuellement un brouillon de l'avis. Une fois complété, vous pouvez basculer son statut en "complété" grâce au bouton en haut de la page.
+securityadvisoryapplication.sheet.nextstep.COMPLETED=Maintenant que l'avis est complet, vous devriez l'annoncer sur le canal définit dans la politique de sécurité. Une fois l'avis annoncé, vous pouvez basculer son statut avec le bouton en haut de la page.
+securityadvisoryapplication.sheet.nextstep.ANNOUNCED=Cet avis a été annoncé. Il sera automatiquement marqué comme divulguable lorsque la date d'embargo sera atteinte. Il est possible que la date d'embargo ne soit pas encore calculée si les versions corrigées ne sont pas encore publiées. 
+securityadvisoryapplication.sheet.nextstep.DISCLOSABLE=Cet avis peut maintenant être divulgué, selon sa date d'embargo. Vous devriez demander une référence CVE et le publier. Une fois fait, vous devez marquer l'avis comme divulgué avec le bouton en haut de la page.
+securityadvisoryapplication.sheet.nextstep.DISCLOSED=Cet avis a été divulgué et est maintenant publique.
+securityadvisoryapplication.sheet.severity=Sévérité
 
 # Deprecated keys
 ### Missing: securityadvisoryapplication.dataSpace.title=Data
