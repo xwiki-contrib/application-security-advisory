@@ -57,7 +57,7 @@ SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_advisoryLink_h
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_jiraTickets=Tickets JIRA
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_jiraTickets_hint=Liste des tickets Jira (clés de ticket, pas les liens complets)
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_computeEmbargo=Calculer le délai d'embargo
-SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_computeEmbargo_hint=Définis si le délai d'embargo doit être calculé automatiquement sur la base du numéro de version ou non.
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_computeEmbargo_hint=Définit si le délai d'embargo doit être calculé automatiquement sur la base du numéro de version ou non.
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_embargoDate=Date de fin d'embargo
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_embargoDate_hint=Définis une date spécifique d'embargo : celle-ci est prise en compte seulement si le calcul automatique de la date d'embargo n'est pas coché.
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvss=Score CVSS
@@ -84,8 +84,8 @@ securityadvisoryapplication.livetable.doc.creator=Créateur
 ### Missing: securityadvisoryapplication.livetable._images=Images
 securityadvisoryapplication.livetable._attachments=Pièces jointes
 ### Missing: securityadvisoryapplication.livetable._actions=Actions
-securityadvisoryapplication.livetable._actions.edit=Éditer
-### Missing: securityadvisoryapplication.livetable._actions.delete=Delete
+securityadvisoryapplication.livetable._actions.edit=Modifier
+securityadvisoryapplication.livetable._actions.delete=Supprimer
 ### Missing: securityadvisoryapplication.livetable.emptyvalue=-
 
 # Live table specific keys
