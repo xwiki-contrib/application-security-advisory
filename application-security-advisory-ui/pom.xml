@@ -53,6 +53,12 @@
       <artifactId>turingpointde__cvss.js</artifactId>
       <version>1.4.7</version>
       <scope>runtime</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>com.google.javascript</groupId>
+          <artifactId>closure-compiler</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <!-- TODO: Add Jira macro dependency ? -->
   </dependencies>
