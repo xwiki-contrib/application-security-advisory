@@ -28,7 +28,6 @@
     <version>1.0.2-SNAPSHOT</version>
   </parent>
   <artifactId>application-security-advisory-default</artifactId>
-  <version>1.0.2-SNAPSHOT</version>
   <name>Security Advisory Application - Default</name>
   <packaging>jar</packaging>
   <properties>

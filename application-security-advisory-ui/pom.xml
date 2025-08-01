@@ -28,7 +28,6 @@
     <version>1.0.2-SNAPSHOT</version>
   </parent>
   <artifactId>application-security-advisory-ui</artifactId>
-  <version>1.0.2-SNAPSHOT</version>
   <name>Security Advisory Application - UI</name>
   <packaging>xar</packaging>
   <properties>
