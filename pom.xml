@@ -29,7 +29,7 @@
   </parent>
   <groupId>org.xwiki.contrib.security-advisory</groupId>
   <artifactId>application-security-advisory</artifactId>
-  <version>1.0.2-SNAPSHOT</version>
+  <version>1.0.2</version>
   <name>Security Advisory Application - Parent</name>
   <description>Allow to handle the security issues properly.</description>
   <packaging>pom</packaging>
@@ -52,7 +52,7 @@
     <connection>scm:git:git://github.com/xwiki-contrib/application-security-advisory.git</connection>
     <developerConnection>scm:git:git@github.com:xwiki-contrib/application-security-advisory.git</developerConnection>
     <url>https://github.com/xwiki-contrib/application-security-advisory/tree/master</url>
-    <tag>HEAD</tag>
+    <tag>application-security-advisory-1.0.2</tag>
   </scm>
   <properties>
     <xwiki.release.jira.skip>false</xwiki.release.jira.skip>
