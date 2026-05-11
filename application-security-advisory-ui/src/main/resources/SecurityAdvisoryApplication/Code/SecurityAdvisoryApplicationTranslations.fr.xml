@@ -49,7 +49,7 @@ SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_product_hint=P
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_mavenModules=Modules Maven
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_mavenModules_hint=Modules Maven impactés utilisant la définition du package complet sans version (par exemple org.xwiki.platform:xwiki-platform-oldcore)
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_affectedVersions=Versions impactées
-SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_affectedVersions_hint=Toutes les versions impactées par la faille (les signes comme &lt;, &lt;=, &gt; et &gt;= sont acceptés ici)
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_affectedVersions_hint=Toutes les versions impactées par la faille avant le correctif, utilisez la syntaxe XWiki des intervalles de version (par exemple [10.11.1,10.12), [11.10,) aussi documenté sur https://extensions.xwiki.org/xwiki/bin/view/Extension/Extension%20Module/Versions) 
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_patchedVersions=Versions corrigées
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_patchedVersions_hint=Toutes les versions ayant été corrigées (seules des versions uniques sont acceptées ici, les signes ne sont pas autorisés)
 ### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_advisoryLink=Advisory Link
