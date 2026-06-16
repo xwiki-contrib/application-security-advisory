@@ -27,45 +27,12 @@
     <artifactId>application-security-advisory</artifactId>
     <version>1.0.3-SNAPSHOT</version>
   </parent>
-  <artifactId>application-security-advisory-default</artifactId>
-  <name>Security Advisory Application - Default</name>
+  <artifactId>application-security-advisory-github</artifactId>
+  <name>Security Advisory Application - Github Data API</name>
   <packaging>jar</packaging>
   <properties>
     <!-- Needed for the scheduler jobs -->
     <xwiki.extension.namespaces>{root}</xwiki.extension.namespaces>
     <xwiki.jacoco.instructionRatio>0.04</xwiki.jacoco.instructionRatio>
   </properties>
-  <dependencies>
-    <dependency>
-      <groupId>org.xwiki.platform</groupId>
-      <artifactId>xwiki-platform-scheduler-api</artifactId>
-      <version>${platform.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.xwiki.platform</groupId>
-      <artifactId>xwiki-platform-configuration-default</artifactId>
-      <version>${platform.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.xwiki.platform</groupId>
-      <artifactId>xwiki-platform-query-manager</artifactId>
-      <version>${platform.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.xwiki.commons</groupId>
-      <artifactId>xwiki-commons-tool-test-component</artifactId>
-      <scope>test</scope>
-      <version>${commons.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.metaeffekt.core</groupId>
-      <artifactId>ae-security</artifactId>
-      <version>${metaeffekt.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
 </project>

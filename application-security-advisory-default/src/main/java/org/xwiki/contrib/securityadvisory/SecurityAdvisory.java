@@ -74,9 +74,7 @@ public class SecurityAdvisory
     };
 
     private final DocumentReference holderReference;
-    private List<String> affectedVersions;
-    private List<String> patchedVersions;
-    private List<String> impactedModules;
+    private List<ImpactedPackage> vulnerablePackages;
     private Date embargoDate;
     private boolean computeEmbargoDate;
     private State state;
@@ -87,6 +85,7 @@ public class SecurityAdvisory
     private String content;
     private String product;
     private String severity;
+    private double cvssScore = -1;
     private String advisoryLink;
 
     /**
@@ -104,50 +103,6 @@ public class SecurityAdvisory
     public DocumentReference getHolderReference()
     {
         return holderReference;
-    }
-
-    /**
-     * The affected versions can be represented as independent versions or as interval of versions.
-     *
-     * @return the list of affected versions
-     */
-    public List<String> getAffectedVersions()
-    {
-        return affectedVersions;
-    }
-
-    /**
-     * The affected versions can be represented as independent versions or as interval of versions.
-     *
-     * @param affectedVersions the list of affected versions
-     * @return the current instance
-     */
-    public SecurityAdvisory setAffectedVersions(List<String> affectedVersions)
-    {
-        this.affectedVersions = affectedVersions;
-        return this;
-    }
-
-    /**
-     * The patched versions should always be represented as independent versions.
-     *
-     * @return the list of patched versions
-     */
-    public List<String> getPatchedVersions()
-    {
-        return patchedVersions;
-    }
-
-    /**
-     * The patched versions should always be represented as independent versions.
-     *
-     * @param patchedVersions the list of patched versions
-     * @return the current instance
-     */
-    public SecurityAdvisory setPatchedVersions(List<String> patchedVersions)
-    {
-        this.patchedVersions = patchedVersions;
-        return this;
     }
 
     /**
@@ -296,24 +251,6 @@ public class SecurityAdvisory
     }
 
     /**
-     * @return the list of maven modules impacted
-     */
-    public List<String> getImpactedModules()
-    {
-        return impactedModules;
-    }
-
-    /**
-     * @param impactedModules the list of maven modules impacted
-     * @return the current instance
-     */
-    public SecurityAdvisory setImpactedModules(List<String> impactedModules)
-    {
-        this.impactedModules = impactedModules;
-        return this;
-    }
-
-    /**
      * @return the name of the product this advisory targets
      */
     public String getProduct()
@@ -380,5 +317,28 @@ public class SecurityAdvisory
         return getState() == State.ANNOUNCED
             && getEmbargoDate() != null
             && Instant.now().isAfter(getEmbargoDate().toInstant());
+    }
+
+    public double getCvssScore()
+    {
+        return cvssScore;
+    }
+
+    public SecurityAdvisory setCvssScore(double cvssScore)
+    {
+        this.cvssScore = cvssScore;
+        return this;
+    }
+
+    public List<ImpactedPackage> getVulnerablePackages()
+    {
+        return vulnerablePackages;
+    }
+
+    public SecurityAdvisory setVulnerablePackages(
+        List<ImpactedPackage> vulnerablePackages)
+    {
+        this.vulnerablePackages = vulnerablePackages;
+        return this;
     }
 }

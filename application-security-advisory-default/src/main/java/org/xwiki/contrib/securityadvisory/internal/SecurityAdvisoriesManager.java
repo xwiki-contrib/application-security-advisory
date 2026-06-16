@@ -29,6 +29,8 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
+import org.metaeffekt.core.security.cvss.CvssSource;
+import org.metaeffekt.core.security.cvss.CvssVector;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisory;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryException;
@@ -63,51 +65,6 @@ public class SecurityAdvisoriesManager
         + "the proper xobject";
     private static final String READING_HOLDER_DOCUMENT_EXCEPTION = "Error when loading the holder document [%s]";
 
-    private static final String FIELD_ADVISORY_LINK = "advisoryLink";
-    private static final String FIELD_SEVERITY = "cvss";
-
-    private static final String FIELD_PRODUCT = "product";
-
-    /**
-     * Field containing the state of the advisory.
-     */
-    private static final String FIELD_STATE = "status";
-
-    /**
-     * Field containing the list of affected versions.
-     */
-    private static final String FIELD_AFFECTED_VERSIONS = "affectedVersions";
-
-    /**
-     * Field containing the list of patched versions.
-     */
-    private static final String FIELD_PATCHED_VERSIONS = "patchedVersions";
-
-    /**
-     * Field containing the embargo date.
-     */
-    private static final String FIELD_EMBARGO_DATE = "embargoDate";
-
-    /**
-     * Field containing the flag to know if the embargo date should be computed or not.
-     */
-    private static final String FIELD_COMPUTE_EMBARGO_DATE = "computeEmbargo";
-
-    /**
-     * Field containing the issue tracker tickets.
-     */
-    private static final String FIELD_TICKETS = "jiraTickets";
-
-    /**
-     * Field containing the CVE identifier.
-     */
-    private static final String FIELD_CVE_ID = "cveId";
-
-    /**
-     * Field containing the list of impacted modules.
-     */
-    private static final String FIELD_IMPACTED_MODULES = "mavenModules";
-
     @Inject
     private QueryManager queryManager;
 
@@ -128,17 +85,17 @@ public class SecurityAdvisoriesManager
     {
         String statement = String.format("from doc.object(%s) as objAdv where objAdv.%s = :status",
             SECURITY_ADVISORY_CLASS,
-            FIELD_STATE);
+            SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_STATE);
 
         if (computeEmbargoDate) {
             statement += String.format(" and objAdv.%s = 1 and objAdv.%s is null",
-                FIELD_COMPUTE_EMBARGO_DATE,
-                FIELD_EMBARGO_DATE);
+                SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_COMPUTE_EMBARGO_DATE,
+                SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_EMBARGO_DATE);
         }
 
         try {
             Query query = this.queryManager.createQuery(statement, Query.XWQL)
-                .bindValue(FIELD_STATE, status.name());
+                .bindValue(SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_STATE, status.name());
             List<SecurityAdvisory> results = new ArrayList<>();
             for (Object reference : query.execute()) {
                 DocumentReference documentReference = this.documentReferenceResolver.resolve(String.valueOf(reference));
@@ -160,19 +117,24 @@ public class SecurityAdvisoriesManager
             BaseObject xObject = document.getXObject(this.documentReferenceResolver.resolve(SECURITY_ADVISORY_CLASS));
             if (xObject != null) {
                 SecurityAdvisory advisory = new SecurityAdvisory(documentReference);
-                advisory.setAffectedVersions(xObject.getListValue(FIELD_AFFECTED_VERSIONS))
-                    .setPatchedVersions(xObject.getListValue(FIELD_PATCHED_VERSIONS))
-                    .setEmbargoDate(xObject.getDateValue(FIELD_EMBARGO_DATE))
-                    .setComputeEmbargoDate(xObject.getIntValue(FIELD_COMPUTE_EMBARGO_DATE) == 1)
-                    .setState(SecurityAdvisory.State.valueOf(xObject.getStringValue(FIELD_STATE).toUpperCase()))
-                    .setCveId(xObject.getStringValue(FIELD_CVE_ID))
-                    .setTickets(xObject.getListValue(FIELD_TICKETS))
-                    .setImpactedModules(xObject.getListValue(FIELD_IMPACTED_MODULES))
-                    .setAdvisoryLink(xObject.getStringValue(FIELD_ADVISORY_LINK))
-                    .setProduct(xObject.getStringValue(FIELD_PRODUCT))
-                    .setSeverity(xObject.getStringValue(FIELD_SEVERITY))
+                advisory
+                    .setEmbargoDate(
+                        xObject.getDateValue(SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_EMBARGO_DATE))
+                    .setComputeEmbargoDate(
+                        xObject.getIntValue(
+                            SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_COMPUTE_EMBARGO_DATE) == 1)
+                    .setState(SecurityAdvisory.State.valueOf(
+                        xObject.getStringValue(
+                            SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_STATE).toUpperCase()))
+                    .setCveId(xObject.getStringValue(SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_CVE_ID))
+                    .setTickets(xObject.getListValue(SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_TICKETS))
+                    .setAdvisoryLink(
+                        xObject.getStringValue(SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_ADVISORY_LINK))
+                    .setProduct(xObject.getStringValue(SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_PRODUCT))
+                    .setSeverity(xObject.getStringValue(SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_CVSS))
                     .setContent(document.getContent())
                     .setAuthor(document.getAuthors().getEffectiveMetadataAuthor());
+                setImpactedPackages(document, advisory);
                 result = Optional.of(advisory);
             }
         } catch (XWikiException e) {
@@ -180,6 +142,11 @@ public class SecurityAdvisoriesManager
                 String.format("Error when loading the document [%s] to read the advisory", documentReference), e);
         }
         return result;
+    }
+
+    private void setImpactedPackages(XWikiDocument document, SecurityAdvisory advisory)
+    {
+        // FIXME: TODO
     }
 
     private void saveEmbargoDate(SecurityAdvisory securityAdvisory) throws SecurityAdvisoryException
@@ -190,7 +157,8 @@ public class SecurityAdvisoriesManager
             XWikiDocument document = context.getWiki().getDocument(holderReference, context);
             BaseObject xObject = document.getXObject(this.documentReferenceResolver.resolve(SECURITY_ADVISORY_CLASS));
             if (xObject != null) {
-                xObject.setDateValue(FIELD_EMBARGO_DATE, securityAdvisory.getEmbargoDate());
+                xObject.setDateValue(SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_EMBARGO_DATE,
+                    securityAdvisory.getEmbargoDate());
                 context.getWiki().saveDocument(document, "Set embargo date", context);
             } else {
                 throw new SecurityAdvisoryException(MISSING_OBJECT_EXCEPTION);
@@ -215,7 +183,8 @@ public class SecurityAdvisoriesManager
             BaseObject xObject = document.getXObject(this.documentReferenceResolver.resolve(SECURITY_ADVISORY_CLASS));
             if (xObject != null) {
                 securityAdvisory.setState(SecurityAdvisory.State.DISCLOSABLE);
-                xObject.setStringValue(FIELD_STATE, SecurityAdvisory.State.DISCLOSABLE.name());
+                xObject.setStringValue(SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_STATE,
+                    SecurityAdvisory.State.DISCLOSABLE.name());
                 context.getWiki().saveDocument(document, "Set disclosable status", context);
             } else {
                 throw new SecurityAdvisoryException(MISSING_OBJECT_EXCEPTION);
@@ -270,5 +239,33 @@ public class SecurityAdvisoriesManager
                 this.observationManager.notify(new EmbargoDateComputedEvent(), advisory, embargoDate);
             }
         }
+    }
+
+    public void computeSeverityScore(SecurityAdvisory securityAdvisory) throws SecurityAdvisoryException
+    {
+        if (securityAdvisory.getCvssScore() == -1) {
+            CvssVector cvssVector = CvssVector.parseVector(securityAdvisory.getSeverity());
+            if (cvssVector != null) {
+                securityAdvisory.setCvssScore(cvssVector.getBaseScore());
+                XWikiContext context = this.contextProvider.get();
+                DocumentReference holderReference = securityAdvisory.getHolderReference();
+                try {
+                    XWikiDocument document = context.getWiki().getDocument(holderReference, context);
+                    BaseObject xObject =
+                        document.getXObject(this.documentReferenceResolver.resolve(SECURITY_ADVISORY_CLASS));
+                    if (xObject != null) {
+                        xObject.setDoubleValue(SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_CVSS_SCORE,
+                            securityAdvisory.getCvssScore());
+                        context.getWiki().saveDocument(document, "Set CVSS Score", context);
+                    } else {
+                        throw new SecurityAdvisoryException(MISSING_OBJECT_EXCEPTION);
+                    }
+                } catch (XWikiException e) {
+                    throw new SecurityAdvisoryException(
+                        String.format(READING_HOLDER_DOCUMENT_EXCEPTION, holderReference), e);
+                }
+            }
+        }
+
     }
 }
