@@ -21,11 +21,13 @@ package org.xwiki.contrib.securityadvisory.internal;
 
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.configuration.ConfigurationSource;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryConfiguration;
@@ -67,5 +69,18 @@ public class DefaultSecurityAdvisoryConfiguration implements SecurityAdvisoryCon
     {
         String securityGroup = this.configurationSource.getProperty("securityGroup", "XWiki.XWikiAdminGroup");
         return this.documentReferenceResolver.resolve(securityGroup);
+    }
+
+    // FIXME
+    @Override
+    public String getGithubImporterToken()
+    {
+        return "";
+    }
+
+    @Override
+    public List<Pair<String, String>> getGithubRepositories()
+    {
+        return List.of();
     }
 }

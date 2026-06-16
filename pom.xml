@@ -61,9 +61,10 @@
     <metaeffekt.version>0.154.0</metaeffekt.version>
   </properties>
   <modules>
-    <module>application-security-advisory-ui</module>
+    <module>application-security-advisory-api</module>
     <module>application-security-advisory-default</module>
     <module>application-security-advisory-github</module>
+    <module>application-security-advisory-ui</module>
   </modules>
   <dependencyManagement>
     <dependencies>

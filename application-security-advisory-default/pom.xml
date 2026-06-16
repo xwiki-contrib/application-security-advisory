@@ -63,9 +63,9 @@
       <version>${metaeffekt.version}</version>
     </dependency>
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <scope>test</scope>
+      <groupId>org.xwiki.contrib.security-advisory</groupId>
+      <artifactId>application-security-advisory-api</artifactId>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
 </project>

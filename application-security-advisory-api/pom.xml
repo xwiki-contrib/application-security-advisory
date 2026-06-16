@@ -27,31 +27,24 @@
     <artifactId>application-security-advisory</artifactId>
     <version>1.0.3-SNAPSHOT</version>
   </parent>
-  <artifactId>application-security-advisory-github</artifactId>
-  <name>Security Advisory Application - Github Data API</name>
+  <artifactId>application-security-advisory-api</artifactId>
+  <name>Security Advisory Application - API</name>
   <packaging>jar</packaging>
   <properties>
-    <xwiki.jacoco.instructionRatio>1.00</xwiki.jacoco.instructionRatio>
+    <!-- Needed for the scheduler jobs -->
+    <xwiki.extension.namespaces>{root}</xwiki.extension.namespaces>
+    <xwiki.jacoco.instructionRatio>0.04</xwiki.jacoco.instructionRatio>
   </properties>
   <dependencies>
     <dependency>
-      <groupId>org.xwiki.contrib.security-advisory</groupId>
-      <artifactId>application-security-advisory-api</artifactId>
-      <version>${project.version}</version>
+      <groupId>org.xwiki.commons</groupId>
+      <artifactId>xwiki-commons-component-api</artifactId>
+      <version>${commons.version}</version>
     </dependency>
     <dependency>
-      <groupId>commons-httpclient</groupId>
-      <artifactId>commons-httpclient</artifactId>
-      <!-- FIXME -->
-      <version>3.1</version>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-annotations</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
+      <groupId>org.xwiki.platform</groupId>
+      <artifactId>xwiki-platform-user-api</artifactId>
+      <version>${platform.version}</version>
     </dependency>
   </dependencies>
 </project>

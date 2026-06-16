@@ -20,9 +20,13 @@
 package org.xwiki.contrib.securityadvisory;
 
 import java.time.temporal.TemporalUnit;
+import java.util.List;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.xwiki.component.annotation.Role;
 import org.xwiki.model.reference.DocumentReference;
+import org.xwiki.model.reference.SpaceReference;
+import org.xwiki.user.UserReference;
 
 /**
  * Configuration API for the application.
@@ -47,4 +51,12 @@ public interface SecurityAdvisoryConfiguration
      * @return the reference of the security group to use for notifications targets
      */
     DocumentReference getSecurityGroup();
+
+    SpaceReference getSecurityDataSpace();
+
+    UserReference getGithubImporterUser();
+
+    String getGithubImporterToken();
+
+    List<Pair<String, String>> getGithubRepositories();
 }
