@@ -25,7 +25,7 @@
   <parent>
     <groupId>org.xwiki.contrib</groupId>
     <artifactId>parent-platform</artifactId>
-    <version>14.10-2</version>
+    <version>17.10-1</version>
   </parent>
   <groupId>org.xwiki.contrib.security-advisory</groupId>
   <artifactId>application-security-advisory</artifactId>
@@ -58,10 +58,12 @@
     <xwiki.release.jira.skip>false</xwiki.release.jira.skip>
     <xwiki.issueManagement.jira.id>SPAPP</xwiki.issueManagement.jira.id>
     <releasenotes.version>2.0</releasenotes.version>
+    <metaeffekt.version>0.154.0</metaeffekt.version>
   </properties>
   <modules>
     <module>application-security-advisory-ui</module>
     <module>application-security-advisory-default</module>
+    <module>application-security-advisory-github</module>
   </modules>
   <dependencyManagement>
     <dependencies>

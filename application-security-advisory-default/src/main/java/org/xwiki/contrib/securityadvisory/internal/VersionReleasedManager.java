@@ -31,6 +31,7 @@ import javax.inject.Singleton;
 
 import org.apache.commons.lang3.StringUtils;
 import org.xwiki.component.annotation.Component;
+import org.xwiki.contrib.securityadvisory.ImpactedPackage;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisory;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryConfiguration;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryException;
@@ -154,17 +155,22 @@ public class VersionReleasedManager
         Date result = null;
         List<Date> releaseDates = new ArrayList<>();
         String product = advisory.getProduct();
-        for (String version : advisory.getPatchedVersions()) {
-            if (this.isVersionReleased(product, version)) {
-                releaseDates.add(this.getReleaseDate(product, version));
-            } else {
-                break;
+
+        for (ImpactedPackage vulnerablePackage : advisory.getVulnerablePackages()) {
+            for (String patchedVersion : vulnerablePackage.patchedVersions()) {
+                if (this.isVersionReleased(product, patchedVersion)) {
+                    releaseDates.add(this.getReleaseDate(product, patchedVersion));
+                } else {
+                    break;
+                }
             }
         }
-        if (advisory.getPatchedVersions().size() == releaseDates.size()) {
+
+        // FIXME: the oracle is not good anymore
+        /*if (advisory.getPatchedVersions().size() == releaseDates.size()) {
             Date latestDate = getLatestDate(releaseDates);
             result = this.computeEmbargoDate(latestDate);
-        }
+        }*/
 
         return result;
     }
