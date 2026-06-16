@@ -19,5 +19,5 @@
  */
 package org.xwiki.contrib.securityadvisory.github;
 
-public record CVSSSeverity(String vector,double score)
+public record CVSSSeverity(String vectorString, double score)
 {}
