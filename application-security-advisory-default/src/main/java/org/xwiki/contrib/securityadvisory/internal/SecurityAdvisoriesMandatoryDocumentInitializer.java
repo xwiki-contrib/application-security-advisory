@@ -65,8 +65,10 @@ public class SecurityAdvisoriesMandatoryDocumentInitializer extends AbstractMand
      */
     public static final String FIELD_CVE_ID = "cveId";
 
-    // SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass
-    private final static EntityReference CLASS_REFERENCE =
+    /**
+     * Reference of the class.
+     */
+    public static final EntityReference CLASS_REFERENCE =
         new LocalDocumentReference(List.of("SecurityAdvisoryApplication", "Code"), "SecurityAdvisoryApplicationClass");
 
     public SecurityAdvisoriesMandatoryDocumentInitializer()
