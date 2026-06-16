@@ -1,0 +1,2 @@
+org.xwiki.contrib.securityadvisory.internal.github.GithubAdvisoryDeserializer
+org.xwiki.contrib.securityadvisory.internal.github.GithubImporter
