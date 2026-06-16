@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.List;
 
 public record Advisory(
+    String ghsaId,
     String cveId,
     String htmlUrl,
     String summary,

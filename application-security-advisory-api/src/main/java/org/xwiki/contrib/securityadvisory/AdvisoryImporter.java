@@ -17,9 +17,14 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.xwiki.contrib.securityadvisory.internal.github;
+package org.xwiki.contrib.securityadvisory;
 
-public class GithubImporter
+import java.util.List;
+
+import org.xwiki.component.annotation.Role;
+
+@Role
+public interface AdvisoryImporter
 {
-
+    List<SecurityAdvisory> importAdvisories(boolean draft) throws SecurityAdvisoryException;
 }
