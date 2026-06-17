@@ -21,6 +21,22 @@ package org.xwiki.contrib.securityadvisory;
 
 import java.util.List;
 
-public record ImpactedPackage(String packageName, List<String> affectedVersionsRanges, List<String> patchedVersions)
+/**
+ * Represent a vulnerable package information in a security advisory.
+ *
+ * @param packageName the identifier of the package
+ * @param ecosystem the ecosystem for this package (e.g. Maven or NPM)
+ * @param affectedVersionsRanges the list of ranges of affected versions
+ * @param patchedVersions the list of patched versions
+ *
+ * @version $Id$
+ * @since 2.0
+ */
+public record ImpactedPackage(
+    String packageName,
+    String ecosystem,
+    List<String> affectedVersionsRanges,
+    List<String> patchedVersions
+)
 {
 }

@@ -29,13 +29,19 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
-import org.metaeffekt.core.security.cvss.CvssSource;
+import org.apache.commons.lang3.StringUtils;
 import org.metaeffekt.core.security.cvss.CvssVector;
+import org.slf4j.Logger;
 import org.xwiki.component.annotation.Component;
+import org.xwiki.contrib.rendering.markdown.commonmark12.internal.CommonMark12SyntaxProvider;
+import org.xwiki.contrib.securityadvisory.AdvisoryImporter;
+import org.xwiki.contrib.securityadvisory.ImpactedPackage;
+import org.xwiki.contrib.securityadvisory.SecurityAdvisoriesManager;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisory;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryException;
 import org.xwiki.contrib.securityadvisory.event.DisclosableComputedEvent;
 import org.xwiki.contrib.securityadvisory.event.EmbargoDateComputedEvent;
+import org.xwiki.model.document.DocumentAuthors;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.DocumentReferenceResolver;
 import org.xwiki.observation.ObservationManager;
@@ -54,9 +60,10 @@ import com.xpn.xwiki.objects.BaseObject;
  * @version $Id$
  * @since 1.0
  */
-@Component(roles = SecurityAdvisoriesManager.class)
+@Component
 @Singleton
-public class SecurityAdvisoriesManager
+@SuppressWarnings("checkstyle:ClassFanOutComplexity")
+public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManager
 {
     private static final String SECURITY_ADVISORY_CLASS =
         "SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass";
@@ -79,6 +86,12 @@ public class SecurityAdvisoriesManager
 
     @Inject
     private ObservationManager observationManager;
+
+    @Inject
+    private AdvisoryImporter advisoryImporter;
+
+    @Inject
+    private Logger logger;
 
     private List<SecurityAdvisory> getAdvisoriesWithStatus(SecurityAdvisory.State status, boolean computeEmbargoDate)
         throws SecurityAdvisoryException
@@ -127,7 +140,6 @@ public class SecurityAdvisoriesManager
                         xObject.getStringValue(
                             SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_STATE).toUpperCase()))
                     .setCveId(xObject.getStringValue(SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_CVE_ID))
-                    .setTickets(xObject.getListValue(SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_TICKETS))
                     .setAdvisoryLink(
                         xObject.getStringValue(SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_ADVISORY_LINK))
                     .setProduct(xObject.getStringValue(SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_PRODUCT))
@@ -146,7 +158,16 @@ public class SecurityAdvisoriesManager
 
     private void setImpactedPackages(XWikiDocument document, SecurityAdvisory advisory)
     {
-        // FIXME: TODO
+        List<BaseObject> impactedPackagesObjects =
+            document.getXObjects(ImpactedPackageClassMandatoryDocumentInitializer.CLASS_REFERENCE);
+        List<ImpactedPackage> advisoryImpactedPackages = new ArrayList<>();
+
+        for (BaseObject impactedPackagesObject : impactedPackagesObjects) {
+            if (impactedPackagesObject != null) {
+                advisoryImpactedPackages.add(readImpactedPackageObject(impactedPackagesObject));
+            }
+        }
+        advisory.setVulnerablePackages(advisoryImpactedPackages);
     }
 
     private void saveEmbargoDate(SecurityAdvisory securityAdvisory) throws SecurityAdvisoryException
@@ -208,11 +229,7 @@ public class SecurityAdvisoriesManager
             .collect(Collectors.toList());
     }
 
-    /**
-     * Retrieve advisories that should be now marked as disclosable and change their state before triggering an event.
-     *
-     * @throws SecurityAdvisoryException in case of problem for retrieving or saving the advisories
-     */
+    @Override
     public void computeDisclosable() throws SecurityAdvisoryException
     {
         List<SecurityAdvisory> disclosableAdvisories = this.getDisclosableAdvisories();
@@ -222,12 +239,7 @@ public class SecurityAdvisoriesManager
         }
     }
 
-    /**
-     * Retrieve advisories for which the embargo date should be computed but is not defined yet, and compute their
-     * embargo date if it's possible.
-     *
-     * @throws SecurityAdvisoryException in case of problem to compute the embargo date
-     */
+    @Override
     public void computeEmbargoDates() throws SecurityAdvisoryException
     {
         List<SecurityAdvisory> advisories = this.getAdvisoriesWithStatus(SecurityAdvisory.State.ANNOUNCED, true);
@@ -241,6 +253,7 @@ public class SecurityAdvisoriesManager
         }
     }
 
+    @Override
     public void computeSeverityScore(SecurityAdvisory securityAdvisory) throws SecurityAdvisoryException
     {
         if (securityAdvisory.getCvssScore() == -1) {
@@ -266,6 +279,135 @@ public class SecurityAdvisoriesManager
                 }
             }
         }
+    }
 
+    @Override
+    public void writeAdvisory(SecurityAdvisory securityAdvisory) throws SecurityAdvisoryException
+    {
+        XWikiContext context = this.contextProvider.get();
+        try {
+            XWikiDocument document = context.getWiki().getDocument(securityAdvisory.getHolderReference(), context);
+            document = document.clone();
+            BaseObject object = document.getXObject(SecurityAdvisoriesMandatoryDocumentInitializer.CLASS_REFERENCE);
+            boolean allowOverride = true;
+
+            if (object == null) {
+                object = document.newXObject(SecurityAdvisoriesMandatoryDocumentInitializer.CLASS_REFERENCE,
+                    context);
+            } else {
+                allowOverride =
+                    object.getIntValue(SecurityAdvisoriesMandatoryDocumentInitializer.PREVENT_OVERRIDE, 0) != 1;
+            }
+            if (!allowOverride) {
+                logger.info("Data from advisory [{}] won't be imported as the existing advisory prevents overriding.",
+                    securityAdvisory.getAdvisoryLink());
+                return;
+            }
+
+            document.setSyntax(CommonMark12SyntaxProvider.MARKDOWN_COMMON_1_2);
+            document.setEnforceRequiredRights(true);
+            document.setTitle(securityAdvisory.getTitle());
+            DocumentAuthors authors = document.getAuthors();
+            authors.setContentAuthor(securityAdvisory.getAuthor());
+            if (document.isNew()) {
+                authors.setCreator(securityAdvisory.getAuthor());
+            }
+            document.setContent(securityAdvisory.getContent());
+            object.setStringValue(SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_ADVISORY_LINK,
+                securityAdvisory.getAdvisoryLink());
+            object.setStringValue(SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_CVSS,
+                securityAdvisory.getSeverity());
+            object.setDoubleValue(SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_CVSS_SCORE,
+                securityAdvisory.getCvssScore());
+            object.setStringValue(SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_PRODUCT,
+                securityAdvisory.getProduct());
+            object.setStringValue(SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_CVE_ID,
+                securityAdvisory.getCveId());
+
+            if (StringUtils.isBlank(object.getStringValue(SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_STATE)))
+            {
+                object.setStringValue(SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_STATE,
+                    securityAdvisory.getState().name());
+            }
+
+            writeVulnerablePackages(document, securityAdvisory.getVulnerablePackages());
+            context.getWiki().saveDocument(document, "Import data", context);
+        } catch (XWikiException e) {
+            throw new SecurityAdvisoryException(
+                String.format("Error while trying to access document holding the advisory [%s]",
+                    securityAdvisory.getHolderReference()), e);
+        }
+    }
+
+    @Override
+    public Optional<DocumentReference> findExistingAdvisory(String externalAdvisoryURL) throws SecurityAdvisoryException
+    {
+        String statement = String.format("from doc.object(%s) as objAdv where objAdv.%s = :advisoryUrl LIMIT 1",
+            SECURITY_ADVISORY_CLASS,
+            SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_ADVISORY_LINK);
+
+        Optional<DocumentReference> result = Optional.empty();
+        try {
+            Query query = this.queryManager.createQuery(statement, Query.XWQL)
+                .bindValue("advisoryUrl", externalAdvisoryURL);
+            Object reference = query.execute();
+            if (reference != null) {
+                result = Optional.of(this.documentReferenceResolver.resolve(String.valueOf(reference)));
+            }
+        } catch (QueryException e) {
+            throw new SecurityAdvisoryException(
+                String.format("Error when searching advisory with URL [%s]", externalAdvisoryURL), e);
+        }
+        return result;
+    }
+
+    private void writeVulnerablePackages(XWikiDocument document, List<ImpactedPackage> vulnerablePackages)
+        throws XWikiException
+    {
+        List<BaseObject> existingImpactedPackagesObjects =
+            document.getXObjects(ImpactedPackageClassMandatoryDocumentInitializer.CLASS_REFERENCE);
+        List<ImpactedPackage> mutatedVulnerablePackages = new ArrayList<>(vulnerablePackages);
+
+        for (BaseObject existingImpactedPackagesObject : existingImpactedPackagesObjects) {
+            if (existingImpactedPackagesObject != null) {
+                mutatedVulnerablePackages.remove(readImpactedPackageObject(existingImpactedPackagesObject));
+            }
+        }
+        if (!mutatedVulnerablePackages.isEmpty()) {
+            // if at least one vulnerable packages needs to be written, then we rewrite all of them:
+            // the reason is that we cannot easily identify if a package was previously partially written,
+            // and the risk is to remains with those partial objects in the document. So it's easier to remove them all
+            // and rewrite them all when one changed.
+
+            document.removeXObjects(ImpactedPackageClassMandatoryDocumentInitializer.CLASS_REFERENCE);
+            XWikiContext context = contextProvider.get();
+            for (ImpactedPackage vulnerablePackage : vulnerablePackages) {
+                BaseObject impactedPackageObject =
+                    document.newXObject(ImpactedPackageClassMandatoryDocumentInitializer.CLASS_REFERENCE, context);
+                impactedPackageObject.setStringValue(ImpactedPackageClassMandatoryDocumentInitializer.ECOSYSTEM,
+                    vulnerablePackage.ecosystem());
+                impactedPackageObject.setStringValue(ImpactedPackageClassMandatoryDocumentInitializer.PACKAGE_ID,
+                    vulnerablePackage.packageName());
+                impactedPackageObject.setStringListValue(
+                    ImpactedPackageClassMandatoryDocumentInitializer.VULNERABLE_VERSION_RANGE,
+                    vulnerablePackage.affectedVersionsRanges());
+                impactedPackageObject.setStringListValue(
+                    ImpactedPackageClassMandatoryDocumentInitializer.PATCHED_VERSIONS,
+                    vulnerablePackage.patchedVersions());
+            }
+        }
+    }
+
+    private ImpactedPackage readImpactedPackageObject(BaseObject impactedPackagesObject)
+    {
+        String packageId =
+            impactedPackagesObject.getStringValue(ImpactedPackageClassMandatoryDocumentInitializer.PACKAGE_ID);
+        List<String> vulnerableRanges = impactedPackagesObject.getListValue(
+            ImpactedPackageClassMandatoryDocumentInitializer.VULNERABLE_VERSION_RANGE);
+        List<String> patchedVersions = impactedPackagesObject.getListValue(
+            ImpactedPackageClassMandatoryDocumentInitializer.PATCHED_VERSIONS);
+        String ecosystem =
+            impactedPackagesObject.getStringValue(ImpactedPackageClassMandatoryDocumentInitializer.ECOSYSTEM);
+        return new ImpactedPackage(packageId, ecosystem, vulnerableRanges, patchedVersions);
     }
 }

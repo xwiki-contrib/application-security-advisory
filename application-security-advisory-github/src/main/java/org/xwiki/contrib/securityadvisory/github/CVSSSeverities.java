@@ -19,5 +19,16 @@
  */
 package org.xwiki.contrib.securityadvisory.github;
 
+/**
+ * CVSS severities as represented in Github REST API JSON Schema.
+ * @see <a href="https://docs.github.com/en/rest/security-advisories/repository-advisories?apiVersion=2026-03-10">
+ *      Github REST API doc</a>
+ * @param cvssV3 see linked doc.
+ * @param cvssV4 see linked doc.
+ *
+ * @version $Id$
+ * @since 2.0
+ */
 public record CVSSSeverities(CVSSSeverity cvssV3, CVSSSeverity cvssV4)
-{}
+{
+}

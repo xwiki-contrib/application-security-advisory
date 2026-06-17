@@ -27,6 +27,7 @@ import javax.inject.Singleton;
 
 import org.slf4j.Logger;
 import org.xwiki.component.annotation.Component;
+import org.xwiki.contrib.securityadvisory.SecurityAdvisoriesManager;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryException;
 import org.xwiki.observation.AbstractEventListener;
 import org.xwiki.observation.event.Event;

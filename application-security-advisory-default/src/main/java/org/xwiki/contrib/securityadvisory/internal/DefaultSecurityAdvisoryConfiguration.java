@@ -33,6 +33,8 @@ import org.xwiki.configuration.ConfigurationSource;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryConfiguration;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.DocumentReferenceResolver;
+import org.xwiki.model.reference.SpaceReference;
+import org.xwiki.user.UserReference;
 
 /**
  * Default implementation of {@link SecurityAdvisoryConfiguration}.
@@ -69,6 +71,18 @@ public class DefaultSecurityAdvisoryConfiguration implements SecurityAdvisoryCon
     {
         String securityGroup = this.configurationSource.getProperty("securityGroup", "XWiki.XWikiAdminGroup");
         return this.documentReferenceResolver.resolve(securityGroup);
+    }
+
+    @Override
+    public SpaceReference getSecurityDataSpace()
+    {
+        return null;
+    }
+
+    @Override
+    public UserReference getAdvisoryImporterUser()
+    {
+        return null;
     }
 
     // FIXME

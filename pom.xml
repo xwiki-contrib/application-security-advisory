@@ -57,8 +57,9 @@
   <properties>
     <xwiki.release.jira.skip>false</xwiki.release.jira.skip>
     <xwiki.issueManagement.jira.id>SPAPP</xwiki.issueManagement.jira.id>
-    <releasenotes.version>2.0</releasenotes.version>
+    <releasenotes.version>2.2.1</releasenotes.version>
     <metaeffekt.version>0.154.0</metaeffekt.version>
+    <markdown-syntax.version>8.9</markdown-syntax.version>
   </properties>
   <modules>
     <module>application-security-advisory-api</module>
@@ -69,28 +70,23 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.xwiki.commons</groupId>
-        <artifactId>xwiki-commons-component-observation</artifactId>
-        <version>${commons.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.xwiki.commons</groupId>
-        <artifactId>xwiki-commons-xml</artifactId>
-        <version>${commons.version}</version>
-      </dependency>
-      <dependency>
         <groupId>org.xwiki.rendering</groupId>
         <artifactId>xwiki-rendering-api</artifactId>
         <version>${rendering.version}</version>
       </dependency>
       <dependency>
         <groupId>org.xwiki.rendering</groupId>
-        <artifactId>xwiki-rendering-transformation-macro</artifactId>
+        <artifactId>xwiki-rendering-wikimodel</artifactId>
         <version>${rendering.version}</version>
       </dependency>
       <dependency>
         <groupId>org.xwiki.rendering</groupId>
-        <artifactId>xwiki-rendering-syntax-wikimodel</artifactId>
+        <artifactId>xwiki-rendering-syntax-xwiki21</artifactId>
+        <version>${rendering.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.xwiki.rendering</groupId>
+        <artifactId>xwiki-rendering-syntax-plain</artifactId>
         <version>${rendering.version}</version>
       </dependency>
       <dependency>
@@ -101,16 +97,6 @@
       <dependency>
         <groupId>org.xwiki.platform</groupId>
         <artifactId>xwiki-platform-rendering-macro-velocity</artifactId>
-        <version>${platform.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.xwiki.platform</groupId>
-        <artifactId>xwiki-platform-oldcore</artifactId>
-        <version>${platform.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.xwiki.platform</groupId>
-        <artifactId>xwiki-platform-rendering-parser</artifactId>
         <version>${platform.version}</version>
       </dependency>
       <dependency>

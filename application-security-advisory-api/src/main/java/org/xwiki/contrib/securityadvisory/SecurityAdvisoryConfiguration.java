@@ -52,11 +52,36 @@ public interface SecurityAdvisoryConfiguration
      */
     DocumentReference getSecurityGroup();
 
+    /**
+     * @return the space where advisories should be saved.
+     * @since 2.0
+     */
     SpaceReference getSecurityDataSpace();
 
-    UserReference getGithubImporterUser();
+    /**
+     * @return the reference of the user to use for saving imported data.
+     * @since 2.0
+     */
+    UserReference getAdvisoryImporterUser();
 
+    /**
+     * @return the Github token used for reading repositories to import data
+     * @see #getGithubRepositories()
+     * @since 2.0
+     */
     String getGithubImporterToken();
 
+    /**
+     * List the Github URL repositories that needs to be used for importing advisories, and map them with a product
+     * key, as used in release notes to compute embargo dates. Multiple repositories might be mapped to the same
+     * product, it would be the case for example for the 3 repositories
+     * <a href="https://github.com/xwiki/xwiki-commons">https://github.com/xwiki/xwiki-commons</a>,
+     * <a href="https://github.com/xwiki/xwiki-rendering">https://github.com/xwiki/xwiki-rendering</a>,
+     * <a href="https://github.com/xwiki/xwiki-platform">https://github.com/xwiki/xwiki-platform</a>
+     * all mapped to {@code xwiki}.
+     *
+     * @return the list of repositories from where to import data, mapped to their product name.
+     * @since 2.0
+     */
     List<Pair<String, String>> getGithubRepositories();
 }

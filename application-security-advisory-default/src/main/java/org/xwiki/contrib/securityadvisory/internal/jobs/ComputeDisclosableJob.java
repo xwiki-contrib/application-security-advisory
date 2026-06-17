@@ -22,8 +22,8 @@ package org.xwiki.contrib.securityadvisory.internal.jobs;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.xwiki.contrib.securityadvisory.SecurityAdvisoriesManager;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryException;
-import org.xwiki.contrib.securityadvisory.internal.SecurityAdvisoriesManager;
 
 import com.xpn.xwiki.plugin.scheduler.AbstractJob;
 import com.xpn.xwiki.web.Utils;

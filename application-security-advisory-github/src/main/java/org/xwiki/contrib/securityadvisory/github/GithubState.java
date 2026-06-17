@@ -17,23 +17,35 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.xwiki.contrib.securityadvisory.internal;
+package org.xwiki.contrib.securityadvisory.github;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import org.xwiki.component.annotation.Component;
-import org.xwiki.query.QueryManager;
-
-@Singleton
-@Component
-public class DataMigrationSecurityAdvisory20
+/**
+ * The state of an advisory as expressed in Github REST API JSON Schema.
+ * @see <a href="https://docs.github.com/en/rest/security-advisories/repository-advisories?apiVersion=2026-03-10">
+ *        Github REST API doc</a>
+ * @version $Id$
+ * @since 2.0
+ */
+public enum GithubState
 {
-    @Inject
-    private QueryManager queryManager;
-
-    public void processMigration()
-    {
-
-    }
+    /**
+     * See linked doc.
+     */
+    PUBLISHED,
+    /**
+     * See linked doc.
+     */
+    CLOSED,
+    /**
+     * See linked doc.
+     */
+    WITHDRAWN,
+    /**
+     * See linked doc.
+     */
+    DRAFT,
+    /**
+     * See linked doc.
+     */
+    TRIAGE
 }

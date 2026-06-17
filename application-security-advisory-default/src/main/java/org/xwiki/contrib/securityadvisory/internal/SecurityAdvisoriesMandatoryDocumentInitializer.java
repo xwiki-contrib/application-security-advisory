@@ -23,21 +23,48 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.xwiki.component.annotation.Component;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisory;
 import org.xwiki.model.reference.EntityReference;
 import org.xwiki.model.reference.LocalDocumentReference;
 
 import com.xpn.xwiki.doc.AbstractMandatoryClassInitializer;
 import com.xpn.xwiki.objects.classes.BaseClass;
-import com.xpn.xwiki.objects.classes.ComputedFieldClass;
+import com.xpn.xwiki.objects.classes.ListClass;
 import com.xpn.xwiki.objects.classes.StaticListClass;
 
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
+
+/**
+ * Initializer for the xclass holding security advisory informations.
+ *
+ * @version $Id$
+ * @since 2.0
+ */
+@Component
+@Singleton
+@Named("SecurityAdvisoriesMandatoryDocumentInitializer")
 public class SecurityAdvisoriesMandatoryDocumentInitializer extends AbstractMandatoryClassInitializer
 {
+    /**
+     * Link for the external advisory.
+     */
     public static final String FIELD_ADVISORY_LINK = "advisoryLink";
+
+    /**
+     * Contains CVSS vector.
+     */
     public static final String FIELD_CVSS = "cvss";
+
+    /**
+     * Contains CVSS score.
+     */
     public static final String FIELD_CVSS_SCORE = "cvssScore";
 
+    /**
+     * Product the advisory refers to.
+     */
     public static final String FIELD_PRODUCT = "product";
 
     /**
@@ -56,14 +83,14 @@ public class SecurityAdvisoriesMandatoryDocumentInitializer extends AbstractMand
     public static final String FIELD_COMPUTE_EMBARGO_DATE = "computeEmbargo";
 
     /**
-     * Field containing the issue tracker tickets.
-     */
-    public static final String FIELD_TICKETS = "jiraTickets";
-
-    /**
      * Field containing the CVE identifier.
      */
     public static final String FIELD_CVE_ID = "cveId";
+
+    /**
+     * Flag to allow overriding or not the advisory when importing data.
+     */
+    public static final String PREVENT_OVERRIDE = "preventOverride";
 
     /**
      * Reference of the class.
@@ -71,6 +98,9 @@ public class SecurityAdvisoriesMandatoryDocumentInitializer extends AbstractMand
     public static final EntityReference CLASS_REFERENCE =
         new LocalDocumentReference(List.of("SecurityAdvisoryApplication", "Code"), "SecurityAdvisoryApplicationClass");
 
+    /**
+     * Default constructor.
+     */
     public SecurityAdvisoriesMandatoryDocumentInitializer()
     {
         super(CLASS_REFERENCE);
@@ -84,27 +114,12 @@ public class SecurityAdvisoriesMandatoryDocumentInitializer extends AbstractMand
         xclass.addTextField(FIELD_STATE, FIELD_STATE, 255);
         xclass.addBooleanField(FIELD_COMPUTE_EMBARGO_DATE, FIELD_COMPUTE_EMBARGO_DATE);
         xclass.addDateField(FIELD_EMBARGO_DATE, FIELD_EMBARGO_DATE);
-        xclass.addStaticListField(FIELD_TICKETS, FIELD_TICKETS, 1, true, null,
-            StaticListClass.DISPLAYTYPE_INPUT, ",");
         xclass.addStaticListField(FIELD_PRODUCT, FIELD_PRODUCT, 1, false, null,
-            StaticListClass.DISPLAYTYPE_INPUT, ",");
+            StaticListClass.DISPLAYTYPE_INPUT, ListClass.DEFAULT_SEPARATOR);
         xclass.addStaticListField(FIELD_STATE, FIELD_STATE, 1, false,
             Stream.of(SecurityAdvisory.State.values())
                 .map(state -> String.format("%s=%s", state.name(), state.name().toLowerCase()))
-                .collect(Collectors.joining("|")),
-            StaticListClass.DISPLAYTYPE_SELECT, ",");
-
-        ComputedFieldClass titleField = new ComputedFieldClass();
-        titleField.setCustomDisplay("{{include reference=\"AppWithinMinutes.Title\"/}}");
-        titleField.setName("title1");
-        titleField.setPrettyName("Title of the advisory");
-        xclass.addField("title1", titleField);
-
-        ComputedFieldClass contentField = new ComputedFieldClass();
-        contentField.setCustomDisplay("{{include reference=\"AppWithinMinutes.Content\"/}}");
-        contentField.setName("description");
-        contentField.setPrettyName("description");
-        contentField.setHint("Full content of the advisory");
-        xclass.addField("description", contentField);
+                .collect(Collectors.joining(ListClass.DEFAULT_SEPARATOR)),
+            StaticListClass.DISPLAYTYPE_SELECT, ListClass.DEFAULT_SEPARATOR);
     }
 }

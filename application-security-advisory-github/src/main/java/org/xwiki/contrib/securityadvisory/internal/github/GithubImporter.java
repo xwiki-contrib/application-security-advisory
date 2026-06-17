@@ -21,36 +21,47 @@ package org.xwiki.contrib.securityadvisory.internal.github;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.Logger;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.BasicHttpClientResponseHandler;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.ProtocolException;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.contrib.securityadvisory.AdvisoryImporter;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisory;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryConfiguration;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryException;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+
+/**
+ * Default implementation of advisory importer from Github.
+ *
+ * @version $Id$
+ * @since 2.0
+ */
 @Component
 @Singleton
 public class GithubImporter implements AdvisoryImporter
 {
     private static final String HEADER_ACCEPT = "application/vnd.github+json";
-    private static final String GITHUB_API_ENDPOINT = "https://api.github.com/repos/%s/security-advisories?state=%s";
+    private static final String GITHUB_API_ENDPOINT =
+        "https://api.github.com/repos/%s/security-advisories?sort=updated&direction=desc&state=%s";
     private static final String GITHUB_API_TOKEN_HEADER = "Bearer %s";
     private static final String DRAFT_STATE = "draft";
     private static final String PUBLISHED_STATE = "published";
     private static final String LINK_HEADER = "link";
     private static final Pattern NEXT_PATTERN = Pattern.compile("(?<=<)([\\S]*)(?=>; rel=\"next\")");
+    private static final Pattern ADVISORY_URL_PATTERN =
+        Pattern.compile("^https://github.com/(\\S*)/security/advisories/(\\S*)$");
 
     @Inject
     private GithubAdvisoryDeserializer deserializer;
@@ -58,25 +69,8 @@ public class GithubImporter implements AdvisoryImporter
     @Inject
     private SecurityAdvisoryConfiguration securityAdvisoryConfiguration;
 
-    @Inject
-    private Logger logger;
-
-    private HttpClient httpClient;
-
-    public GithubImporter()
-    {
-        this(new HttpClient());
-    }
-
-    public GithubImporter(HttpClient httpClient)
-    {
-        this.httpClient = httpClient;
-
-    }
-
-
     @Override
-    public List<SecurityAdvisory> importAdvisories(boolean draft) throws SecurityAdvisoryException
+    public List<SecurityAdvisory> importAdvisories(boolean draft, Date limitDate) throws SecurityAdvisoryException
     {
         List<SecurityAdvisory> advisories = new ArrayList<>();
         List<Pair<String, String>> githubRepositories = this.securityAdvisoryConfiguration.getGithubRepositories();
@@ -86,42 +80,53 @@ public class GithubImporter implements AdvisoryImporter
             String repoName = githubRepository.getLeft();
             String releaseProject = githubRepository.getRight();
             String firstQuery = String.format(GITHUB_API_ENDPOINT, repoName, requestedState);
-            performQuery(firstQuery, releaseProject, githubImporterToken, advisories);
+            performQuery(firstQuery, releaseProject, limitDate, githubImporterToken, advisories);
         }
         return advisories;
     }
 
-    private void performQuery(String url, String releaseProject, String token, List<SecurityAdvisory> advisories)
+    @Override
+    public SecurityAdvisory importAdvisory(String advisoryUrl) throws SecurityAdvisoryException
+    {
+        // TODO
+        return null;
+    }
+
+    private void performQuery(String url, String releaseProject, Date limitDate, String token,
+        List<SecurityAdvisory> advisories)
         throws SecurityAdvisoryException
     {
-        GetMethod getMethod = new GetMethod(url);
+        HttpGet getMethod = new HttpGet(url);
         injectHeaders(getMethod, token);
-        try {
-            int statusCode = this.httpClient.executeMethod(getMethod);
-            if (HttpStatus.SC_OK == statusCode) {
-                this.deserializer.processGithubResponse(releaseProject, getMethod.getResponseBodyAsString(),
-                    advisories);
+        try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
+            String responseContent = httpclient.execute(getMethod, new BasicHttpClientResponseHandler());
+            boolean limitDateReached =
+                this.deserializer.processGithubResponse(releaseProject, limitDate, responseContent, advisories);
+            if (!limitDateReached) {
                 String nextPage = getNextPage(getMethod);
                 if (nextPage != null) {
-                    performQuery(nextPage, releaseProject, token, advisories);
+                    performQuery(nextPage, releaseProject, limitDate, token, advisories);
                 }
-            } else {
-                this.logger.error("Error [{}] while trying to access [{}]", statusCode, url);
             }
         } catch (IOException e) {
             throw new SecurityAdvisoryException(String.format("Error when trying to access [%s]", url), e);
         }
     }
 
-    private void injectHeaders(GetMethod getMethod, String token)
+    private void injectHeaders(HttpGet getMethod, String token)
     {
-        getMethod.addRequestHeader("Accept", HEADER_ACCEPT);
-        getMethod.addRequestHeader("Authorization", String.format(GITHUB_API_TOKEN_HEADER, token));
+        getMethod.addHeader("Accept", HEADER_ACCEPT);
+        getMethod.addHeader("Authorization", String.format(GITHUB_API_TOKEN_HEADER, token));
     }
 
-    private String getNextPage(GetMethod getMethod)
+    private String getNextPage(HttpGet getMethod) throws SecurityAdvisoryException
     {
-        Header linkResponseHeader = getMethod.getResponseHeader(LINK_HEADER);
+        Header linkResponseHeader = null;
+        try {
+            linkResponseHeader = getMethod.getHeader(LINK_HEADER);
+        } catch (ProtocolException e) {
+            throw new SecurityAdvisoryException("Error while trying to read link header", e);
+        }
         if (linkResponseHeader != null) {
             String headerValue = linkResponseHeader.getValue();
             Matcher matcher = NEXT_PATTERN.matcher(headerValue);

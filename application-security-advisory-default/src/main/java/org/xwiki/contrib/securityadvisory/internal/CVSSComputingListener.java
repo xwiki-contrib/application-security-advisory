@@ -20,6 +20,7 @@
 package org.xwiki.contrib.securityadvisory.internal;
 
 import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 
 import org.apache.commons.lang3.StringUtils;
 import org.metaeffekt.core.security.cvss.CvssVector;
@@ -31,8 +32,6 @@ import org.xwiki.observation.event.Event;
 
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
-
-import groovy.lang.Singleton;
 
 import static org.xwiki.contrib.securityadvisory.internal.SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_CVSS;
 import static org.xwiki.contrib.securityadvisory.internal.SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_CVSS_SCORE;
