@@ -27,8 +27,11 @@ import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisory;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryConfiguration;
+import org.xwiki.contrib.securityadvisory.SecurityAdvisoryException;
 import org.xwiki.model.reference.SpaceReference;
 import org.xwiki.test.junit5.mockito.ComponentTest;
 import org.xwiki.test.junit5.mockito.InjectMockComponents;
@@ -47,7 +50,7 @@ class GithubAdvisoryDeserializerTest
     private SecurityAdvisoryConfiguration configuration;
 
     @Test
-    void deserializeTest() throws IOException, org.xwiki.contrib.securityadvisory.SecurityAdvisoryException
+    void deserializeTest() throws IOException, SecurityAdvisoryException
     {
         when(configuration.getSecurityDataSpace()).thenReturn(new SpaceReference("xwiki", "Security", "Data"));
         String testJson = IOUtils.resourceToString("examples.json", Charset.defaultCharset(),
@@ -60,39 +63,36 @@ class GithubAdvisoryDeserializerTest
         assertEquals(3, advisoryList.size());
     }
 
-    @Test
-    void testRangeConversion() throws org.xwiki.contrib.securityadvisory.SecurityAdvisoryException
+    @ParameterizedTest
+    @CsvSource({
+        "'>= 1.0.0, < 2.0.0', '[1.0.0,2.0.0)'",
+        "'> 1.0.0, <= 2.0.0', '(1.0.0,2.0.0]'",
+        "'>= 1.0.0', '[1.0.0,)'",
+        "'> 1.0.0', '(1.0.0,)'",
+        "'<= 1.0.0', '(,1.0.0]'",
+        "'< 1.0.0', '(,1.0.0)'",
+        "'= 1.0.0', '[1.0.0]'",
+        "'[7.2 - 11.10.2]', '[7.2 - 11.10.2]'"
+    })
+    void testRangeConversion(String githubRange, String expectedMavenRange) throws SecurityAdvisoryException
     {
         when(configuration.getSecurityDataSpace()).thenReturn(new SpaceReference("xwiki", "Security", "Data"));
 
-        // Case 1: Double bound
-        assertRangeConversion(">= 1.0.0, < 2.0.0", List.of("[1.0.0,2.0.0)"));
+        assertRangeConversion(githubRange, List.of(expectedMavenRange));
+    }
 
-        // Case 2: Single lower bound inclusive
-        assertRangeConversion(">= 1.0.0", List.of("[1.0.0,)"));
+    @Test
+    void testMultipleRangesConversion() throws SecurityAdvisoryException
+    {
+        when(configuration.getSecurityDataSpace()).thenReturn(new SpaceReference("xwiki", "Security", "Data"));
 
-        // Case 3: Single lower bound exclusive
-        assertRangeConversion("> 1.0.0", List.of("(1.0.0,)"));
-
-        // Case 4: Single upper bound inclusive.
-        assertRangeConversion("<= 1.0.0", List.of("(,1.0.0]"));
-
-        // Case 5: Single upper bound exclusive.
-        assertRangeConversion("< 1.0.0", List.of("(,1.0.0)"));
-
-        // Case 6: Equality
-        assertRangeConversion("= 1.0.0", List.of("[1.0.0]"));
-
-        // Case 7: Non-standard range (fallback)
-        assertRangeConversion("[7.2 - 11.10.2]", List.of("[7.2 - 11.10.2]"));
-
-        // Case 8: Multiple ranges (as seen in examples.json)
+        // Invalid but used in practice.
         assertRangeConversion(">= 11.3.7, >= 12.0RC1, >= 11.10.3",
             List.of("[11.3.7,)", "[12.0RC1,)", "[11.10.3,)"));
     }
 
     private void assertRangeConversion(String githubRange, List<String> expectedMavenRanges)
-        throws org.xwiki.contrib.securityadvisory.SecurityAdvisoryException
+        throws SecurityAdvisoryException
     {
         String testJson = "[" +
             "  {" +
