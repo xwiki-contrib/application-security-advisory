@@ -22,17 +22,38 @@ package org.xwiki.contrib.securityadvisory.github;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * An advisory as represented in Github REST API JSON schema.
+ *
+ * @see <a href="https://docs.github.com/en/rest/security-advisories/repository-advisories?apiVersion=2026-03-10">
+ *     Github REST API doc</a>
+ * @param ghsaId see linked doc.
+ * @param cveId see linked doc.
+ * @param htmlUrl see linked doc.
+ * @param summary see linked doc.
+ * @param description see linked doc.
+ * @param state see linked doc.
+ * @param createdAt see linked doc.
+ * @param updatedAt see linked doc.
+ * @param publishedAt see linked doc.
+ * @param vulnerabilities see linked doc.
+ * @param cvssSeverities see linked doc.
+ *
+ * @version $Id$
+ * @since 2.0
+ */
 public record Advisory(
     String ghsaId,
     String cveId,
     String htmlUrl,
     String summary,
     String description,
-    String state,
+    GithubState state,
     Date createdAt,
     Date updatedAt,
     Date publishedAt,
     List<PackageVulnerability> vulnerabilities,
     CVSSSeverities cvssSeverities
 )
-{}
+{
+}

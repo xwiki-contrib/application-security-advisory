@@ -1,8 +1,28 @@
+/*
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 package org.xwiki.contrib.securityadvisory.internal.github;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -33,7 +53,7 @@ class GithubAdvisoryDeserializerTest
         String testJson = IOUtils.resourceToString("examples.json", Charset.defaultCharset(),
             GithubAdvisoryDeserializerTest.class.getClassLoader());
         List<SecurityAdvisory> advisoryList = new ArrayList<>();
-        deserializer.processGithubResponse("xwiki", testJson, advisoryList);
+        deserializer.processGithubResponse("xwiki", new Date(0), testJson, advisoryList);
 
         // FIXME: build the list for comparison
         List<SecurityAdvisory> expected = new ArrayList<>();
@@ -77,6 +97,8 @@ class GithubAdvisoryDeserializerTest
         String testJson = "[" +
             "  {" +
             "    \"ghsa_id\": \"GHSA-test\"," +
+            "    \"updated_at\": \"2025-06-12T07:31:10Z\"," +
+            "    \"state\": \"published\"," +
             "    \"vulnerabilities\": [" +
             "      {" +
             "        \"package\": {\"ecosystem\": \"maven\", \"name\": \"group:artifact\"}," +
@@ -87,7 +109,7 @@ class GithubAdvisoryDeserializerTest
             "  }" +
             "]";
         List<SecurityAdvisory> advisoryList = new ArrayList<>();
-        deserializer.processGithubResponse("xwiki", testJson, advisoryList);
+        deserializer.processGithubResponse("xwiki", new Date(0), testJson, advisoryList);
 
         assertEquals(1, advisoryList.size());
         SecurityAdvisory advisory = advisoryList.get(0);

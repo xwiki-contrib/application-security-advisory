@@ -80,7 +80,6 @@ public class SecurityAdvisory
     private State state;
     private String cveId;
     private UserReference author;
-    private List<String> tickets;
     private String title;
     private String content;
     private String product;
@@ -197,24 +196,6 @@ public class SecurityAdvisory
     }
 
     /**
-     * @return the list of related issue tracker tickets
-     */
-    public List<String> getTickets()
-    {
-        return tickets;
-    }
-
-    /**
-     * @param tickets the list of related issue tracker tickets
-     * @return the current instance
-     */
-    public SecurityAdvisory setTickets(List<String> tickets)
-    {
-        this.tickets = tickets;
-        return this;
-    }
-
-    /**
      * @return the title of the advisory
      */
     public String getTitle()
@@ -319,22 +300,40 @@ public class SecurityAdvisory
             && Instant.now().isAfter(getEmbargoDate().toInstant());
     }
 
+    /**
+     * @return the CVSS score corresponding to the severity vector.
+     * @since 2.0
+     */
     public double getCvssScore()
     {
         return cvssScore;
     }
 
+    /**
+     * @param cvssScore see {@link #getCvssScore()}.
+     * @return the current instance
+     * @since 2.0
+     */
     public SecurityAdvisory setCvssScore(double cvssScore)
     {
         this.cvssScore = cvssScore;
         return this;
     }
 
+    /**
+     * @return the list of vulnerable packages.
+     * @since 2.0
+     */
     public List<ImpactedPackage> getVulnerablePackages()
     {
         return vulnerablePackages;
     }
 
+    /**
+     * @param vulnerablePackages see {@link #getVulnerablePackages()}
+     * @return the current instance
+     * @since 2.0
+     */
     public SecurityAdvisory setVulnerablePackages(
         List<ImpactedPackage> vulnerablePackages)
     {

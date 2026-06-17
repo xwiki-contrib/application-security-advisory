@@ -19,6 +19,17 @@
  */
 package org.xwiki.contrib.securityadvisory.github;
 
+/**
+ * A package as represented in Github REST API JSON schema.
+ *
+ * @see <a href="https://docs.github.com/en/rest/security-advisories/repository-advisories?apiVersion=2026-03-10">
+ *         Github REST API doc</a>
+ * @param ecosystem see linked doc.
+ * @param name see linked doc.
+ *
+ * @version $Id$
+ * @since 2.0
+ */
 public record Package(String ecosystem, String name)
 {
 }

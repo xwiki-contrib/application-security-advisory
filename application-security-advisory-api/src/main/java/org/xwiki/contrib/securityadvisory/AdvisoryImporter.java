@@ -19,12 +19,36 @@
  */
 package org.xwiki.contrib.securityadvisory;
 
+import java.util.Date;
 import java.util.List;
 
 import org.xwiki.component.annotation.Role;
 
+/**
+ * Dedicated role to allow import an advisory from an external source (e.g. from Github).
+ *
+ * @version $Id$
+ * @since 2.0
+ */
 @Role
 public interface AdvisoryImporter
 {
-    List<SecurityAdvisory> importAdvisories(boolean draft) throws SecurityAdvisoryException;
+    /**
+     * Import all found advisories matching the given criteria.
+     *
+     * @param draft if {@code true} import draft advisories and ignore published ones, if {@code false} import only
+     * published ones.
+     * @param limitDate all advisories updated before that given date will be ignored.
+     * @return a list of advisories retrieved from the external source.
+     * @throws SecurityAdvisoryException in case of problem to retrieve or parse the advisories.
+     */
+    List<SecurityAdvisory> importAdvisories(boolean draft, Date limitDate) throws SecurityAdvisoryException;
+
+    /**
+     * Import a single advisory based on its URL.
+     * @param advisoryUrl the URL of an advisory to import.
+     * @return an instance of advisory parsed from the given URL.
+     * @throws SecurityAdvisoryException in case of problem to read or parse the advisory.
+     */
+    SecurityAdvisory importAdvisory(String advisoryUrl) throws SecurityAdvisoryException;
 }

@@ -21,7 +21,9 @@ package org.xwiki.contrib.securityadvisory.internal.github;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -30,19 +32,29 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.contrib.securityadvisory.ImpactedPackage;
+import org.xwiki.contrib.securityadvisory.SecurityAdvisoriesManager;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisory;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryConfiguration;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryException;
 import org.xwiki.contrib.securityadvisory.github.Advisory;
 import org.xwiki.contrib.securityadvisory.github.CVSSSeverity;
 import org.xwiki.contrib.securityadvisory.github.PackageVulnerability;
+import org.xwiki.contrib.securityadvisory.github.GithubState;
 import org.xwiki.model.reference.DocumentReference;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
+/**
+ * Utility component for deserializing information from Github JSON.
+ *
+ * @version $Id$
+ * @since 2.0
+ */
 @Component(roles = GithubAdvisoryDeserializer.class)
 @Singleton
 public class GithubAdvisoryDeserializer
@@ -58,6 +70,7 @@ public class GithubAdvisoryDeserializer
     private static final String OPEN_UPPER_MAVEN_BOUND = ",)";
 
     private static final String OPEN_LOWER_MAVEN_BOUND = "(,";
+    private static final String LIST_SEPARATOR = ",";
 
     @Inject
     private Logger logger;
@@ -65,64 +78,90 @@ public class GithubAdvisoryDeserializer
     @Inject
     private SecurityAdvisoryConfiguration securityAdvisoryConfiguration;
 
+    @Inject
+    private SecurityAdvisoriesManager securityAdvisoriesManager;
+
     private ObjectMapper objectMapper;
 
+    /**
+     * Default constructor.
+     */
     public GithubAdvisoryDeserializer()
     {
-        this.objectMapper = new ObjectMapper()
+        this.objectMapper = JsonMapper.builder()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
+            .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true)
+            .propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
+            .build();
     }
 
-    public void processGithubResponse(String releaseProject, String response, List<SecurityAdvisory> securityAdvisories)
-        throws SecurityAdvisoryException
+    /**
+     * Process the answer retrieved from Github API to parse it and populate the given list of advisories.
+     * Note that only the advisories updated after the given limit date will be processed, and the method returns
+     * {@code true} if that date is reached.
+     *
+     * @param releaseProject the project for which to build the advisories.
+     * @param limitDate the limit date the advisories should be retrieved for.
+     * @param response the response from Github API.
+     * @param securityAdvisories the list of advisories to populate.
+     * @return {@code true} if the limit date was reached while processing the advisories (i.e. some advisories were
+     * ignored), {@code false} otherwise.
+     * @throws SecurityAdvisoryException in case of problem for parsing the advisories.
+     */
+    public boolean processGithubResponse(String releaseProject, Date limitDate, String response,
+        List<SecurityAdvisory> securityAdvisories) throws SecurityAdvisoryException
     {
+        boolean limitDateReached = false;
         try {
             Advisory[] advisories = this.objectMapper.readValue(response, Advisory[].class);
             for (Advisory advisory : advisories) {
-                SecurityAdvisory securityAdvisory = processGithubAdvisory(advisory, releaseProject);
-                if (securityAdvisory != null) {
-                    securityAdvisories.add(securityAdvisory);
+                if (advisory.updatedAt().after(limitDate)) {
+                    SecurityAdvisory securityAdvisory = processGithubAdvisory(advisory, releaseProject);
+                    if (securityAdvisory != null) {
+                        securityAdvisories.add(securityAdvisory);
+                    }
+                } else {
+                    limitDateReached = true;
+                    break;
                 }
             }
         } catch (JsonProcessingException e) {
             throw new SecurityAdvisoryException("Error while processing JSON response", e);
         }
+        return limitDateReached;
     }
 
     private SecurityAdvisory processGithubAdvisory(Advisory githubAdvisory, String releaseProject)
+        throws SecurityAdvisoryException
     {
+        GithubState state = githubAdvisory.state();
         if (StringUtils.isBlank(githubAdvisory.ghsaId())) {
             this.logger.warn("Missing ghsa ID on retrieved githubAdvisory, this will be skipped.");
             return null;
+        } else if (state != GithubState.DRAFT && state != GithubState.PUBLISHED) {
+            this.logger.info("Ignoring advisory [{}] as it's state is neither draft or published.",
+                githubAdvisory.htmlUrl());
+            return null;
         }
-        DocumentReference advisoryReference = new DocumentReference(githubAdvisory.ghsaId(),
-            this.securityAdvisoryConfiguration.getSecurityDataSpace());
+        DocumentReference advisoryReference = getReference(githubAdvisory);
         SecurityAdvisory advisory = new SecurityAdvisory(advisoryReference);
         advisory
             .setAdvisoryLink(githubAdvisory.htmlUrl())
-            .setAuthor(this.securityAdvisoryConfiguration.getGithubImporterUser())
+            .setAuthor(this.securityAdvisoryConfiguration.getAdvisoryImporterUser())
             .setTitle(githubAdvisory.summary())
             .setContent(githubAdvisory.description())
-            .setProduct(releaseProject);
+            .setProduct(releaseProject)
+            .setState(state == GithubState.DRAFT ? SecurityAdvisory.State.DRAFT : SecurityAdvisory.State.DISCLOSED);
 
         if (githubAdvisory.cvssSeverities() != null) {
-            CVSSSeverity severity = (githubAdvisory.cvssSeverities().cvssV4().vectorString() != null) ?
-                githubAdvisory.cvssSeverities().cvssV4() : githubAdvisory.cvssSeverities().cvssV3();
+            CVSSSeverity severity = (githubAdvisory.cvssSeverities().cvssV4().vectorString() != null)
+                ? githubAdvisory.cvssSeverities().cvssV4() : githubAdvisory.cvssSeverities().cvssV3();
             advisory
                 .setSeverity(severity.vectorString())
                 .setCvssScore(severity.score());
         }
         if (githubAdvisory.vulnerabilities() != null) {
-            List<ImpactedPackage> impactedPackages = new ArrayList<>();
-            for (PackageVulnerability vulnerability : githubAdvisory.vulnerabilities()) {
-                impactedPackages.add(new ImpactedPackage(
-                    vulnerability.vulnerablePackage().name(),
-                    getRangeVersions(vulnerability),
-                    getPatchedVersions(vulnerability)
-                ));
-            }
-            advisory.setVulnerablePackages(impactedPackages);
+            handlePackages(githubAdvisory, advisory);
         }
         if (githubAdvisory.cveId() != null) {
             advisory.setCveId(githubAdvisory.cveId());
@@ -130,9 +169,31 @@ public class GithubAdvisoryDeserializer
         return advisory;
     }
 
+    private void handlePackages(Advisory githubAdvisory, SecurityAdvisory advisory)
+    {
+        List<ImpactedPackage> impactedPackages = new ArrayList<>();
+        for (PackageVulnerability vulnerability : githubAdvisory.vulnerabilities()) {
+            impactedPackages.add(new ImpactedPackage(
+                vulnerability.vulnerablePackage().name(),
+                vulnerability.vulnerablePackage().ecosystem(),
+                getRangeVersions(vulnerability),
+                getPatchedVersions(vulnerability)
+            ));
+        }
+        advisory.setVulnerablePackages(impactedPackages);
+    }
+
+    private DocumentReference getReference(Advisory githubAdvisory) throws SecurityAdvisoryException
+    {
+        Optional<DocumentReference> existingAdvisoryReferenceOpt =
+            this.securityAdvisoriesManager.findExistingAdvisory(githubAdvisory.htmlUrl());
+        return existingAdvisoryReferenceOpt.orElseGet(() ->
+            new DocumentReference(githubAdvisory.ghsaId(), this.securityAdvisoryConfiguration.getSecurityDataSpace()));
+    }
+
     private List<String> getPatchedVersions(PackageVulnerability vulnerability)
     {
-        return List.of(StringUtils.split(vulnerability.patchedVersions(), ","));
+        return List.of(StringUtils.split(vulnerability.patchedVersions(), LIST_SEPARATOR));
     }
 
     private List<String> getRangeVersions(PackageVulnerability vulnerability)
@@ -206,6 +267,6 @@ public class GithubAdvisoryDeserializer
         String upperVersion =
             isUpperInclusive ? upperPart.substring(2).trim() : upperPart.substring(1).trim();
 
-        return left + lowerVersion + "," + upperVersion + right;
+        return left + lowerVersion + LIST_SEPARATOR + upperVersion + right;
     }
 }

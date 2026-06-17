@@ -67,5 +67,10 @@
       <artifactId>application-security-advisory-api</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.xwiki.contrib.markdown</groupId>
+      <artifactId>syntax-markdown-commonmark12</artifactId>
+      <version>${markdown-syntax.version}</version>
+    </dependency>
   </dependencies>
 </project>
