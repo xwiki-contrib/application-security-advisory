@@ -20,9 +20,11 @@
 package org.xwiki.contrib.securityadvisory.internal.github;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -40,14 +42,23 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-
-import jakarta.inject.Inject;
 
 @Component(roles = GithubAdvisoryDeserializer.class)
 @Singleton
 public class GithubAdvisoryDeserializer
 {
+    private static final String LOWER_INCLUSIVE = ">=";
+
+    private static final String LOWER_EXCLUSIVE = ">";
+
+    private static final String UPPER_INCLUSIVE = "<=";
+
+    private static final String UPPER_EXCLUSIVE = "<";
+
+    private static final String OPEN_UPPER_MAVEN_BOUND = ",)";
+
+    private static final String OPEN_LOWER_MAVEN_BOUND = "(,";
+
     @Inject
     private Logger logger;
 
@@ -126,11 +137,75 @@ public class GithubAdvisoryDeserializer
 
     private List<String> getRangeVersions(PackageVulnerability vulnerability)
     {
+        String range = vulnerability.vulnerableVersionRange();
+        if (StringUtils.isBlank(range)) {
+            return Collections.emptyList();
+        }
+
         List<String> result = new ArrayList<>();
-        for (String versionRange : StringUtils.split(vulnerability.vulnerableVersionRange(), ",")) {
-            // FIXME: we should process the range
-            result.add(versionRange);
+        String[] parts = StringUtils.split(range, ',');
+
+        int i = 0;
+        while (i < parts.length) {
+            String current = parts[i].trim();
+            if (isLowerBound(current) && i + 1 < parts.length && isUpperBound(parts[i + 1].trim())) {
+                // Combine them
+                result.add(convertToMaven(current, parts[i + 1].trim()));
+                i += 2;
+            } else {
+                // Single bound
+                result.add(convertSingleToMaven(current.trim()));
+                i++;
+            }
         }
         return result;
+    }
+
+    private boolean isLowerBound(String s)
+    {
+        return  s.startsWith(LOWER_INCLUSIVE) || s.startsWith(LOWER_EXCLUSIVE);
+    }
+
+    private boolean isUpperBound(String s)
+    {
+        return s.startsWith(UPPER_INCLUSIVE) || s.startsWith(UPPER_EXCLUSIVE);
+    }
+
+    private String convertSingleToMaven(String bound)
+    {
+        String result;
+        if (bound.startsWith(LOWER_INCLUSIVE)) {
+            result = '[' + bound.substring(2).trim() + OPEN_UPPER_MAVEN_BOUND;
+        } else if (bound.startsWith(LOWER_EXCLUSIVE)) {
+            result = '(' + bound.substring(1).trim() + OPEN_UPPER_MAVEN_BOUND;
+        } else if (bound.startsWith(UPPER_INCLUSIVE)) {
+            result = OPEN_LOWER_MAVEN_BOUND + bound.substring(2).trim() + ']';
+        } else if (bound.startsWith(UPPER_EXCLUSIVE)) {
+            result = OPEN_LOWER_MAVEN_BOUND + bound.substring(1).trim() + ')';
+        } else if (bound.startsWith("=")) {
+            result = '[' + bound.substring(1).trim() + ']';
+        } else {
+            // If no operator is present, keep it as is.
+            result = bound;
+        }
+        return result;
+    }
+
+    private String convertToMaven(String lowerOrSingle, String upper)
+    {
+        String lowerPart = lowerOrSingle.trim();
+        String upperPart = upper.trim();
+
+        boolean isLowerInclusive = lowerPart.startsWith(LOWER_INCLUSIVE);
+        char left = isLowerInclusive ? '[' : '(';
+        String lowerVersion =
+            isLowerInclusive ? lowerPart.substring(2).trim() : lowerPart.substring(1).trim();
+
+        boolean isUpperInclusive = upperPart.startsWith(UPPER_INCLUSIVE);
+        char right = isUpperInclusive ? ']' : ')';
+        String upperVersion =
+            isUpperInclusive ? upperPart.substring(2).trim() : upperPart.substring(1).trim();
+
+        return left + lowerVersion + "," + upperVersion + right;
     }
 }
