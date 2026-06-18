@@ -47,8 +47,9 @@ public interface AdvisoryImporter
     /**
      * Import a single advisory based on its URL.
      * @param advisoryUrl the URL of an advisory to import.
+     * @param projectName the name of the project the advisory is imported to
      * @return an instance of advisory parsed from the given URL.
      * @throws SecurityAdvisoryException in case of problem to read or parse the advisory.
      */
-    SecurityAdvisory importAdvisory(String advisoryUrl) throws SecurityAdvisoryException;
+    SecurityAdvisory importAdvisory(String advisoryUrl, String projectName) throws SecurityAdvisoryException;
 }

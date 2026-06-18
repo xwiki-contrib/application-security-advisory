@@ -53,7 +53,7 @@ class GithubAdvisoryDeserializerTest
         String testJson = IOUtils.resourceToString("examples.json", Charset.defaultCharset(),
             GithubAdvisoryDeserializerTest.class.getClassLoader());
         List<SecurityAdvisory> advisoryList = new ArrayList<>();
-        deserializer.processGithubResponse("xwiki", new Date(0), testJson, advisoryList);
+        deserializer.processGithubResponse("xwiki", new Date(0), testJson, false, advisoryList);
 
         // FIXME: build the list for comparison
         List<SecurityAdvisory> expected = new ArrayList<>();
@@ -109,7 +109,7 @@ class GithubAdvisoryDeserializerTest
             "  }" +
             "]";
         List<SecurityAdvisory> advisoryList = new ArrayList<>();
-        deserializer.processGithubResponse("xwiki", new Date(0), testJson, advisoryList);
+        deserializer.processGithubResponse("xwiki", new Date(0), testJson, false, advisoryList);
 
         assertEquals(1, advisoryList.size());
         SecurityAdvisory advisory = advisoryList.get(0);
