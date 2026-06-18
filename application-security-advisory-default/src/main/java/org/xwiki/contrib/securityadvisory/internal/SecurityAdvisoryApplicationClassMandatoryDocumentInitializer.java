@@ -27,13 +27,18 @@ import org.xwiki.component.annotation.Component;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisory;
 import org.xwiki.model.reference.EntityReference;
 import org.xwiki.model.reference.LocalDocumentReference;
+import org.xwiki.sheet.SheetBinder;
 
+import com.xpn.xwiki.XWiki;
 import com.xpn.xwiki.doc.AbstractMandatoryClassInitializer;
+import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.classes.BaseClass;
+import com.xpn.xwiki.objects.classes.ComputedFieldClass;
 import com.xpn.xwiki.objects.classes.ListClass;
 import com.xpn.xwiki.objects.classes.NumberClass;
 import com.xpn.xwiki.objects.classes.StaticListClass;
 
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 
@@ -94,10 +99,25 @@ public class SecurityAdvisoryApplicationClassMandatoryDocumentInitializer extend
     public static final String PREVENT_OVERRIDE = "preventOverride";
 
     /**
+     * Space where the UI code is located.
+     */
+    public static final List<String> CODE_SPACE_LIST = List.of("SecurityAdvisoryApplication", "Code");
+
+    /**
      * Reference of the class.
      */
     public static final EntityReference CLASS_REFERENCE =
-        new LocalDocumentReference(List.of("SecurityAdvisoryApplication", "Code"), "SecurityAdvisoryApplicationClass");
+        new LocalDocumentReference(CODE_SPACE_LIST, "SecurityAdvisoryApplicationClass");
+
+    private static final LocalDocumentReference SHEET_REFERENCE =
+        new LocalDocumentReference(CODE_SPACE_LIST, "SecurityAdvisoryApplicationSheet");
+
+    private static final LocalDocumentReference CLASSSHEET_REFERENCE =
+        new LocalDocumentReference(XWiki.SYSTEM_SPACE, "ClassSheet");
+
+    @Inject
+    @Named("class")
+    protected SheetBinder classSheetBinder;
 
     /**
      * Default constructor.
@@ -124,5 +144,26 @@ public class SecurityAdvisoryApplicationClassMandatoryDocumentInitializer extend
                 .map(state -> String.format("%s=%s", state.name(), state.name().toLowerCase()))
                 .collect(Collectors.joining(ListClass.DEFAULT_SEPARATOR)),
             StaticListClass.DISPLAYTYPE_SELECT, ListClass.DEFAULT_SEPARATOR);
+
+        String titleFieldName = "title1";
+        ComputedFieldClass titleFieldClass = new ComputedFieldClass();
+        titleFieldClass.setName(titleFieldName);
+        titleFieldClass.setPrettyName("Title");
+        titleFieldClass.setCustomDisplay("{{include reference=\"AppWithinMinutes.Title\"/}}");
+        xclass.addField(titleFieldName, titleFieldClass);
+
+        String descriptionFieldName = "description";
+        ComputedFieldClass descriptionFieldClass = new ComputedFieldClass();
+        descriptionFieldClass.setName(descriptionFieldName);
+        descriptionFieldClass.setPrettyName("Description");
+        descriptionFieldClass.setCustomDisplay("{{include reference=\"AppWithinMinutes.Content\"/}}");
+        xclass.addField(descriptionFieldName, descriptionFieldClass);
+    }
+
+    @Override
+    protected boolean updateDocumentSheet(XWikiDocument document)
+    {
+        this.documentSheetBinder.bind(document, CLASSSHEET_REFERENCE);
+        return this.classSheetBinder.bind(document, SHEET_REFERENCE);
     }
 }

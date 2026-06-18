@@ -124,7 +124,7 @@ public class GithubAdvisoryDeserializer
             } else {
                 Advisory[] advisories = this.objectMapper.readValue(response, Advisory[].class);
                 for (Advisory advisory : advisories) {
-                    if (advisory.updatedAt().after(limitDate)) {
+                    if (limitDate == null || advisory.updatedAt().after(limitDate)) {
                         SecurityAdvisory securityAdvisory = processGithubAdvisory(advisory, releaseProject);
                         if (securityAdvisory != null) {
                             securityAdvisories.add(securityAdvisory);

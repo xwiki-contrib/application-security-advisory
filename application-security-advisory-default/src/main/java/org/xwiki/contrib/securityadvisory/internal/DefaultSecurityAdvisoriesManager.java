@@ -314,6 +314,8 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
             document.setTitle(securityAdvisory.getTitle());
             DocumentAuthors authors = document.getAuthors();
             authors.setContentAuthor(securityAdvisory.getAuthor());
+            authors.setEffectiveMetadataAuthor(securityAdvisory.getAuthor());
+            authors.setOriginalMetadataAuthor(securityAdvisory.getAuthor());
             if (document.isNew()) {
                 authors.setCreator(securityAdvisory.getAuthor());
             }

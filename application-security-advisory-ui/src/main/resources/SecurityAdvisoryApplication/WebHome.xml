@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 -->
 
-<xwikidoc version="1.5" reference="SecurityAdvisoryApplication.WebHome" locale="">
+<xwikidoc version="1.7" reference="SecurityAdvisoryApplication.WebHome" locale="">
   <web>SecurityAdvisoryApplication</web>
   <name>WebHome</name>
   <language/>
@@ -57,8 +57,7 @@
   'status': {},
   'product': {"type": "suggest"},
   'doc.title': {"link":"view"},
-  'affectedVersions': {"type": "suggest"},
-  'patchedVersions': {"type": "suggest"},
+  'cvssScore': {},
   'embargoDate': {"html": true},
   'doc.author': {"link":"author"},
   '_actions': {"sortable":false,"filterable":false,"html":true,"actions":["edit","delete"]}
@@ -72,7 +71,7 @@
   'selectedColumn': 'status',
   'defaultOrder': 'asc'
 })
-#set ($columns = ['doc.date','status', 'product', 'doc.title', 'affectedVersions', 'patchedVersions', 'doc.author', 'embargoDate', '_actions'])
+#set ($columns = ['doc.date','status', 'product', 'doc.title', 'cvssScore', 'doc.author', 'embargoDate', '_actions'])
 #livetable('securityadvisoryapplication' $columns $columnsProperties $options)
 {{/velocity}}</content>
   <object>
@@ -144,16 +143,16 @@
         <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
       </description>
     </class>
-    <property>
+    <property type="String">
       <class>SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass</class>
     </property>
-    <property>
+    <property type="String">
       <columns>status product doc.title doc.date affectedVersions patchedVersions doc.author _actions</columns>
     </property>
-    <property>
+    <property type="String">
       <dataSpace/>
     </property>
-    <property>
+    <property type="LargeString">
       <description/>
     </property>
   </object>
@@ -197,7 +196,6 @@
         <name>code</name>
         <number>2</number>
         <prettyName>Code</prettyName>
-        <restricted>0</restricted>
         <rows>20</rows>
         <size>50</size>
         <unmodifiable>0</unmodifiable>
@@ -241,10 +239,10 @@
         <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
       </use>
     </class>
-    <property>
+    <property type="String">
       <cache>long</cache>
     </property>
-    <property>
+    <property type="LargeString">
       <code>'use strict';
 require(["jquery", "xwiki-meta"], function ($, xm) {
   var uidManager = XWiki.Model.resolve('SecurityAdvisoryApplication.Code.AdvisoryUIDManager', XWiki.EntityType.DOCUMENT);
@@ -264,13 +262,13 @@ require(["jquery", "xwiki-meta"], function ($, xm) {
   initialize() &amp;&amp; document.observe("xwiki:dom:loaded", initialize);
 });</code>
     </property>
-    <property>
+    <property type="String">
       <name>EntryCreationListener</name>
     </property>
-    <property>
+    <property type="Integer">
       <parse>0</parse>
     </property>
-    <property>
+    <property type="String">
       <use>currentPage</use>
     </property>
   </object>
@@ -314,7 +312,7 @@ require(["jquery", "xwiki-meta"], function ($, xm) {
         <separators>|, </separators>
         <size>5</size>
         <unmodifiable>0</unmodifiable>
-        <values>action=Action|doc.reference=Document|icon.theme=Icon theme|locale=Language|rendering.defaultsyntax=Default syntax|rendering.restricted=Restricted|rendering.targetsyntax=Target syntax|request.base=Request base URL|request.cookies|request.headers|request.parameters=Request parameters|request.remoteAddr|request.url=Request URL|request.wiki=Request wiki|user=User|wiki=Wiki</values>
+        <values>action=Action|doc.reference=Document|doc.revision|icon.theme=Icon theme|locale=Language|rendering.defaultsyntax=Default syntax|rendering.restricted=Restricted|rendering.targetsyntax=Target syntax|request.base=Request base URL|request.cookies|request.headers|request.parameters=Request parameters|request.remoteAddr|request.session|request.url=Request URL|request.wiki=Request wiki|sheet|user=User|wiki=Wiki</values>
         <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
       </async_context>
       <async_enabled>
@@ -334,7 +332,6 @@ require(["jquery", "xwiki-meta"], function ($, xm) {
         <name>content</name>
         <number>1</number>
         <prettyName>Executed Content</prettyName>
-        <restricted>0</restricted>
         <rows>25</rows>
         <size>120</size>
         <unmodifiable>0</unmodifiable>
@@ -365,7 +362,6 @@ require(["jquery", "xwiki-meta"], function ($, xm) {
         <name>parameters</name>
         <number>7</number>
         <prettyName>Extension Parameters</prettyName>
-        <restricted>0</restricted>
         <rows>10</rows>
         <size>40</size>
         <unmodifiable>0</unmodifiable>
@@ -390,30 +386,30 @@ require(["jquery", "xwiki-meta"], function ($, xm) {
         <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
       </scope>
     </class>
-    <property>
+    <property type="Integer">
       <async_cached>0</async_cached>
     </property>
-    <property>
+    <property type="StringList">
       <async_context/>
     </property>
-    <property>
+    <property type="Integer">
       <async_enabled>0</async_enabled>
     </property>
-    <property>
+    <property type="LargeString">
       <content/>
     </property>
-    <property>
+    <property type="String">
       <extensionPointId>org.xwiki.platform.panels.Applications</extensionPointId>
     </property>
-    <property>
+    <property type="String">
       <name>platform.panels.SecurityAdvisoryApplicationApplication</name>
     </property>
-    <property>
+    <property type="LargeString">
       <parameters>label=Security Advisory Application
 target=SecurityAdvisoryApplication.WebHome
 icon=icon:shield</parameters>
     </property>
-    <property>
+    <property type="String">
       <scope>wiki</scope>
     </property>
   </object>

@@ -36,7 +36,8 @@ public interface AdvisoryImporter
     /**
      * Import all found advisories matching the given criteria.
      *
-     * @param limitDate all advisories updated before that given date will be ignored.
+     * @param limitDate all advisories updated before that given date will be ignored, {@code null} means that
+     * everything is imported.
      * @return a list of advisories retrieved from the external source.
      * @throws SecurityAdvisoryException in case of problem to retrieve or parse the advisories.
      */
