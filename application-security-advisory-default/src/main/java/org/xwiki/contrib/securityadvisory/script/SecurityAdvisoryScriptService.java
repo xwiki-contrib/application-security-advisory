@@ -30,6 +30,8 @@ import javax.inject.Provider;
 import javax.inject.Singleton;
 
 import org.xwiki.component.annotation.Component;
+import org.xwiki.contrib.securityadvisory.AdvisoryImporter;
+import org.xwiki.contrib.securityadvisory.SecurityAdvisoriesManager;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisory;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryException;
 import org.xwiki.contrib.securityadvisory.internal.VersionReleasedManager;
@@ -60,6 +62,12 @@ public class SecurityAdvisoryScriptService implements ScriptService
 
     @Inject
     private Provider<XWikiContext> contextProvider;
+
+    @Inject
+    private SecurityAdvisoriesManager securityAdvisoriesManager;
+
+    @Inject
+    private AdvisoryImporter advisoryImporter;
 
     /**
      * Check if the given version is released or not.
@@ -142,5 +150,22 @@ public class SecurityAdvisoryScriptService implements ScriptService
         return new DocumentReference(UUID.randomUUID().toString(),
             new SpaceReference(contextProvider.get().getWikiReference().getName(),
             DEFAULT_ENTRIES_SPACE));
+    }
+
+    /**
+     * Import the advisory located at the given URL and write its information as a new security advisory entry.
+     *
+     * @param externalAdvisoryUrl the URL of the external advisory
+     * @param projectName the name of the project the advisory should be mapped to
+     * @return the reference of the document where the advisory is saved
+     * @throws SecurityAdvisoryException in case of problem to import or write the advisory
+     * @since 2.0
+     */
+    public DocumentReference importAndSaveAdvisory(String externalAdvisoryUrl, String projectName)
+        throws SecurityAdvisoryException
+    {
+        SecurityAdvisory securityAdvisory = this.advisoryImporter.importAdvisory(externalAdvisoryUrl, projectName);
+        this.securityAdvisoriesManager.writeAdvisory(securityAdvisory);
+        return securityAdvisory.getHolderReference();
     }
 }

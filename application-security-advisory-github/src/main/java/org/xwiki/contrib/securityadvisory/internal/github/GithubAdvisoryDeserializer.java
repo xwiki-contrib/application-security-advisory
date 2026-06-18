@@ -103,26 +103,36 @@ public class GithubAdvisoryDeserializer
      * @param releaseProject the project for which to build the advisories.
      * @param limitDate the limit date the advisories should be retrieved for.
      * @param response the response from Github API.
+     * @param uniqueAdvisory {@code true} if the query is about a single advisory, {@code false} if it's about an
+     * array of advisories
      * @param securityAdvisories the list of advisories to populate.
      * @return {@code true} if the limit date was reached while processing the advisories (i.e. some advisories were
      * ignored), {@code false} otherwise.
      * @throws SecurityAdvisoryException in case of problem for parsing the advisories.
      */
-    public boolean processGithubResponse(String releaseProject, Date limitDate, String response,
+    public boolean processGithubResponse(String releaseProject, Date limitDate, String response, boolean uniqueAdvisory,
         List<SecurityAdvisory> securityAdvisories) throws SecurityAdvisoryException
     {
         boolean limitDateReached = false;
         try {
-            Advisory[] advisories = this.objectMapper.readValue(response, Advisory[].class);
-            for (Advisory advisory : advisories) {
-                if (advisory.updatedAt().after(limitDate)) {
-                    SecurityAdvisory securityAdvisory = processGithubAdvisory(advisory, releaseProject);
-                    if (securityAdvisory != null) {
-                        securityAdvisories.add(securityAdvisory);
+            if (uniqueAdvisory) {
+                Advisory advisory = this.objectMapper.readValue(response, Advisory.class);
+                SecurityAdvisory securityAdvisory = processGithubAdvisory(advisory, releaseProject);
+                if (securityAdvisory != null) {
+                    securityAdvisories.add(securityAdvisory);
+                }
+            } else {
+                Advisory[] advisories = this.objectMapper.readValue(response, Advisory[].class);
+                for (Advisory advisory : advisories) {
+                    if (advisory.updatedAt().after(limitDate)) {
+                        SecurityAdvisory securityAdvisory = processGithubAdvisory(advisory, releaseProject);
+                        if (securityAdvisory != null) {
+                            securityAdvisories.add(securityAdvisory);
+                        }
+                    } else {
+                        limitDateReached = true;
+                        break;
                     }
-                } else {
-                    limitDateReached = true;
-                    break;
                 }
             }
         } catch (JsonProcessingException e) {

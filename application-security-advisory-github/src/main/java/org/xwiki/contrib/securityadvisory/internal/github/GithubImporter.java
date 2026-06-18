@@ -53,15 +53,16 @@ import jakarta.inject.Singleton;
 public class GithubImporter implements AdvisoryImporter
 {
     private static final String HEADER_ACCEPT = "application/vnd.github+json";
-    private static final String GITHUB_API_ENDPOINT =
-        "https://api.github.com/repos/%s/security-advisories?sort=updated&direction=desc&state=%s";
+    private static final String GITHUB_REST_API_ENDPOINT =
+        "https://api.github.com/repos/%s/security-advisories";
+    private static final String GITHUB_REST_API_QUERIES = "?sort=updated&direction=desc&state=%s";
     private static final String GITHUB_API_TOKEN_HEADER = "Bearer %s";
     private static final String DRAFT_STATE = "draft";
     private static final String PUBLISHED_STATE = "published";
     private static final String LINK_HEADER = "link";
     private static final Pattern NEXT_PATTERN = Pattern.compile("(?<=<)([\\S]*)(?=>; rel=\"next\")");
     private static final Pattern ADVISORY_URL_PATTERN =
-        Pattern.compile("^https://github.com/(\\S*)/security/advisories/(\\S*)$");
+        Pattern.compile("^https://github\\.com/(?<repo>[\\S]+)/security/advisories/(?<ghsaId>[\\S]+)$");
 
     @Inject
     private GithubAdvisoryDeserializer deserializer;
@@ -79,21 +80,37 @@ public class GithubImporter implements AdvisoryImporter
         for (Pair<String, String> githubRepository : githubRepositories) {
             String repoName = githubRepository.getLeft();
             String releaseProject = githubRepository.getRight();
-            String firstQuery = String.format(GITHUB_API_ENDPOINT, repoName, requestedState);
-            performQuery(firstQuery, releaseProject, limitDate, githubImporterToken, advisories);
+            String firstQuery =
+                String.format(GITHUB_REST_API_ENDPOINT + GITHUB_REST_API_QUERIES, repoName, requestedState);
+            performQuery(firstQuery, releaseProject, limitDate, githubImporterToken, advisories, false);
         }
         return advisories;
     }
 
     @Override
-    public SecurityAdvisory importAdvisory(String advisoryUrl) throws SecurityAdvisoryException
+    public SecurityAdvisory importAdvisory(String advisoryUrl, String releaseProject) throws SecurityAdvisoryException
     {
-        // TODO
-        return null;
+        Matcher matcher = ADVISORY_URL_PATTERN.matcher(advisoryUrl);
+        if (matcher.matches()) {
+            String githubImporterToken = this.securityAdvisoryConfiguration.getGithubImporterToken();
+            String repo = matcher.group("repo");
+            String ghsaId = matcher.group("ghsaId");
+            String firstQuery = String.format(GITHUB_REST_API_ENDPOINT + "/%s", repo, ghsaId);
+            List<SecurityAdvisory> result = new ArrayList<>();
+            performQuery(firstQuery, releaseProject, null, githubImporterToken, result, true);
+            if (!result.isEmpty()) {
+                return result.get(0);
+            } else {
+                throw new SecurityAdvisoryException("No matching advisory found for " + advisoryUrl);
+            }
+        } else {
+            throw new SecurityAdvisoryException(String.format("[%s] is not recognized as a Github advisory URL.",
+                advisoryUrl));
+        }
     }
 
     private void performQuery(String url, String releaseProject, Date limitDate, String token,
-        List<SecurityAdvisory> advisories)
+        List<SecurityAdvisory> advisories, boolean uniqueAdvisory)
         throws SecurityAdvisoryException
     {
         HttpGet getMethod = new HttpGet(url);
@@ -101,11 +118,12 @@ public class GithubImporter implements AdvisoryImporter
         try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
             String responseContent = httpclient.execute(getMethod, new BasicHttpClientResponseHandler());
             boolean limitDateReached =
-                this.deserializer.processGithubResponse(releaseProject, limitDate, responseContent, advisories);
-            if (!limitDateReached) {
+                this.deserializer.processGithubResponse(releaseProject, limitDate, responseContent, uniqueAdvisory,
+                    advisories);
+            if (!limitDateReached && !uniqueAdvisory) {
                 String nextPage = getNextPage(getMethod);
                 if (nextPage != null) {
-                    performQuery(nextPage, releaseProject, limitDate, token, advisories);
+                    performQuery(nextPage, releaseProject, limitDate, token, advisories, uniqueAdvisory);
                 }
             }
         } catch (IOException e) {

@@ -17,19 +17,19 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.xwiki.contrib.securityadvisory.internal;
+package org.xwiki.contrib.securityadvisory.internal.configuration;
 
 import java.util.Arrays;
 import java.util.List;
-
-import javax.inject.Named;
-import javax.inject.Singleton;
 
 import org.xwiki.component.annotation.Component;
 import org.xwiki.configuration.ConfigurationSource;
 import org.xwiki.configuration.internal.AbstractDocumentConfigurationSource;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.LocalDocumentReference;
+
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 
 /**
  * {@link ConfigurationSource} reading the values from the configuration page.
