@@ -31,6 +31,7 @@ import org.xwiki.model.reference.LocalDocumentReference;
 import com.xpn.xwiki.doc.AbstractMandatoryClassInitializer;
 import com.xpn.xwiki.objects.classes.BaseClass;
 import com.xpn.xwiki.objects.classes.ListClass;
+import com.xpn.xwiki.objects.classes.NumberClass;
 import com.xpn.xwiki.objects.classes.StaticListClass;
 
 import jakarta.inject.Named;
@@ -44,8 +45,8 @@ import jakarta.inject.Singleton;
  */
 @Component
 @Singleton
-@Named("SecurityAdvisoriesMandatoryDocumentInitializer")
-public class SecurityAdvisoriesMandatoryDocumentInitializer extends AbstractMandatoryClassInitializer
+@Named("SecurityAdvisoryApplicationClassMandatoryDocumentInitializer")
+public class SecurityAdvisoryApplicationClassMandatoryDocumentInitializer extends AbstractMandatoryClassInitializer
 {
     /**
      * Link for the external advisory.
@@ -101,7 +102,7 @@ public class SecurityAdvisoriesMandatoryDocumentInitializer extends AbstractMand
     /**
      * Default constructor.
      */
-    public SecurityAdvisoriesMandatoryDocumentInitializer()
+    public SecurityAdvisoryApplicationClassMandatoryDocumentInitializer()
     {
         super(CLASS_REFERENCE);
     }
@@ -112,7 +113,9 @@ public class SecurityAdvisoriesMandatoryDocumentInitializer extends AbstractMand
         xclass.addTextField(FIELD_ADVISORY_LINK, FIELD_ADVISORY_LINK, 255);
         xclass.addTextField(FIELD_CVSS, FIELD_CVSS, 255);
         xclass.addTextField(FIELD_STATE, FIELD_STATE, 255);
-        xclass.addBooleanField(FIELD_COMPUTE_EMBARGO_DATE, FIELD_COMPUTE_EMBARGO_DATE);
+        xclass.addTextField(FIELD_CVE_ID, FIELD_CVE_ID, 255);
+        xclass.addNumberField(FIELD_CVSS_SCORE, FIELD_CVSS_SCORE, 10, NumberClass.TYPE_DOUBLE);
+        xclass.addBooleanField(FIELD_COMPUTE_EMBARGO_DATE, FIELD_COMPUTE_EMBARGO_DATE, "checkbox", true);
         xclass.addDateField(FIELD_EMBARGO_DATE, FIELD_EMBARGO_DATE);
         xclass.addStaticListField(FIELD_PRODUCT, FIELD_PRODUCT, 1, false, null,
             StaticListClass.DISPLAYTYPE_INPUT, ListClass.DEFAULT_SEPARATOR);

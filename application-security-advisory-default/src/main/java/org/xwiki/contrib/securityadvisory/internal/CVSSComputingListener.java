@@ -33,8 +33,8 @@ import org.xwiki.observation.event.Event;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
 
-import static org.xwiki.contrib.securityadvisory.internal.SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_CVSS;
-import static org.xwiki.contrib.securityadvisory.internal.SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_CVSS_SCORE;
+import static org.xwiki.contrib.securityadvisory.internal.SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_CVSS;
+import static org.xwiki.contrib.securityadvisory.internal.SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_CVSS_SCORE;
 
 /**
  * Listener to compute the CVSS score of a security advisory.
@@ -61,7 +61,7 @@ public class CVSSComputingListener extends AbstractLocalEventListener
     {
         if (source instanceof XWikiDocument document) {
             BaseObject securityAdvisoryObject =
-                document.getXObject(SecurityAdvisoriesMandatoryDocumentInitializer.CLASS_REFERENCE);
+                document.getXObject(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.CLASS_REFERENCE);
             if (securityAdvisoryObject != null) {
                 maybeUpdateObject(securityAdvisoryObject);
             }

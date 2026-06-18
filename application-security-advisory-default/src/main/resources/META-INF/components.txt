@@ -9,7 +9,7 @@ org.xwiki.contrib.securityadvisory.internal.notifications.SecurityAdvisoryEmbarg
 org.xwiki.contrib.securityadvisory.internal.CVSSComputingListener
 org.xwiki.contrib.securityadvisory.internal.ImpactedPackageClassMandatoryDocumentInitializer
 org.xwiki.contrib.securityadvisory.internal.DefaultSecurityAdvisoriesManager
-org.xwiki.contrib.securityadvisory.internal.SecurityAdvisoriesMandatoryDocumentInitializer
+org.xwiki.contrib.securityadvisory.internal.SecurityAdvisoryApplicationClassMandatoryDocumentInitializer
 org.xwiki.contrib.securityadvisory.internal.VersionReleasedListener
 org.xwiki.contrib.securityadvisory.internal.VersionReleasedManager
 org.xwiki.contrib.securityadvisory.script.SecurityAdvisoryScriptService

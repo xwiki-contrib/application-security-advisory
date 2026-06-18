@@ -43,6 +43,11 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.xwiki.contrib.security-advisory</groupId>
+      <artifactId>application-security-advisory-github</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.xwiki.contrib.releasenotes</groupId>
       <artifactId>application-releasenotes-ui</artifactId>
       <version>${releasenotes.version}</version>

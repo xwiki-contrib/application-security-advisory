@@ -155,13 +155,15 @@ public class GithubAdvisoryDeserializer
         }
         DocumentReference advisoryReference = getReference(githubAdvisory);
         SecurityAdvisory advisory = new SecurityAdvisory(advisoryReference);
+        boolean isPublished = state == GithubState.PUBLISHED;
         advisory
             .setAdvisoryLink(githubAdvisory.htmlUrl())
             .setAuthor(this.securityAdvisoryConfiguration.getAdvisoryImporterUser())
             .setTitle(githubAdvisory.summary())
             .setContent(githubAdvisory.description())
             .setProduct(releaseProject)
-            .setState(state == GithubState.DRAFT ? SecurityAdvisory.State.DRAFT : SecurityAdvisory.State.DISCLOSED);
+            .setState(isPublished ? SecurityAdvisory.State.DISCLOSED : SecurityAdvisory.State.DRAFT)
+            .setComputeEmbargoDate(!isPublished);
 
         if (githubAdvisory.cvssSeverities() != null) {
             CVSSSeverity severity = (githubAdvisory.cvssSeverities().cvssV4().vectorString() != null)
