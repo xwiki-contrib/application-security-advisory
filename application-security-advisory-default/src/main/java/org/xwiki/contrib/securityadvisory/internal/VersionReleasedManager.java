@@ -24,17 +24,27 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.slf4j.Logger;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.contrib.securityadvisory.ImpactedPackage;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisory;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryConfiguration;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryException;
+import org.xwiki.extension.ResolveException;
+import org.xwiki.extension.repository.ExtensionRepositoryManager;
+import org.xwiki.extension.repository.result.IterableResult;
+import org.xwiki.extension.version.Version;
 import org.xwiki.query.Query;
 import org.xwiki.query.QueryException;
 import org.xwiki.query.QueryManager;
@@ -61,6 +71,22 @@ public class VersionReleasedManager
 
     @Inject
     private SecurityAdvisoryConfiguration configuration;
+
+    @Inject
+    private ExtensionRepositoryManager extensionRepositoryManager;
+
+    @Inject
+    private Logger logger;
+
+    /**
+     * A computed embargo date based on the release date of the patched versions, or, if no release dates are
+     * available, based on the current date. In that case, {@code updateExisting} will be {@code false} to indicate
+     * that if the advisory already has an embargo date, it should not be updated with the computed one.
+     *
+     * @param embargoDate the computed embargo date
+     * @param updateExisting whether to update the embargo date of the advisory if it already has one
+     */
+    public record ComputedEmbargoDate(Date embargoDate, boolean updateExisting) { }
 
     /**
      * Check if the given version is released.
@@ -141,37 +167,116 @@ public class VersionReleasedManager
     }
 
     /**
-     * Compute the embargo date for the given list of versions.
-     * This method retrieves the date of the latest release among the given versions and adds the embargo duration
-     * (defined in {@link SecurityAdvisoryConfiguration#getDefaultEmbargoDuration()}) to it. Note that this method
-     * returns null if at least one of the given versions has not been released.
+     * Compute the embargo date for the patched versions of the given advisory.
+     * For XWiki core modules and products, this method retrieves the date of the latest release among the patched
+     * versions (according to the release notes) and adds the embargo duration (defined in
+     * {@link SecurityAdvisoryConfiguration#getDefaultEmbargoDuration()}) to it. For other extensions, the current date
+     * is used as the release date when all patched versions are released, and the resulting
+     * {@link ComputedEmbargoDate#updateExisting()} is {@code false}. This method returns {@code null} if no embargo
+     * date could be computed, i.e. when one of the patched versions is not released yet.
      *
      * @param advisory the advisory for which to compute the embargo date
-     * @return a date after the embargo of latest release or {@code null} if one of the version is not released
+     * @return the computed embargo date or {@code null} if it could not be computed
      * @throws SecurityAdvisoryException in case of problem during the computation
      */
-    public Date computeEmbargoDate(SecurityAdvisory advisory) throws SecurityAdvisoryException
+    public ComputedEmbargoDate computeEmbargoDate(SecurityAdvisory advisory) throws SecurityAdvisoryException
     {
-        Date result = null;
         List<Date> releaseDates = new ArrayList<>();
-        String product = advisory.getProduct();
 
-        for (ImpactedPackage vulnerablePackage : advisory.getVulnerablePackages()) {
-            for (String patchedVersion : vulnerablePackage.patchedVersions()) {
-                if (this.isVersionReleased(product, patchedVersion)) {
-                    releaseDates.add(this.getReleaseDate(product, patchedVersion));
-                } else {
-                    break;
+        Map<String, List<String>> patchedVersionsByExtension = getPatchedVersionsByExtension(advisory);
+        boolean updateExisting = true;
+
+        for (Map.Entry<String, List<String>> entry : patchedVersionsByExtension.entrySet()) {
+            String extensionId = entry.getKey();
+            List<String> patchedVersions = entry.getValue();
+
+            if (extensionId.equals(XWIKI_PRODUCT)) {
+                // For XWiki product, we check the release notes for the product itself.
+                if (!collectXWikiProductReleaseDates(patchedVersions, releaseDates)) {
+                    // If any version is not released, we cannot compute an embargo date.
+                    return null;
                 }
+            } else if (isAllExtensionVersionsReleased(extensionId, patchedVersions)) {
+                // For other extensions, we check the extension repository if all versions are released.
+                // We use the current date as the release date for the extension since we don't have a release date for
+                // extensions.
+                releaseDates.add(new Date());
+                updateExisting = false;
+            } else {
+                // If not all patched versions of the extension are released, we cannot compute an embargo date.
+                return null;
             }
         }
 
-        // FIXME: the oracle is not good anymore
-        /*if (advisory.getPatchedVersions().size() == releaseDates.size()) {
-            Date latestDate = getLatestDate(releaseDates);
-            result = this.computeEmbargoDate(latestDate);
-        }*/
+        if (releaseDates.isEmpty()) {
+            // No release date could be determined (e.g. the patched versions of an extension are not all released),
+            // we cannot compute an embargo date.
+            return null;
+        }
 
-        return result;
+        Date latestDate = getLatestDate(releaseDates);
+        return new ComputedEmbargoDate(this.computeEmbargoDate(latestDate), updateExisting);
+    }
+
+    /**
+     * Collect the release dates of the given patched versions of the XWiki product from the release notes.
+     *
+     * @param patchedVersions the patched versions to check
+     * @param releaseDates the list to which the found release dates are added
+     * @return {@code true} if all the given versions are released, {@code false} as soon as one of them is not
+     * @throws SecurityAdvisoryException in case of problem while querying the release notes
+     */
+    private boolean collectXWikiProductReleaseDates(List<String> patchedVersions, List<Date> releaseDates)
+        throws SecurityAdvisoryException
+    {
+        for (String version : patchedVersions) {
+            if (!isVersionReleased(XWIKI_PRODUCT, version)) {
+                return false;
+            }
+            Date releaseDate = getReleaseDate(XWIKI_PRODUCT, version);
+            if (releaseDate != null) {
+                releaseDates.add(releaseDate);
+            }
+        }
+        return true;
+    }
+
+    private static Map<String, List<String>> getPatchedVersionsByExtension(SecurityAdvisory advisory)
+    {
+        Map<String, List<String>> patchedVersionsByExtension = new HashMap<>();
+
+        for (ImpactedPackage vulnerablePackage : advisory.getVulnerablePackages()) {
+            String extensionId = vulnerablePackage.packageName();
+            List<String> patchedVersions = vulnerablePackage.patchedVersions();
+            if (!patchedVersions.isEmpty()) {
+                String groupId = StringUtils.substringBefore(extensionId, ":");
+                if (List.of("org.xwiki.commons", "org.xwiki.rendering", "org.xwiki.platform").contains(groupId)) {
+                    // For XWiki core modules, we need to check the release note for the XWiki product
+                    extensionId = XWIKI_PRODUCT;
+                }
+                patchedVersionsByExtension.computeIfAbsent(extensionId, k -> new ArrayList<>())
+                    .addAll(patchedVersions);
+            }
+        }
+        return patchedVersionsByExtension;
+    }
+
+    private boolean isAllExtensionVersionsReleased(String extensionId, List<String> patchedVersions)
+    {
+        try {
+            IterableResult<Version> releasedVersions
+                = this.extensionRepositoryManager.resolveVersions(extensionId, 0, -1);
+            Set<String> releasedVersionStrings = new HashSet<>();
+            for (Version releasedVersion : releasedVersions) {
+                releasedVersionStrings.add(releasedVersion.toString());
+            }
+            // All patched versions need to be among the released versions of the extension.
+            return releasedVersionStrings.containsAll(patchedVersions);
+        } catch (ResolveException e) {
+            this.logger.warn(
+                "Error checking if all versions of extension [{}] are released: [{}], not computing embargo date",
+                extensionId, ExceptionUtils.getRootCauseMessage(e));
+            return false;
+        }
     }
 }
