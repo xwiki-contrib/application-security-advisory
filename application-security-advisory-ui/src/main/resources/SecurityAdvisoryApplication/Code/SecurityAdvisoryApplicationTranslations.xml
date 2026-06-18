@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 -->
 
-<xwikidoc version="1.5" reference="SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationTranslations" locale="">
+<xwikidoc version="1.7" reference="SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationTranslations" locale="">
   <web>SecurityAdvisoryApplication.Code</web>
   <name>SecurityAdvisoryApplicationTranslations</name>
   <language/>
@@ -49,16 +49,26 @@ SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_product_hint=I
 
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_advisoryLink=Advisory Link
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_advisoryLink_hint=Link of the github advisory that has been created
-SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_jiraTickets=JIRA Tickets
-SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_jiraTickets_hint=List of jira tickets (should be only the ticket key, no full links)
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_computeEmbargo=compute embargo
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_computeEmbargo_hint=Define if the embargo date should be computed automatically from versions or not.
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_embargoDate=Embargo date
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_embargoDate_hint=Define a specific embargo date: this one is only taken into account if the compute embargo date flag is not checked.
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvss=CVSS
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvss_hint=Value of the computed CVSS on the string form.
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvssScore=CVSS Score
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvssScore_hint=Score corresponding to the CVSS vector.
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_description=Description
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_description_hint=Full content of the advisory.
+
+SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_ecosystem=Ecosystem
+SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_ecosystem_hint=Package ecosystem for the vulnerable package (e.g. Maven or NPM)
+SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_packageId=Package Identifier
+SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_packageId_hint=Identifier of the vulnerable package
+SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_vulnerableVersionRange=Vulnerable versions range
+SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_vulnerableVersionRange_hint=Range of versions of the given package that are affected by the vulnerability
+SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_patchedVersions=Patched versions
+SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_patchedVersions_hint=List of versions of the given package that have been patched
+
 
 # Sheet keys
 securityadvisoryapplication.sheet.description=This page controls how Security Advisory Application pages are displayed in both view and edit modes.
@@ -94,7 +104,8 @@ securityadvisoryapplication.livetable.advisoryLink=Advisory Link
 securityadvisoryapplication.livetable.jiraTickets=JIRA Tickets
 securityadvisoryapplication.livetable.computeEmbargo=compute embargo
 securityadvisoryapplication.livetable.embargoDate=Embargo date
-securityadvisoryapplication.livetable.cvss=CVSS Score
+securityadvisoryapplication.livetable.cvss=CVSS
+securityadvisoryapplication.livetable.cvssScore=CVSS Score
 securityadvisoryapplication.livetable.description=Description
 
 # Other keys
@@ -108,6 +119,13 @@ SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_defaultEmbar
 SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_defaultEmbargoDuration.hint=This value computed with its unit will be added to the date of the latest patched release date for the advisory publication
 SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_securityGroup=The group of targeted users for advisories notifications
 SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_securityGroup.hint=The users of this group will automatically receive notifications when an advisory is ready to be published.
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_dataSpace=Security entries space location
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_dataSpace.hint=The reference of the space where to store security entries (default: SecurityAdvisoryApplication.SecurityEntries)
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_importerUser=Importer user
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_importerUser.hint=The user used as author for imported entries
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_githubToken=Github Token
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_githubToken.hint=The Github token to use for importing security advisories
+
 
 # Sheet Explanations
 securityadvisoryapplication.sheet.nextstep.DRAFT=You're currently editing a draft of the advisory. Once it is complete you can mark it as completed with the button on top of the page.
@@ -153,7 +171,7 @@ securityadvisoryapplication.dataSpace.title=Data
         <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
       </scope>
     </class>
-    <property>
+    <property type="String">
       <scope>WIKI</scope>
     </property>
   </object>

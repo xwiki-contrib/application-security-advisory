@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 -->
 
-<xwikidoc version="1.5" reference="SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationSheet" locale="">
+<xwikidoc version="1.7" reference="SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationSheet" locale="">
   <web>SecurityAdvisoryApplication.Code</web>
   <name>SecurityAdvisoryApplicationSheet</name>
   <language/>
@@ -78,7 +78,6 @@ $services.localization.render("securityadvisoryapplication.sheet.nextstep.$curre
 #end
 &lt;div class="xform"&gt;
   &lt;dl&gt;
-    ## TODO: Display the status and the capability to switch from one status to another.
     &lt;dt #if (!$editing &amp;&amp; $hasEdit)
         class="editableProperty"
         data-property="$escapetool.xml($services.model.serialize($object.getPropertyReference('title1')))"
@@ -105,54 +104,6 @@ $services.localization.render("securityadvisoryapplication.sheet.nextstep.$curre
     &lt;dd&gt;$doc.display('product')&lt;/dd&gt;
     &lt;dt #if (!$editing &amp;&amp; $hasEdit)
         class="editableProperty"
-        data-property="$escapetool.xml($services.model.serialize($object.getPropertyReference('mavenModules')))"
-        data-property-type="object"#end&gt;
-      &lt;label#if ($editing) for="SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_0_mavenModules"#end&gt;
-        $escapetool.xml($doc.displayPrettyName('mavenModules', false, false))
-      &lt;/label&gt;
-      &lt;span class="xHint"&gt;
-        $escapetool.xml($services.localization.render('SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_mavenModules_hint'))
-      &lt;/span&gt;
-    &lt;/dt&gt;
-    &lt;dd&gt;$doc.display('mavenModules')&lt;/dd&gt;
-    &lt;dt #if (!$editing &amp;&amp; $hasEdit)
-        class="editableProperty"
-        data-property="$escapetool.xml($services.model.serialize($object.getPropertyReference('affectedVersions')))"
-        data-property-type="object"#end&gt;
-      &lt;label#if ($editing) for="SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_0_affectedVersions"#end&gt;
-        $escapetool.xml($doc.displayPrettyName('affectedVersions', false, false))
-      &lt;/label&gt;
-      &lt;span class="xHint"&gt;
-        $escapetool.xml($services.localization.render('SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_affectedVersions_hint'))
-      &lt;/span&gt;
-    &lt;/dt&gt;
-    &lt;dd&gt;
-      #if ($editing)
-        $doc.display('affectedVersions')
-      #else
-        #displayVersions($object.getValue('product') $object.getValue('affectedVersions'))
-      #end
-    &lt;/dd&gt;
-    &lt;dt #if (!$editing &amp;&amp; $hasEdit)
-        class="editableProperty"
-        data-property="$escapetool.xml($services.model.serialize($object.getPropertyReference('patchedVersions')))"
-        data-property-type="object"#end&gt;
-      &lt;label#if ($editing) for="SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_0_patchedVersions"#end&gt;
-        $escapetool.xml($doc.displayPrettyName('patchedVersions', false, false))
-      &lt;/label&gt;
-      &lt;span class="xHint"&gt;
-        $escapetool.xml($services.localization.render('SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_patchedVersions_hint'))
-      &lt;/span&gt;
-    &lt;/dt&gt;
-    &lt;dd&gt;
-      #if ($editing)
-        $doc.display('patchedVersions')
-      #else
-        #displayVersions($object.getValue('product') $object.getValue('patchedVersions'))
-      #end
-    &lt;/dd&gt;
-    &lt;dt #if (!$editing &amp;&amp; $hasEdit)
-        class="editableProperty"
         data-property="$escapetool.xml($services.model.serialize($object.getPropertyReference('advisoryLink')))"
         data-property-type="object"#end&gt;
       &lt;label#if ($editing) for="SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_0_advisoryLink"#end&gt;
@@ -163,19 +114,6 @@ $services.localization.render("securityadvisoryapplication.sheet.nextstep.$curre
       &lt;/span&gt;
     &lt;/dt&gt;
     &lt;dd&gt;$doc.display('advisoryLink')&lt;/dd&gt;
-    &lt;dt #if (!$editing &amp;&amp; $hasEdit)
-        class="editableProperty"
-        data-property="$escapetool.xml($services.model.serialize($object.getPropertyReference('jiraTickets')))"
-        data-property-type="object"#end&gt;
-      &lt;label#if ($editing) for="SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_0_jiraTickets"#end&gt;
-        $escapetool.xml($doc.displayPrettyName('jiraTickets', false, false))
-      &lt;/label&gt;
-      &lt;span class="xHint"&gt;
-        $escapetool.xml($services.localization.render('SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_jiraTickets_hint'))
-      &lt;/span&gt;
-    &lt;/dt&gt;
-    ## FIXME: We should use jira macro here
-    &lt;dd&gt;$doc.display('jiraTickets')&lt;/dd&gt;
     &lt;dt #if (!$editing &amp;&amp; $hasEdit)
         class="editableProperty"
         data-property="$escapetool.xml($services.model.serialize($object.getPropertyReference('computeEmbargo')))"
@@ -211,9 +149,71 @@ $services.localization.render("securityadvisoryapplication.sheet.nextstep.$curre
         $escapetool.xml($services.localization.render('SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvss_hint'))
       &lt;/span&gt;
     &lt;/dt&gt;
-    &lt;dd class="cvss-value"&gt;$doc.display('cvss')&lt;/dd&gt;
-    &lt;dt&gt;$services.localization.render('securityadvisoryapplication.sheet.severity')&lt;/dt&gt;
-    &lt;dd class="cvss-score"&gt;&lt;/dd&gt;
+    &lt;dd&gt;$doc.display('cvss')&lt;/dd&gt;
+    &lt;dt #if (!$editing &amp;&amp; $hasEdit)
+        class="editableProperty"
+        data-property="$escapetool.xml($services.model.serialize($object.getPropertyReference('cvssScore')))"
+        data-property-type="object"#end&gt;
+      &lt;label#if ($editing) for="SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_0_cvssScore"#end&gt;
+        $escapetool.xml($doc.displayPrettyName('cvssScore', false, false))
+      &lt;/label&gt;
+      &lt;span class="xHint"&gt;
+        $escapetool.xml($services.localization.render('SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvssScore_hint'))
+      &lt;/span&gt;
+    &lt;/dt&gt;
+    &lt;dd&gt;$doc.display('cvssScore')&lt;/dd&gt;
+    #set ($impactedPackages = $doc.getObjects('SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass'))
+    #foreach ($impactedPackage in $impactedPackages)
+    &lt;dt #if (!$editing &amp;&amp; $hasEdit)
+        class="editableProperty"
+        data-property="$escapetool.xml($services.model.serialize($impactedPackage.getPropertyReference('ecosystem')))"
+        data-property-type="object"#end&gt;
+      &lt;label#if ($editing) for="$escapetool.xml($services.model.serialize($impactedPackage.getPropertyReference('ecosystem')))"#end&gt;
+        $escapetool.xml($doc.displayPrettyName('ecosystem', $impactedPackage))
+      &lt;/label&gt;
+      &lt;span class="xHint"&gt;
+        $escapetool.xml($services.localization.render('SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_ecosystem_hint'))
+      &lt;/span&gt;
+    &lt;/dt&gt;
+    &lt;dd&gt;$impactedPackage.get('ecosystem')&lt;/dd&gt;
+    &lt;dt #if (!$editing &amp;&amp; $hasEdit)
+        class="editableProperty"
+        data-property="$escapetool.xml($services.model.serialize($impactedPackage.getPropertyReference('packageId')))"
+        data-property-type="object"#end&gt;
+      &lt;label#if ($editing) for="$escapetool.xml($services.model.serialize($impactedPackage.getPropertyReference('packageId')))"#end&gt;
+        $escapetool.xml($doc.displayPrettyName('packageId', $impactedPackage))
+      &lt;/label&gt;
+      &lt;span class="xHint"&gt;
+        $escapetool.xml($services.localization.render('SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_packageId_hint'))
+      &lt;/span&gt;
+    &lt;/dt&gt;
+    &lt;dd&gt;$impactedPackage.get('packageId')&lt;/dd&gt;
+    &lt;dt #if (!$editing &amp;&amp; $hasEdit)
+        class="editableProperty"
+        data-property="$escapetool.xml($services.model.serialize($impactedPackage.getPropertyReference('vulnerableVersionRange')))"
+        data-property-type="object"#end&gt;
+      &lt;label#if ($editing) for="$escapetool.xml($services.model.serialize($impactedPackage.getPropertyReference('vulnerableVersionRange')))"#end&gt;
+        $escapetool.xml($doc.displayPrettyName('vulnerableVersionRange', $impactedPackage))
+      &lt;/label&gt;
+      &lt;span class="xHint"&gt;
+        $escapetool.xml($services.localization.render('SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_vulnerableVersionRange_hint'))
+      &lt;/span&gt;
+    &lt;/dt&gt;
+    &lt;dd&gt;$impactedPackage.get('vulnerableVersionRange')&lt;/dd&gt;
+    &lt;dt #if (!$editing &amp;&amp; $hasEdit)
+        class="editableProperty"
+        data-property="$escapetool.xml($services.model.serialize($impactedPackage.getPropertyReference('patchedVersions')))"
+        data-property-type="object"#end&gt;
+      &lt;label#if ($editing) for="$escapetool.xml($services.model.serialize($impactedPackage.getPropertyReference('patchedVersions')))"#end&gt;
+        $escapetool.xml($doc.displayPrettyName('patchedVersions', $impactedPackage))
+      &lt;/label&gt;
+      &lt;span class="xHint"&gt;
+        $escapetool.xml($services.localization.render('SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_patchedVersions_hint'))
+      &lt;/span&gt;
+    &lt;/dt&gt;
+    &lt;dd&gt;$impactedPackage.get('patchedVersions')&lt;/dd&gt;
+    #end
+    
     &lt;dt #if (!$editing &amp;&amp; $hasEdit)
         class="editableProperty"
         data-property="$escapetool.xml($services.model.serialize($object.getPropertyReference('description')))"
@@ -276,7 +276,6 @@ $services.localization.render("securityadvisoryapplication.sheet.nextstep.$curre
         <name>code</name>
         <number>2</number>
         <prettyName>Code</prettyName>
-        <restricted>0</restricted>
         <rows>20</rows>
         <size>50</size>
         <unmodifiable>0</unmodifiable>
@@ -320,10 +319,10 @@ $services.localization.render("securityadvisoryapplication.sheet.nextstep.$curre
         <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
       </use>
     </class>
-    <property>
+    <property type="String">
       <cache>long</cache>
     </property>
-    <property>
+    <property type="LargeString">
       <code>'use strict';
 require(['jquery', 'xwiki-meta'], function ($, xm) {
   var changeStatus = function (newStatus) {
@@ -362,134 +361,14 @@ require(['jquery', 'xwiki-meta'], function ($, xm) {
   (XWiki.isInitialized &amp;&amp; initialize()) || $(document).on('xwiki:dom:loading', initialize);
 });</code>
     </property>
-    <property>
+    <property type="String">
       <name>Status update</name>
     </property>
-    <property>
+    <property type="Integer">
       <parse>0</parse>
     </property>
-    <property>
+    <property type="String">
       <use>currentPage</use>
-    </property>
-  </object>
-  <object>
-    <name>SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationSheet</name>
-    <number>1</number>
-    <className>XWiki.JavaScriptExtension</className>
-    <guid>d8a1cdc5-acc8-43e2-b590-0993b6c2c70e</guid>
-    <class>
-      <name>XWiki.JavaScriptExtension</name>
-      <customClass/>
-      <customMapping/>
-      <defaultViewSheet/>
-      <defaultEditSheet/>
-      <defaultWeb/>
-      <nameField/>
-      <validationScript/>
-      <cache>
-        <cache>0</cache>
-        <defaultValue>long</defaultValue>
-        <disabled>0</disabled>
-        <displayType>select</displayType>
-        <freeText>forbidden</freeText>
-        <largeStorage>0</largeStorage>
-        <multiSelect>0</multiSelect>
-        <name>cache</name>
-        <number>5</number>
-        <prettyName>Caching policy</prettyName>
-        <relationalStorage>0</relationalStorage>
-        <separator> </separator>
-        <separators>|, </separators>
-        <size>1</size>
-        <unmodifiable>0</unmodifiable>
-        <values>long|short|default|forbid</values>
-        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
-      </cache>
-      <code>
-        <contenttype>PureText</contenttype>
-        <disabled>0</disabled>
-        <editor>PureText</editor>
-        <name>code</name>
-        <number>2</number>
-        <prettyName>Code</prettyName>
-        <restricted>0</restricted>
-        <rows>20</rows>
-        <size>50</size>
-        <unmodifiable>0</unmodifiable>
-        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
-      </code>
-      <name>
-        <disabled>0</disabled>
-        <name>name</name>
-        <number>1</number>
-        <prettyName>Name</prettyName>
-        <size>30</size>
-        <unmodifiable>0</unmodifiable>
-        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
-      </name>
-      <parse>
-        <disabled>0</disabled>
-        <displayFormType>select</displayFormType>
-        <displayType>yesno</displayType>
-        <name>parse</name>
-        <number>4</number>
-        <prettyName>Parse content</prettyName>
-        <unmodifiable>0</unmodifiable>
-        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
-      </parse>
-      <use>
-        <cache>0</cache>
-        <disabled>0</disabled>
-        <displayType>select</displayType>
-        <freeText>forbidden</freeText>
-        <largeStorage>0</largeStorage>
-        <multiSelect>0</multiSelect>
-        <name>use</name>
-        <number>3</number>
-        <prettyName>Use this extension</prettyName>
-        <relationalStorage>0</relationalStorage>
-        <separator> </separator>
-        <separators>|, </separators>
-        <size>1</size>
-        <unmodifiable>0</unmodifiable>
-        <values>currentPage|onDemand|always</values>
-        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
-      </use>
-    </class>
-    <property>
-      <cache>long</cache>
-    </property>
-    <property>
-      <code>require(['jquery',"$services.webjars.url('org.webjars.npm:turingpointde__cvss.js', 'dist/production.min.js')"], function($) {
-  var initCvss = function () {
-    var severity = $('.cvss-value').text();
-    computeSeverity(severity);
-    
-    $('input[name=SecurityAdvisoryApplication\\.Code\\.SecurityAdvisoryApplicationClass_0_cvss]').on('change', function() {
-      computeSeverity($(this).val());
-    });
-    $(document).on('xwiki:dom:updated', initCvss);
-  };
-  
-  var computeSeverity = function (textSeverity) {
-    if (textSeverity) {
-      var computedCvss = CVSS(textSeverity);
-      console.log(computedCvss);
-      var displaySeverity = computedCvss.getRating() + " (" + computedCvss.getScore() + ")";
-      $('.cvss-score').text(displaySeverity);
-    }
-  };
-  (XWiki.isInitialized &amp;&amp; initCvss()) || $(document).on('xwiki:dom:loading', initCvss);
-});</code>
-    </property>
-    <property>
-      <name>Handle CVSS calculator</name>
-    </property>
-    <property>
-      <parse>1</parse>
-    </property>
-    <property>
-      <use>onDemand</use>
     </property>
   </object>
   <object>
@@ -532,7 +411,7 @@ require(['jquery', 'xwiki-meta'], function ($, xm) {
         <separators>|, </separators>
         <size>5</size>
         <unmodifiable>0</unmodifiable>
-        <values>action=Action|doc.reference=Document|icon.theme=Icon theme|locale=Language|rendering.defaultsyntax=Default syntax|rendering.restricted=Restricted|rendering.targetsyntax=Target syntax|request.base=Request base URL|request.cookies|request.headers|request.parameters=Request parameters|request.remoteAddr|request.url=Request URL|request.wiki=Request wiki|user=User|wiki=Wiki</values>
+        <values>action=Action|doc.reference=Document|doc.revision|icon.theme=Icon theme|locale=Language|rendering.defaultsyntax=Default syntax|rendering.restricted=Restricted|rendering.targetsyntax=Target syntax|request.base=Request base URL|request.cookies|request.headers|request.parameters=Request parameters|request.remoteAddr|request.session|request.url=Request URL|request.wiki=Request wiki|sheet|user=User|wiki=Wiki</values>
         <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
       </async_context>
       <async_enabled>
@@ -552,7 +431,6 @@ require(['jquery', 'xwiki-meta'], function ($, xm) {
         <name>content</name>
         <number>1</number>
         <prettyName>Executed Content</prettyName>
-        <restricted>0</restricted>
         <rows>25</rows>
         <size>120</size>
         <unmodifiable>0</unmodifiable>
@@ -583,7 +461,6 @@ require(['jquery', 'xwiki-meta'], function ($, xm) {
         <name>parameters</name>
         <number>7</number>
         <prettyName>Extension Parameters</prettyName>
-        <restricted>0</restricted>
         <rows>10</rows>
         <size>40</size>
         <unmodifiable>0</unmodifiable>
@@ -608,18 +485,18 @@ require(['jquery', 'xwiki-meta'], function ($, xm) {
         <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
       </scope>
     </class>
-    <property>
+    <property type="Integer">
       <async_cached>1</async_cached>
     </property>
-    <property>
+    <property type="StringList">
       <async_context>
         <value>doc.reference</value>
       </async_context>
     </property>
-    <property>
+    <property type="Integer">
       <async_enabled>0</async_enabled>
     </property>
-    <property>
+    <property type="LargeString">
       <content>{{velocity}}
 #set ($status = $doc.getValue('status'))
 #set ($object = $doc.getObject('SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass'))
@@ -644,16 +521,16 @@ require(['jquery', 'xwiki-meta'], function ($, xm) {
 #end
 {{/velocity}}</content>
     </property>
-    <property>
+    <property type="String">
       <extensionPointId>org.xwiki.platform.template.title.before</extensionPointId>
     </property>
-    <property>
+    <property type="String">
       <name>org.xwiki.contrib.securityadvisory.title.status</name>
     </property>
-    <property>
+    <property type="LargeString">
       <parameters/>
     </property>
-    <property>
+    <property type="String">
       <scope>wiki</scope>
     </property>
   </object>
@@ -697,7 +574,7 @@ require(['jquery', 'xwiki-meta'], function ($, xm) {
         <separators>|, </separators>
         <size>5</size>
         <unmodifiable>0</unmodifiable>
-        <values>action=Action|doc.reference=Document|icon.theme=Icon theme|locale=Language|rendering.defaultsyntax=Default syntax|rendering.restricted=Restricted|rendering.targetsyntax=Target syntax|request.base=Request base URL|request.cookies|request.headers|request.parameters=Request parameters|request.remoteAddr|request.url=Request URL|request.wiki=Request wiki|user=User|wiki=Wiki</values>
+        <values>action=Action|doc.reference=Document|doc.revision|icon.theme=Icon theme|locale=Language|rendering.defaultsyntax=Default syntax|rendering.restricted=Restricted|rendering.targetsyntax=Target syntax|request.base=Request base URL|request.cookies|request.headers|request.parameters=Request parameters|request.remoteAddr|request.session|request.url=Request URL|request.wiki=Request wiki|sheet|user=User|wiki=Wiki</values>
         <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
       </async_context>
       <async_enabled>
@@ -717,7 +594,6 @@ require(['jquery', 'xwiki-meta'], function ($, xm) {
         <name>content</name>
         <number>1</number>
         <prettyName>Executed Content</prettyName>
-        <restricted>0</restricted>
         <rows>25</rows>
         <size>120</size>
         <unmodifiable>0</unmodifiable>
@@ -748,7 +624,6 @@ require(['jquery', 'xwiki-meta'], function ($, xm) {
         <name>parameters</name>
         <number>7</number>
         <prettyName>Extension Parameters</prettyName>
-        <restricted>0</restricted>
         <rows>10</rows>
         <size>40</size>
         <unmodifiable>0</unmodifiable>
@@ -773,16 +648,16 @@ require(['jquery', 'xwiki-meta'], function ($, xm) {
         <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
       </scope>
     </class>
-    <property>
+    <property type="Integer">
       <async_cached>0</async_cached>
     </property>
-    <property>
+    <property type="StringList">
       <async_context/>
     </property>
-    <property>
+    <property type="Integer">
       <async_enabled>0</async_enabled>
     </property>
-    <property>
+    <property type="LargeString">
       <content>{{velocity}}
 #set ($object = $doc.getObject('SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass'))
 #if ($object)
@@ -804,16 +679,16 @@ require(['jquery', 'xwiki-meta'], function ($, xm) {
 #end
 {{/velocity}}</content>
     </property>
-    <property>
+    <property type="String">
       <extensionPointId>org.xwiki.plaftorm.menu.content</extensionPointId>
     </property>
-    <property>
+    <property type="String">
       <name>org.xwiki.contrib.securityadvisory.sheet.statusButton</name>
     </property>
-    <property>
+    <property type="LargeString">
       <parameters/>
     </property>
-    <property>
+    <property type="String">
       <scope>wiki</scope>
     </property>
   </object>
