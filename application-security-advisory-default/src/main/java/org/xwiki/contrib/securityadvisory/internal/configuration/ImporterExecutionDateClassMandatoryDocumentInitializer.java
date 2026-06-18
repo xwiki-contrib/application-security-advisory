@@ -43,11 +43,6 @@ import jakarta.inject.Singleton;
 public class ImporterExecutionDateClassMandatoryDocumentInitializer extends AbstractMandatoryClassInitializer
 {
     /**
-     * Field for holding the importer name.
-     */
-    public static final String IMPORTER_NAME = "importerName";
-
-    /**
      * Field for holding the last execution date.
      */
     public static final String LAST_EXECUTION_DATE = "lastExecutionDate";
@@ -69,7 +64,6 @@ public class ImporterExecutionDateClassMandatoryDocumentInitializer extends Abst
     @Override
     protected void createClass(BaseClass xclass)
     {
-        xclass.addTextField(IMPORTER_NAME, IMPORTER_NAME, 255);
         xclass.addDateField(LAST_EXECUTION_DATE, LAST_EXECUTION_DATE);
     }
 }

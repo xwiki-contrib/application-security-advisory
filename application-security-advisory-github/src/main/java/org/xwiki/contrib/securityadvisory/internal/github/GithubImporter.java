@@ -55,7 +55,7 @@ public class GithubImporter implements AdvisoryImporter
     private static final String HEADER_ACCEPT = "application/vnd.github+json";
     private static final String GITHUB_REST_API_ENDPOINT =
         "https://api.github.com/repos/%s/security-advisories";
-    private static final String GITHUB_REST_API_QUERIES = "?sort=updated&direction=desc&state=%s";
+    private static final String GITHUB_REST_API_QUERIES = "?sort=updated&direction=desc";
     private static final String GITHUB_API_TOKEN_HEADER = "Bearer %s";
     private static final String DRAFT_STATE = "draft";
     private static final String PUBLISHED_STATE = "published";
@@ -71,17 +71,16 @@ public class GithubImporter implements AdvisoryImporter
     private SecurityAdvisoryConfiguration securityAdvisoryConfiguration;
 
     @Override
-    public List<SecurityAdvisory> importAdvisories(boolean draft, Date limitDate) throws SecurityAdvisoryException
+    public List<SecurityAdvisory> importAdvisories(Date limitDate) throws SecurityAdvisoryException
     {
         List<SecurityAdvisory> advisories = new ArrayList<>();
         List<Pair<String, String>> githubRepositories = this.securityAdvisoryConfiguration.getGithubRepositories();
         String githubImporterToken = this.securityAdvisoryConfiguration.getGithubImporterToken();
-        String requestedState = draft ? DRAFT_STATE : PUBLISHED_STATE;
         for (Pair<String, String> githubRepository : githubRepositories) {
             String repoName = githubRepository.getLeft();
             String releaseProject = githubRepository.getRight();
             String firstQuery =
-                String.format(GITHUB_REST_API_ENDPOINT + GITHUB_REST_API_QUERIES, repoName, requestedState);
+                String.format(GITHUB_REST_API_ENDPOINT + GITHUB_REST_API_QUERIES, repoName);
             performQuery(firstQuery, releaseProject, limitDate, githubImporterToken, advisories, false);
         }
         return advisories;

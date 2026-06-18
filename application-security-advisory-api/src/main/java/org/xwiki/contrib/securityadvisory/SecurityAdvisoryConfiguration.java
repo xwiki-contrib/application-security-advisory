@@ -87,19 +87,18 @@ public interface SecurityAdvisoryConfiguration
     List<Pair<String, String>> getGithubRepositories();
 
     /**
-     * Retrieve the date of the last execution of the given importer identifier.
-     * @param importerName the identifier of the importer
+     * Retrieve the date of the last execution of the advisory importer.
+     *
      * @return the date of last execution or {@code null} in case it hasn't been executed.
      * @since 2.0
      */
-    Date getLatestExecution(String importerName);
+    Date getLatestExecution();
 
     /**
      * Record the date of last execution of the given importer.
      * @param executionDate the last execution date of the importer
-     * @param importerName the name of the importer
      * @throws SecurityAdvisoryException in case of problem to save the data
      * @since 2.0
      */
-    void updateLatestExecutionDate(Date executionDate, String importerName) throws SecurityAdvisoryException;
+    void updateLatestExecutionDate(Date executionDate) throws SecurityAdvisoryException;
 }

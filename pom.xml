@@ -106,4 +106,67 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.revapi</groupId>
+        <artifactId>revapi-maven-plugin</artifactId>
+        <configuration>
+          <analysisConfiguration>
+            <revapi.differences>
+              <justification>Move to Security Adivsory 2.0 with data closer to Github Security Advisories</justification>
+              <criticality>highlight</criticality>
+              <differences>
+                <item>
+                  <ignore>true</ignore>
+                  <code>java.method.removed</code>
+                  <old>method java.util.List&lt;java.lang.String&gt; org.xwiki.contrib.securityadvisory.SecurityAdvisory::getAffectedVersions()</old>
+                </item>
+                <item>
+                  <ignore>true</ignore>
+                  <code>java.method.removed</code>
+                  <old>method java.util.List&lt;java.lang.String&gt; org.xwiki.contrib.securityadvisory.SecurityAdvisory::getImpactedModules()</old>
+                </item>
+                <item>
+                  <ignore>true</ignore>
+                  <code>java.method.removed</code>
+                  <old>method java.util.List&lt;java.lang.String&gt; org.xwiki.contrib.securityadvisory.SecurityAdvisory::getPatchedVersions()</old>
+                </item>
+                <item>
+                  <ignore>true</ignore>
+                  <code>java.method.removed</code>
+                  <old>method java.util.List&lt;java.lang.String&gt; org.xwiki.contrib.securityadvisory.SecurityAdvisory::getTickets()</old>
+                </item>
+                <item>
+                  <ignore>true</ignore>
+                  <code>java.method.removed</code>
+                  <old>method org.xwiki.contrib.securityadvisory.SecurityAdvisory org.xwiki.contrib.securityadvisory.SecurityAdvisory::setAffectedVersions(java.util.List&lt;java.lang.String&gt;)</old>
+                </item>
+                <item>
+                  <ignore>true</ignore>
+                  <code>java.method.removed</code>
+                  <old>method org.xwiki.contrib.securityadvisory.SecurityAdvisory org.xwiki.contrib.securityadvisory.SecurityAdvisory::setImpactedModules(java.util.List&lt;java.lang.String&gt;)</old>
+                </item>
+                <item>
+                  <ignore>true</ignore>
+                  <code>java.method.removed</code>
+                  <old>method org.xwiki.contrib.securityadvisory.SecurityAdvisory org.xwiki.contrib.securityadvisory.SecurityAdvisory::setPatchedVersions(java.util.List&lt;java.lang.String&gt;)</old>
+                </item>
+                <item>
+                  <ignore>true</ignore>
+                  <code>java.method.removed</code>
+                  <old>method org.xwiki.contrib.securityadvisory.SecurityAdvisory org.xwiki.contrib.securityadvisory.SecurityAdvisory::setTickets(java.util.List&lt;java.lang.String&gt;)</old>
+                </item>
+                <item>
+                  <ignore>true</ignore>
+                  <code>java.class.removed</code>
+                  <old>interface org.xwiki.contrib.securityadvisory.SecurityAdvisoryConfiguration</old>
+                </item>
+              </differences>
+            </revapi.differences>
+          </analysisConfiguration>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>
