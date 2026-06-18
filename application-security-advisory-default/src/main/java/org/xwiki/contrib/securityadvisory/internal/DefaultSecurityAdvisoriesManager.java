@@ -20,7 +20,6 @@
 package org.xwiki.contrib.securityadvisory.internal;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -244,9 +243,12 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
     {
         List<SecurityAdvisory> advisories = this.getAdvisoriesWithStatus(SecurityAdvisory.State.ANNOUNCED, true);
         for (SecurityAdvisory advisory : advisories) {
-            Date embargoDate = this.versionReleasedManager.computeEmbargoDate(advisory);
-            if (embargoDate != null) {
-                advisory.setEmbargoDate(embargoDate);
+            VersionReleasedManager.ComputedEmbargoDate embargoDate
+                = this.versionReleasedManager.computeEmbargoDate(advisory);
+            if (embargoDate != null
+                && (advisory.getEmbargoDate() == null
+                || (embargoDate.updateExisting() && !embargoDate.embargoDate().equals(advisory.getEmbargoDate())))) {
+                advisory.setEmbargoDate(embargoDate.embargoDate());
                 this.saveEmbargoDate(advisory);
                 this.observationManager.notify(new EmbargoDateComputedEvent(), advisory, embargoDate);
             }
