@@ -33,7 +33,6 @@ import org.metaeffekt.core.security.cvss.CvssVector;
 import org.slf4j.Logger;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.contrib.rendering.markdown.commonmark12.internal.CommonMark12SyntaxProvider;
-import org.xwiki.contrib.securityadvisory.AdvisoryImporter;
 import org.xwiki.contrib.securityadvisory.ImpactedPackage;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoriesManager;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisory;
@@ -87,9 +86,6 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
     private ObservationManager observationManager;
 
     @Inject
-    private AdvisoryImporter advisoryImporter;
-
-    @Inject
     private Logger logger;
 
     private List<SecurityAdvisory> getAdvisoriesWithStatus(SecurityAdvisory.State status, boolean computeEmbargoDate)
@@ -97,17 +93,17 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
     {
         String statement = String.format("from doc.object(%s) as objAdv where objAdv.%s = :status",
             SECURITY_ADVISORY_CLASS,
-            SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_STATE);
+            SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_STATE);
 
         if (computeEmbargoDate) {
             statement += String.format(" and objAdv.%s = 1 and objAdv.%s is null",
-                SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_COMPUTE_EMBARGO_DATE,
-                SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_EMBARGO_DATE);
+                SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_COMPUTE_EMBARGO_DATE,
+                SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_EMBARGO_DATE);
         }
 
         try {
             Query query = this.queryManager.createQuery(statement, Query.XWQL)
-                .bindValue(SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_STATE, status.name());
+                .bindValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_STATE, status.name());
             List<SecurityAdvisory> results = new ArrayList<>();
             for (Object reference : query.execute()) {
                 DocumentReference documentReference = this.documentReferenceResolver.resolve(String.valueOf(reference));
@@ -131,18 +127,22 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
                 SecurityAdvisory advisory = new SecurityAdvisory(documentReference);
                 advisory
                     .setEmbargoDate(
-                        xObject.getDateValue(SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_EMBARGO_DATE))
-                    .setComputeEmbargoDate(
-                        xObject.getIntValue(
-                            SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_COMPUTE_EMBARGO_DATE) == 1)
+                        xObject.getDateValue(
+                            SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_EMBARGO_DATE))
+                    .setComputeEmbargoDate(xObject.getIntValue(
+                        SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_COMPUTE_EMBARGO_DATE) == 1)
                     .setState(SecurityAdvisory.State.valueOf(
                         xObject.getStringValue(
-                            SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_STATE).toUpperCase()))
-                    .setCveId(xObject.getStringValue(SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_CVE_ID))
+                            SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_STATE).toUpperCase()))
+                    .setCveId(xObject.getStringValue(
+                        SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_CVE_ID))
                     .setAdvisoryLink(
-                        xObject.getStringValue(SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_ADVISORY_LINK))
-                    .setProduct(xObject.getStringValue(SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_PRODUCT))
-                    .setSeverity(xObject.getStringValue(SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_CVSS))
+                        xObject.getStringValue(
+                            SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_ADVISORY_LINK))
+                    .setProduct(xObject.getStringValue(
+                        SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_PRODUCT))
+                    .setSeverity(xObject.getStringValue(
+                        SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_CVSS))
                     .setContent(document.getContent())
                     .setAuthor(document.getAuthors().getEffectiveMetadataAuthor());
                 setImpactedPackages(document, advisory);
@@ -177,7 +177,7 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
             XWikiDocument document = context.getWiki().getDocument(holderReference, context);
             BaseObject xObject = document.getXObject(this.documentReferenceResolver.resolve(SECURITY_ADVISORY_CLASS));
             if (xObject != null) {
-                xObject.setDateValue(SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_EMBARGO_DATE,
+                xObject.setDateValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_EMBARGO_DATE,
                     securityAdvisory.getEmbargoDate());
                 context.getWiki().saveDocument(document, "Set embargo date", context);
             } else {
@@ -203,7 +203,7 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
             BaseObject xObject = document.getXObject(this.documentReferenceResolver.resolve(SECURITY_ADVISORY_CLASS));
             if (xObject != null) {
                 securityAdvisory.setState(SecurityAdvisory.State.DISCLOSABLE);
-                xObject.setStringValue(SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_STATE,
+                xObject.setStringValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_STATE,
                     SecurityAdvisory.State.DISCLOSABLE.name());
                 context.getWiki().saveDocument(document, "Set disclosable status", context);
             } else {
@@ -269,7 +269,8 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
                     BaseObject xObject =
                         document.getXObject(this.documentReferenceResolver.resolve(SECURITY_ADVISORY_CLASS));
                     if (xObject != null) {
-                        xObject.setDoubleValue(SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_CVSS_SCORE,
+                        xObject.setDoubleValue(
+                            SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_CVSS_SCORE,
                             securityAdvisory.getCvssScore());
                         context.getWiki().saveDocument(document, "Set CVSS Score", context);
                     } else {
@@ -290,15 +291,17 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
         try {
             XWikiDocument document = context.getWiki().getDocument(securityAdvisory.getHolderReference(), context);
             document = document.clone();
-            BaseObject object = document.getXObject(SecurityAdvisoriesMandatoryDocumentInitializer.CLASS_REFERENCE);
+            BaseObject object = document.getXObject(
+                SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.CLASS_REFERENCE);
             boolean allowOverride = true;
 
             if (object == null) {
-                object = document.newXObject(SecurityAdvisoriesMandatoryDocumentInitializer.CLASS_REFERENCE,
+                object = document.newXObject(
+                    SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.CLASS_REFERENCE,
                     context);
             } else {
-                allowOverride =
-                    object.getIntValue(SecurityAdvisoriesMandatoryDocumentInitializer.PREVENT_OVERRIDE, 0) != 1;
+                allowOverride = object.getIntValue(
+                    SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.PREVENT_OVERRIDE, 0) != 1;
             }
             if (!allowOverride) {
                 logger.info("Data from advisory [{}] won't be imported as the existing advisory prevents overriding.",
@@ -315,20 +318,21 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
                 authors.setCreator(securityAdvisory.getAuthor());
             }
             document.setContent(securityAdvisory.getContent());
-            object.setStringValue(SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_ADVISORY_LINK,
+            object.setStringValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_ADVISORY_LINK,
                 securityAdvisory.getAdvisoryLink());
-            object.setStringValue(SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_CVSS,
+            object.setStringValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_CVSS,
                 securityAdvisory.getSeverity());
-            object.setDoubleValue(SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_CVSS_SCORE,
+            object.setDoubleValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_CVSS_SCORE,
                 securityAdvisory.getCvssScore());
-            object.setStringValue(SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_PRODUCT,
+            object.setStringValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_PRODUCT,
                 securityAdvisory.getProduct());
-            object.setStringValue(SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_CVE_ID,
+            object.setStringValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_CVE_ID,
                 securityAdvisory.getCveId());
 
-            if (StringUtils.isBlank(object.getStringValue(SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_STATE)))
+            if (StringUtils.isBlank(object.getStringValue(
+                SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_STATE)))
             {
-                object.setStringValue(SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_STATE,
+                object.setStringValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_STATE,
                     securityAdvisory.getState().name());
             }
 
@@ -344,17 +348,18 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
     @Override
     public Optional<DocumentReference> findExistingAdvisory(String externalAdvisoryURL) throws SecurityAdvisoryException
     {
-        String statement = String.format("from doc.object(%s) as objAdv where objAdv.%s = :advisoryUrl LIMIT 1",
+        String statement = String.format("from doc.object(%s) as objAdv where objAdv.%s = :advisoryUrl",
             SECURITY_ADVISORY_CLASS,
-            SecurityAdvisoriesMandatoryDocumentInitializer.FIELD_ADVISORY_LINK);
+            SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_ADVISORY_LINK);
 
         Optional<DocumentReference> result = Optional.empty();
         try {
             Query query = this.queryManager.createQuery(statement, Query.XWQL)
-                .bindValue("advisoryUrl", externalAdvisoryURL);
-            Object reference = query.execute();
-            if (reference != null) {
-                result = Optional.of(this.documentReferenceResolver.resolve(String.valueOf(reference)));
+                .bindValue("advisoryUrl", externalAdvisoryURL)
+                .setLimit(1);
+            List<String> reference = query.execute();
+            if (reference != null && reference.size() == 1) {
+                result = Optional.of(this.documentReferenceResolver.resolve(String.valueOf(reference.get(0))));
             }
         } catch (QueryException e) {
             throw new SecurityAdvisoryException(

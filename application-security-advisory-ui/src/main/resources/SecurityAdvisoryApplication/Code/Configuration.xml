@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 -->
 
-<xwikidoc version="1.5" reference="SecurityAdvisoryApplication.Code.Configuration" locale="">
+<xwikidoc version="1.7" reference="SecurityAdvisoryApplication.Code.Configuration" locale="">
   <web>SecurityAdvisoryApplication.Code</web>
   <name>Configuration</name>
   <language/>
@@ -37,6 +37,108 @@
   <syntaxId>xwiki/2.1</syntaxId>
   <hidden>true</hidden>
   <content/>
+  <object>
+    <name>SecurityAdvisoryApplication.Code.Configuration</name>
+    <number>0</number>
+    <className>SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass</className>
+    <guid>28bf4c88-ebd7-432b-bc24-69e999eae5ea</guid>
+    <class>
+      <name>SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <dataSpace>
+        <disabled>0</disabled>
+        <name>dataSpace</name>
+        <number>4</number>
+        <prettyName>dataSpace</prettyName>
+        <size>255</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </dataSpace>
+      <defaultEmbargoDuration>
+        <disabled>0</disabled>
+        <name>defaultEmbargoDuration</name>
+        <number>3</number>
+        <numberType>integer</numberType>
+        <prettyName>defaultEmbargoDuration</prettyName>
+        <size>20</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.NumberClass</classType>
+      </defaultEmbargoDuration>
+      <embargoDurationUnit>
+        <disabled>0</disabled>
+        <name>embargoDurationUnit</name>
+        <number>1</number>
+        <prettyName>embargoDurationUnit</prettyName>
+        <size>255</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </embargoDurationUnit>
+      <githubToken>
+        <disabled>0</disabled>
+        <name>githubToken</name>
+        <number>6</number>
+        <prettyName>githubToken</prettyName>
+        <size>255</size>
+        <storageType>Clear</storageType>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.PasswordClass</classType>
+      </githubToken>
+      <importerUser>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>input</displayType>
+        <multiSelect>1</multiSelect>
+        <name>importerUser</name>
+        <number>5</number>
+        <picker>1</picker>
+        <prettyName>importerUser</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <size>5</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.UsersClass</classType>
+      </importerUser>
+      <securityGroup>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>input</displayType>
+        <multiSelect>1</multiSelect>
+        <name>securityGroup</name>
+        <number>2</number>
+        <picker>1</picker>
+        <prettyName>securityGroup</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <size>5</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.GroupsClass</classType>
+      </securityGroup>
+    </class>
+    <property type="String">
+      <dataSpace/>
+    </property>
+    <property type="Integer">
+      <defaultEmbargoDuration/>
+    </property>
+    <property type="String">
+      <embargoDurationUnit/>
+    </property>
+    <property type="Password">
+      <githubToken/>
+    </property>
+    <property type="LargeString">
+      <importerUser/>
+    </property>
+    <property type="LargeString">
+      <securityGroup/>
+    </property>
+  </object>
   <object>
     <name>SecurityAdvisoryApplication.Code.Configuration</name>
     <number>0</number>
@@ -259,40 +361,40 @@
         <classType>com.xpn.xwiki.objects.classes.NumberClass</classType>
       </sectionOrder>
     </class>
-    <property>
+    <property type="String">
       <categoryIcon/>
     </property>
-    <property>
+    <property type="LargeString">
       <codeToExecute/>
     </property>
-    <property>
+    <property type="String">
       <configurationClass>SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass</configurationClass>
     </property>
-    <property>
+    <property type="String">
       <displayBeforeCategory/>
     </property>
-    <property>
+    <property type="String">
       <displayInCategory>other</displayInCategory>
     </property>
-    <property>
+    <property type="String">
       <displayInSection>Security Advisory</displayInSection>
     </property>
-    <property>
+    <property type="String">
       <heading/>
     </property>
-    <property>
+    <property type="String">
       <iconAttachment/>
     </property>
-    <property>
+    <property type="String">
       <linkPrefix/>
     </property>
-    <property>
+    <property type="DBStringList">
       <propertiesToShow/>
     </property>
-    <property>
+    <property type="String">
       <scope>WIKI</scope>
     </property>
-    <property>
+    <property type="Integer">
       <sectionOrder/>
     </property>
   </object>

@@ -114,7 +114,7 @@ public class DefaultSecurityAdvisoryConfiguration implements SecurityAdvisoryCon
             this.configurationSource.getProperty(
                 SecurityAdvisoryConfigurationClassMandatoryDocumentInitializer.DATA_SPACE,
                 "SecurityAdvisoryApplication.SecurityEntries");
-        return (SpaceReference) this.entityReferenceResolver.resolve(dataSpace, EntityType.SPACE);
+        return new SpaceReference(this.entityReferenceResolver.resolve(dataSpace, EntityType.SPACE));
     }
 
     @Override
