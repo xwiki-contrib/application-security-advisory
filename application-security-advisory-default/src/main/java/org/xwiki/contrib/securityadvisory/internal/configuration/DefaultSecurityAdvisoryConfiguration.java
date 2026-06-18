@@ -139,20 +139,15 @@ public class DefaultSecurityAdvisoryConfiguration implements SecurityAdvisoryCon
         return context.getWiki().getDocument(SecurityAdvisoryConfigurationSource.DOC_REFERENCE, context);
     }
 
-    private BaseObject getImporterExecutionDateObject(String importerName)
+    private BaseObject getImporterExecutionDateObject()
     {
         BaseObject result = null;
         try {
-            XWikiDocument configurationDoc = getConfigurationDoc();
+            XWikiDocument configurationDoc = getConfigurationDoc().clone();
             for (BaseObject importerDateObject : configurationDoc.getXObjects(
                 ImporterExecutionDateClassMandatoryDocumentInitializer.CLASS_REFERENCE)) {
                 if (importerDateObject != null) {
-                    String importObjectName = importerDateObject.getStringValue(
-                        ImporterExecutionDateClassMandatoryDocumentInitializer.IMPORTER_NAME);
-                    if (importerName.equals(importObjectName)) {
-                        result = importerDateObject;
-                        break;
-                    }
+                    result = importerDateObject;
                 }
             }
         } catch (XWikiException e) {
@@ -162,10 +157,10 @@ public class DefaultSecurityAdvisoryConfiguration implements SecurityAdvisoryCon
     }
 
     @Override
-    public Date getLatestExecution(String importerName)
+    public Date getLatestExecution()
     {
         Date result = null;
-        BaseObject importerExecutionDateObject = getImporterExecutionDateObject(importerName);
+        BaseObject importerExecutionDateObject = getImporterExecutionDateObject();
         if (importerExecutionDateObject != null) {
             result = importerExecutionDateObject
                 .getDateValue(ImporterExecutionDateClassMandatoryDocumentInitializer.LAST_EXECUTION_DATE);
@@ -174,26 +169,27 @@ public class DefaultSecurityAdvisoryConfiguration implements SecurityAdvisoryCon
     }
 
     @Override
-    public void updateLatestExecutionDate(Date executionDate, String importerName) throws SecurityAdvisoryException
+    public void updateLatestExecutionDate(Date executionDate) throws SecurityAdvisoryException
     {
-        BaseObject importerExecutionDateObject = getImporterExecutionDateObject(importerName);
+        BaseObject importerExecutionDateObject = getImporterExecutionDateObject();
         try {
-            XWikiDocument configurationDoc = getConfigurationDoc().clone();
+            XWikiDocument configurationDoc;
             XWikiContext context = contextProvider.get();
             if (importerExecutionDateObject == null) {
+                configurationDoc = getConfigurationDoc().clone();
                 importerExecutionDateObject =
                     configurationDoc.newXObject(ImporterExecutionDateClassMandatoryDocumentInitializer.CLASS_REFERENCE,
                         context);
-                importerExecutionDateObject
-                    .setStringValue(ImporterExecutionDateClassMandatoryDocumentInitializer.IMPORTER_NAME, importerName);
+            } else {
+                configurationDoc = importerExecutionDateObject.getOwnerDocument();
             }
             importerExecutionDateObject
                 .setDateValue(ImporterExecutionDateClassMandatoryDocumentInitializer.LAST_EXECUTION_DATE,
                     executionDate);
             context.getWiki()
-                .saveDocument(configurationDoc, "Update last execution date of " + importerName, true, context);
+                .saveDocument(configurationDoc, "Update last execution date of advisory importer", true, context);
         } catch (XWikiException e) {
-            throw new SecurityAdvisoryException("Could not update last execution date of " + importerName, e);
+            throw new SecurityAdvisoryException("Could not update last execution date of advisory importer", e);
         }
     }
 

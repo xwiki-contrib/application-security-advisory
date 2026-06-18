@@ -36,13 +36,11 @@ public interface AdvisoryImporter
     /**
      * Import all found advisories matching the given criteria.
      *
-     * @param draft if {@code true} import draft advisories and ignore published ones, if {@code false} import only
-     * published ones.
      * @param limitDate all advisories updated before that given date will be ignored.
      * @return a list of advisories retrieved from the external source.
      * @throws SecurityAdvisoryException in case of problem to retrieve or parse the advisories.
      */
-    List<SecurityAdvisory> importAdvisories(boolean draft, Date limitDate) throws SecurityAdvisoryException;
+    List<SecurityAdvisory> importAdvisories(Date limitDate) throws SecurityAdvisoryException;
 
     /**
      * Import a single advisory based on its URL.

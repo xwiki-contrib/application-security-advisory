@@ -46,12 +46,7 @@ SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_title1=Title
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_title_hint=Title of the advisory
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_product=product
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_product_hint=Impacted product (e.g. xwiki-platform, xwiki-rendering, application-change-request, etc)
-SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_mavenModules=Maven modules
-SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_mavenModules_hint=Impacted maven modules using full package definition without version (e.g. org.xwiki.platform:xwiki-platform-oldcore)
-SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_affectedVersions=Affected versions
-SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_affectedVersions_hint=All versions affected by the vulnerability before the fix, use XWiki version ranges syntax (for example [10.11.1,10.12), [11.10,) also documented at https://extensions.xwiki.org/xwiki/bin/view/Extension/Extension%20Module/Versions ) 
-SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_patchedVersions=Patched versions
-SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_patchedVersions_hint=All versions that have been patched (only single versions are accepted here, operators are not allowed)
+
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_advisoryLink=Advisory Link
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_advisoryLink_hint=Link of the github advisory that has been created
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_jiraTickets=JIRA Tickets
@@ -60,7 +55,7 @@ SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_computeEmbargo
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_computeEmbargo_hint=Define if the embargo date should be computed automatically from versions or not.
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_embargoDate=Embargo date
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_embargoDate_hint=Define a specific embargo date: this one is only taken into account if the compute embargo date flag is not checked.
-SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvss=CVSS Score
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvss=CVSS
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvss_hint=Value of the computed CVSS on the string form.
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_description=Description
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_description_hint=Full content of the advisory.

@@ -34,6 +34,7 @@
     <!-- Because application-security-advisory-default is installed on root namespace and we need the component to be
      injected there -->
     <xwiki.extension.namespaces>{root}</xwiki.extension.namespaces>
+    <xwiki.jacoco.instructionRatio>0.64</xwiki.jacoco.instructionRatio>
   </properties>
   <dependencies>
     <dependency>
