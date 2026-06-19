@@ -365,7 +365,42 @@
       <categoryIcon/>
     </property>
     <property type="LargeString">
-      <codeToExecute/>
+      <codeToExecute>## The content type of this property is "VelocityWiki": it is first evaluated by Velocity and the result is then
+## parsed as XWiki syntax. We must therefore NOT wrap it in a {{velocity}} macro, otherwise the output (in
+## particular job log messages containing stack traces) would be evaluated by Velocity a second time and could break
+## the rendering of the whole administration section.
+#if($xwiki.hasAdminRights())
+#if("$!request.get('securityAdvisoryMigrate')" == '1' &amp;&amp; $services.csrf.isTokenValid($request.get('form_token')))
+  #set($discard = $services.securityadvisory.startDataMigration())
+#end
+#set($migrationStatus = $services.securityadvisory.getDataMigrationStatus())
+#set($jobState = "$!migrationStatus.state")
+#set($candidateCount = $services.securityadvisory.getDataMigrationCandidateCount())
+(% class="securityadvisory-migration" %)(((
+(% id="h-securityadvisory-migration" %)
+== {{translation key="securityadvisoryapplication.admin.migration.heading"/}} ==
+
+(%%){{translation key="securityadvisoryapplication.admin.migration.description"/}}
+
+{{info}}{{translation key="securityadvisoryapplication.admin.migration.candidates", parameters="$!candidateCount"/}}{{/info}}
+
+{{html clean="false"}}
+&lt;form action="$escapetool.xml($xwiki.relativeRequestURL)" method="post" class="xform"&gt;
+  &lt;input type="hidden" name="form_token" value="$!{services.csrf.getToken()}"/&gt;
+  &lt;input type="hidden" name="securityAdvisoryMigrate" value="1"/&gt;
+  &lt;p&gt;&lt;span class="buttonwrapper"&gt;&lt;button type="submit" class="btn btn-primary"#if($jobState == 'RUNNING' || $jobState == 'WAITING') disabled="disabled"#end&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.admin.migration.button'))&lt;/button&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;/form&gt;
+#if("$!migrationStatus" != '')
+#template("job_macros.vm")
+#displayJobStatus($migrationStatus 'securityadvisoryapplication.admin.migration' '' true)
+#end
+{{/html}}
+)))
+
+----
+
+== {{translation key="securityadvisoryapplication.admin.settings.heading" /}} ==
+#end</codeToExecute>
     </property>
     <property type="String">
       <configurationClass>SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass</configurationClass>
