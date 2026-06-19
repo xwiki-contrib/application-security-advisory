@@ -115,6 +115,18 @@ public class SecurityAdvisoryApplicationClassMandatoryDocumentInitializer extend
     private static final LocalDocumentReference CLASSSHEET_REFERENCE =
         new LocalDocumentReference(XWiki.SYSTEM_SPACE, "ClassSheet");
 
+    /**
+     * Fields that were part of the legacy data model and have been removed from this class. The impacted packages
+     * information ({@code mavenModules}, {@code affectedVersions}, {@code patchedVersions}) is now stored in dedicated
+     * {@link ImpactedPackageClassMandatoryDocumentInitializer} objects, the {@code cve} field has been renamed to
+     * {@link #FIELD_CVE_ID}, and {@code dataSpaceName} and {@code jiraTickets} are no longer used. These fields are
+     * explicitly removed from the class on upgrade: {@link AbstractMandatoryClassInitializer} merges the class
+     * definition without removing obsolete fields, and leaving them in the class would make XWiki recreate them
+     * whenever an advisory object is saved (which notably breaks the data migration removing them).
+     */
+    private static final List<String> OBSOLETE_FIELDS =
+        List.of("mavenModules", "affectedVersions", "patchedVersions", "cve", "dataSpaceName", "jiraTickets");
+
     @Inject
     @Named("class")
     protected SheetBinder classSheetBinder;
@@ -125,6 +137,25 @@ public class SecurityAdvisoryApplicationClassMandatoryDocumentInitializer extend
     public SecurityAdvisoryApplicationClassMandatoryDocumentInitializer()
     {
         super(CLASS_REFERENCE);
+    }
+
+    @Override
+    public boolean updateDocument(XWikiDocument document)
+    {
+        // Let the default implementation add/update the fields defined in createClass. It merges the class with
+        // clean=false, though, so it keeps any obsolete field still stored in the class. We remove those explicitly
+        // below.
+        boolean needUpdate = super.updateDocument(document);
+
+        BaseClass xclass = document.getXClass();
+        for (String obsoleteField : OBSOLETE_FIELDS) {
+            if (xclass.getField(obsoleteField) != null) {
+                xclass.removeField(obsoleteField);
+                needUpdate = true;
+            }
+        }
+
+        return needUpdate;
     }
 
     @Override

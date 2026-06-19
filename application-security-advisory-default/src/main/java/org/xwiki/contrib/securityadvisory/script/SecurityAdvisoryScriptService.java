@@ -34,7 +34,15 @@ import org.xwiki.contrib.securityadvisory.AdvisoryImporter;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoriesManager;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisory;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryException;
+import org.xwiki.contrib.securityadvisory.internal.SecurityAdvisoryDataMigrator;
+import org.xwiki.contrib.securityadvisory.internal.SecurityAdvisoryMigrationJob;
+import org.xwiki.contrib.securityadvisory.internal.SecurityAdvisoryMigrationRequest;
 import org.xwiki.contrib.securityadvisory.internal.VersionReleasedManager;
+import org.xwiki.job.Job;
+import org.xwiki.job.JobException;
+import org.xwiki.job.JobExecutor;
+import org.xwiki.job.JobStatusStore;
+import org.xwiki.job.event.status.JobStatus;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.SpaceReference;
 import org.xwiki.script.service.ScriptService;
@@ -57,6 +65,8 @@ public class SecurityAdvisoryScriptService implements ScriptService
     private static final List<String> DEFAULT_ENTRIES_SPACE = Arrays.asList("SecurityAdvisoryApplication",
         "SecurityEntries");
 
+    private static final List<String> DATA_MIGRATION_JOB_ID = Arrays.asList("securityadvisory", "datamigration");
+
     @Inject
     private VersionReleasedManager versionReleasedManager;
 
@@ -68,6 +78,15 @@ public class SecurityAdvisoryScriptService implements ScriptService
 
     @Inject
     private AdvisoryImporter advisoryImporter;
+
+    @Inject
+    private SecurityAdvisoryDataMigrator dataMigrator;
+
+    @Inject
+    private JobExecutor jobExecutor;
+
+    @Inject
+    private JobStatusStore jobStatusStore;
 
     /**
      * Check if the given version is released or not.
@@ -167,5 +186,50 @@ public class SecurityAdvisoryScriptService implements ScriptService
         SecurityAdvisory securityAdvisory = this.advisoryImporter.importAdvisory(externalAdvisoryUrl, projectName);
         this.securityAdvisoriesManager.writeAdvisory(securityAdvisory);
         return securityAdvisory.getHolderReference();
+    }
+
+    /**
+     * Start an asynchronous job migrating all the existing security advisory documents from the legacy data model to
+     * the new one. This moves the impacted packages information that was stored directly on the advisory object into
+     * dedicated impacted package objects, and migrates the CVE identifier. If the migration job is already running, its
+     * status is returned without starting a new one.
+     *
+     * @return the status of the migration job
+     * @throws JobException in case of problem to start the job
+     * @since 2.0
+     */
+    public JobStatus startDataMigration() throws JobException
+    {
+        Job runningJob = this.jobExecutor.getJob(DATA_MIGRATION_JOB_ID);
+        if (runningJob != null) {
+            return runningJob.getStatus();
+        }
+        return this.jobExecutor
+            .execute(SecurityAdvisoryMigrationJob.JOBTYPE, new SecurityAdvisoryMigrationRequest(DATA_MIGRATION_JOB_ID))
+            .getStatus();
+    }
+
+    /**
+     * @return the status of the currently running or last executed data migration job, or {@code null} if the
+     *     migration has never been run
+     * @since 2.0
+     */
+    public JobStatus getDataMigrationStatus()
+    {
+        Job job = this.jobExecutor.getJob(DATA_MIGRATION_JOB_ID);
+        if (job != null) {
+            return job.getStatus();
+        }
+        return this.jobStatusStore.getJobStatus(DATA_MIGRATION_JOB_ID);
+    }
+
+    /**
+     * @return the number of advisory documents that still hold legacy data and would be migrated
+     * @throws SecurityAdvisoryException in case of problem to count the documents
+     * @since 2.0
+     */
+    public long getDataMigrationCandidateCount() throws SecurityAdvisoryException
+    {
+        return this.dataMigrator.countDocumentsToMigrate();
     }
 }
