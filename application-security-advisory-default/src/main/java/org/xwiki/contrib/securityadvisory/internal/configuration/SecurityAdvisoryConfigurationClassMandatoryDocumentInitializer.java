@@ -27,6 +27,7 @@ import org.xwiki.model.reference.LocalDocumentReference;
 
 import com.xpn.xwiki.doc.AbstractMandatoryClassInitializer;
 import com.xpn.xwiki.objects.classes.BaseClass;
+import com.xpn.xwiki.objects.classes.ListClass;
 import com.xpn.xwiki.objects.classes.NumberClass;
 import com.xpn.xwiki.objects.meta.PasswordMetaClass;
 
@@ -75,6 +76,11 @@ public class SecurityAdvisoryConfigurationClassMandatoryDocumentInitializer exte
     public static final String GITHUB_TOKEN = "githubToken";
 
     /**
+     * Field for holding Github repositories slug to import.
+     */
+    public static final String GITHUB_REPOSITORIES_SLUG = "githubRepositoriesSlug";
+
+    /**
      * Reference of the xclass.
      */
     public static final EntityReference CLASS_REFERENCE =
@@ -98,5 +104,7 @@ public class SecurityAdvisoryConfigurationClassMandatoryDocumentInitializer exte
         xclass.addTextField(DATA_SPACE, DATA_SPACE, 255);
         xclass.addUsersField(IMPORTER_USER, IMPORTER_USER);
         xclass.addPasswordField(GITHUB_TOKEN, GITHUB_TOKEN, 255, PasswordMetaClass.CLEAR);
+        xclass.addStaticListField(GITHUB_REPOSITORIES_SLUG, GITHUB_REPOSITORIES_SLUG, 1, true, false, null,
+            ListClass.DISPLAYTYPE_INPUT, null, null, ListClass.FREE_TEXT_ALLOWED, false);
     }
 }

@@ -19,11 +19,13 @@
  */
 package org.xwiki.contrib.securityadvisory.internal;
 
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 
 import org.apache.commons.lang3.StringUtils;
 import org.metaeffekt.core.security.cvss.CvssVector;
+import org.slf4j.Logger;
 import org.xwiki.bridge.event.DocumentCreatingEvent;
 import org.xwiki.bridge.event.DocumentUpdatingEvent;
 import org.xwiki.component.annotation.Component;
@@ -48,12 +50,15 @@ public class CVSSComputingListener extends AbstractLocalEventListener
 {
     static final String NAME = "org.xwiki.contrib.securityadvisory.internal.CVSSComputingListener";
 
+    @Inject
+    private Logger logger;
+
     /**
      * Default constructor.
      */
     public CVSSComputingListener()
     {
-        super(NAME, DocumentUpdatingEvent.class, DocumentCreatingEvent.class);
+        super(NAME, new DocumentUpdatingEvent(), new DocumentCreatingEvent());
     }
 
     @Override
@@ -68,14 +73,20 @@ public class CVSSComputingListener extends AbstractLocalEventListener
         }
     }
 
-    private static void maybeUpdateObject(BaseObject securityAdvisoryObject)
+    private void maybeUpdateObject(BaseObject securityAdvisoryObject)
     {
         String cvssVector = securityAdvisoryObject.getStringValue(FIELD_CVSS);
         double cvssScore = securityAdvisoryObject.getDoubleValue(FIELD_CVSS_SCORE);
         if (StringUtils.isNotBlank(cvssVector)) {
-            double computedScore = CvssVector.parseVector(cvssVector).getBaseScore();
-            if (computedScore != cvssScore) {
-                securityAdvisoryObject.setDoubleValue(FIELD_CVSS_SCORE, computedScore);
+            CvssVector parsedVector = CvssVector.parseVector(cvssVector);
+            if (parsedVector != null) {
+                double computedScore = parsedVector.getBaseScore();
+                if (computedScore != cvssScore) {
+                    securityAdvisoryObject.setDoubleValue(FIELD_CVSS_SCORE, computedScore);
+                }
+            } else {
+                this.logger.error("Vector [{}] cannot be parsed as CVSS vector in [{}].", cvssVector,
+                    securityAdvisoryObject.getOwnerDocument().getDocumentReference());
             }
         }
     }

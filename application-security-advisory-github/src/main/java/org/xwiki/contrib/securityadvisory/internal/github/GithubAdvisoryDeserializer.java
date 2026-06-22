@@ -71,6 +71,8 @@ public class GithubAdvisoryDeserializer
 
     private static final String OPEN_LOWER_MAVEN_BOUND = "(,";
     private static final String LIST_SEPARATOR = ",";
+    private static final String GITHUB_URL = "https://github.com/";
+    private static final String SLASH = "/";
 
     @Inject
     private Logger logger;
@@ -100,7 +102,6 @@ public class GithubAdvisoryDeserializer
      * Note that only the advisories updated after the given limit date will be processed, and the method returns
      * {@code true} if that date is reached.
      *
-     * @param releaseProject the project for which to build the advisories.
      * @param limitDate the limit date the advisories should be retrieved for.
      * @param response the response from Github API.
      * @param uniqueAdvisory {@code true} if the query is about a single advisory, {@code false} if it's about an
@@ -110,14 +111,14 @@ public class GithubAdvisoryDeserializer
      * ignored), {@code false} otherwise.
      * @throws SecurityAdvisoryException in case of problem for parsing the advisories.
      */
-    public boolean processGithubResponse(String releaseProject, Date limitDate, String response, boolean uniqueAdvisory,
+    public boolean processGithubResponse(Date limitDate, String response, boolean uniqueAdvisory,
         List<SecurityAdvisory> securityAdvisories) throws SecurityAdvisoryException
     {
         boolean limitDateReached = false;
         try {
             if (uniqueAdvisory) {
                 Advisory advisory = this.objectMapper.readValue(response, Advisory.class);
-                SecurityAdvisory securityAdvisory = processGithubAdvisory(advisory, releaseProject);
+                SecurityAdvisory securityAdvisory = processGithubAdvisory(advisory);
                 if (securityAdvisory != null) {
                     securityAdvisories.add(securityAdvisory);
                 }
@@ -125,7 +126,7 @@ public class GithubAdvisoryDeserializer
                 Advisory[] advisories = this.objectMapper.readValue(response, Advisory[].class);
                 for (Advisory advisory : advisories) {
                     if (limitDate == null || advisory.updatedAt().after(limitDate)) {
-                        SecurityAdvisory securityAdvisory = processGithubAdvisory(advisory, releaseProject);
+                        SecurityAdvisory securityAdvisory = processGithubAdvisory(advisory);
                         if (securityAdvisory != null) {
                             securityAdvisories.add(securityAdvisory);
                         }
@@ -141,7 +142,18 @@ public class GithubAdvisoryDeserializer
         return limitDateReached;
     }
 
-    private SecurityAdvisory processGithubAdvisory(Advisory githubAdvisory, String releaseProject)
+    private String findProductFromAdvisoryURL(String advisoryURL) throws SecurityAdvisoryException
+    {
+        if (!advisoryURL.startsWith(GITHUB_URL)) {
+            throw new SecurityAdvisoryException("Invalid advisory URL: " + advisoryURL);
+        }
+        String slugUrl = advisoryURL.substring(GITHUB_URL.length() + 1);
+        String repo = slugUrl.substring(0, slugUrl.indexOf(SLASH));
+        slugUrl = slugUrl.substring(repo.length() + 1);
+        return slugUrl.substring(0, slugUrl.indexOf(SLASH));
+    }
+
+    private SecurityAdvisory processGithubAdvisory(Advisory githubAdvisory)
         throws SecurityAdvisoryException
     {
         GithubState state = githubAdvisory.state();
@@ -161,7 +173,7 @@ public class GithubAdvisoryDeserializer
             .setAuthor(this.securityAdvisoryConfiguration.getAdvisoryImporterUser())
             .setTitle(githubAdvisory.summary())
             .setContent(githubAdvisory.description())
-            .setProduct(releaseProject)
+            .setProduct(findProductFromAdvisoryURL(githubAdvisory.htmlUrl()))
             .setState(isPublished ? SecurityAdvisory.State.DISCLOSED : SecurityAdvisory.State.DRAFT)
             .setComputeEmbargoDate(!isPublished);
 

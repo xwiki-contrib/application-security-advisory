@@ -58,6 +58,8 @@ SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvssScore=CVSS
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvssScore_hint=Score corresponding to the CVSS vector.
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_description=Description
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_description_hint=Full content of the advisory.
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_preventOverride=Prevent override
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_preventOverride_hint=Check to prevent overriding data in case of Github import.
 
 SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_ecosystem=Ecosystem
 SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_ecosystem_hint=Package ecosystem for the vulnerable package (e.g. Maven or NPM)
@@ -124,7 +126,8 @@ SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_importerUser
 SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_importerUser.hint=The user used as author for imported entries
 SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_githubToken=Github Token
 SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_githubToken.hint=The Github token to use for importing security advisories
-
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_githubRepositoriesSlug=Github Repositories
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_githubRepositoriesSlug.hint=The list of Github repositories to use in automatic import in the form orga/repo, e.g. xwiki/xwiki-platform.
 
 # Administration - configuration and data migration
 securityadvisoryapplication.admin.settings.heading=Configuration
