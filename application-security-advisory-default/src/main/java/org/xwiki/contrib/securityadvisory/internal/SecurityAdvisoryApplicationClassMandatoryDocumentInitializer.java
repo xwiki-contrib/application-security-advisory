@@ -109,6 +109,8 @@ public class SecurityAdvisoryApplicationClassMandatoryDocumentInitializer extend
     public static final EntityReference CLASS_REFERENCE =
         new LocalDocumentReference(CODE_SPACE_LIST, "SecurityAdvisoryApplicationClass");
 
+    private static final String CHECKBOX_INPUT = "checkbox";
+
     private static final LocalDocumentReference SHEET_REFERENCE =
         new LocalDocumentReference(CODE_SPACE_LIST, "SecurityAdvisoryApplicationSheet");
 
@@ -166,15 +168,16 @@ public class SecurityAdvisoryApplicationClassMandatoryDocumentInitializer extend
         xclass.addTextField(FIELD_STATE, FIELD_STATE, 255);
         xclass.addTextField(FIELD_CVE_ID, FIELD_CVE_ID, 255);
         xclass.addNumberField(FIELD_CVSS_SCORE, FIELD_CVSS_SCORE, 10, NumberClass.TYPE_DOUBLE);
-        xclass.addBooleanField(FIELD_COMPUTE_EMBARGO_DATE, FIELD_COMPUTE_EMBARGO_DATE, "checkbox", true);
-        xclass.addDateField(FIELD_EMBARGO_DATE, FIELD_EMBARGO_DATE);
-        xclass.addStaticListField(FIELD_PRODUCT, FIELD_PRODUCT, 1, false, null,
-            StaticListClass.DISPLAYTYPE_INPUT, ListClass.DEFAULT_SEPARATOR);
+        xclass.addBooleanField(FIELD_COMPUTE_EMBARGO_DATE, FIELD_COMPUTE_EMBARGO_DATE, CHECKBOX_INPUT, null, true);
+        xclass.addDateField(FIELD_EMBARGO_DATE, FIELD_EMBARGO_DATE, "dd/MM/yyyy");
+        xclass.addStaticListField(FIELD_PRODUCT, FIELD_PRODUCT, 1, false, false, null,
+            ListClass.DISPLAYTYPE_INPUT, null, null, ListClass.FREE_TEXT_ALLOWED, false);
         xclass.addStaticListField(FIELD_STATE, FIELD_STATE, 1, false,
             Stream.of(SecurityAdvisory.State.values())
                 .map(state -> String.format("%s=%s", state.name(), state.name().toLowerCase()))
                 .collect(Collectors.joining(ListClass.DEFAULT_SEPARATOR)),
             StaticListClass.DISPLAYTYPE_SELECT, ListClass.DEFAULT_SEPARATOR);
+        xclass.addBooleanField(PREVENT_OVERRIDE, PREVENT_OVERRIDE, CHECKBOX_INPUT, null, false);
 
         String titleFieldName = "title1";
         ComputedFieldClass titleFieldClass = new ComputedFieldClass();

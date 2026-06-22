@@ -81,11 +81,12 @@ public class ImpactedPackageClassMandatoryDocumentInitializer extends AbstractMa
     @Override
     protected void createClass(BaseClass xclass)
     {
-        xclass.addTextField(PACKAGE_ID, PACKAGE_ID, 255);
+        xclass.addStaticListField(PACKAGE_ID, PACKAGE_ID, 1, false, false, null,
+            ListClass.DISPLAYTYPE_INPUT, null, null, ListClass.FREE_TEXT_ALLOWED, false);
         xclass.addStaticListField(VULNERABLE_VERSION_RANGE, VULNERABLE_VERSION_RANGE, 1, true, false, null,
-            ListClass.DISPLAYTYPE_INPUT, ListClass.DEFAULT_SEPARATOR, null, ListClass.FREE_TEXT_ALLOWED, false);
+            ListClass.DISPLAYTYPE_INPUT, null, null, ListClass.FREE_TEXT_ALLOWED, false);
         xclass.addStaticListField(PATCHED_VERSIONS, PATCHED_VERSIONS, 1, true, false, null,
-            ListClass.DISPLAYTYPE_INPUT, ListClass.DEFAULT_SEPARATOR, null, ListClass.FREE_TEXT_ALLOWED, false);
+            ListClass.DISPLAYTYPE_INPUT, null, null, ListClass.FREE_TEXT_ALLOWED, false);
         xclass.addTextField(ECOSYSTEM, ECOSYSTEM, 255);
     }
 }

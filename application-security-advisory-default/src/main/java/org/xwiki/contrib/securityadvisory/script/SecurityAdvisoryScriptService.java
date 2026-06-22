@@ -175,15 +175,14 @@ public class SecurityAdvisoryScriptService implements ScriptService
      * Import the advisory located at the given URL and write its information as a new security advisory entry.
      *
      * @param externalAdvisoryUrl the URL of the external advisory
-     * @param projectName the name of the project the advisory should be mapped to
      * @return the reference of the document where the advisory is saved
      * @throws SecurityAdvisoryException in case of problem to import or write the advisory
      * @since 2.0
      */
-    public DocumentReference importAndSaveAdvisory(String externalAdvisoryUrl, String projectName)
+    public DocumentReference importAndSaveAdvisory(String externalAdvisoryUrl)
         throws SecurityAdvisoryException
     {
-        SecurityAdvisory securityAdvisory = this.advisoryImporter.importAdvisory(externalAdvisoryUrl, projectName);
+        SecurityAdvisory securityAdvisory = this.advisoryImporter.importAdvisory(externalAdvisoryUrl);
         this.securityAdvisoriesManager.writeAdvisory(securityAdvisory);
         return securityAdvisory.getHolderReference();
     }

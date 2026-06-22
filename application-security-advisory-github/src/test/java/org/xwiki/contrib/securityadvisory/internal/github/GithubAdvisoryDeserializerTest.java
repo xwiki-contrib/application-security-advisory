@@ -56,7 +56,7 @@ class GithubAdvisoryDeserializerTest
         String testJson = IOUtils.resourceToString("examples.json", Charset.defaultCharset(),
             GithubAdvisoryDeserializerTest.class.getClassLoader());
         List<SecurityAdvisory> advisoryList = new ArrayList<>();
-        deserializer.processGithubResponse("xwiki", new Date(0), testJson, false, advisoryList);
+        deserializer.processGithubResponse(new Date(0), testJson, false, advisoryList);
 
         // FIXME: build the list for comparison
         List<SecurityAdvisory> expected = new ArrayList<>();
@@ -97,6 +97,7 @@ class GithubAdvisoryDeserializerTest
         String testJson = "[" +
             "  {" +
             "    \"ghsa_id\": \"GHSA-test\"," +
+            "    \"html_url\": \"https://github.com/xwiki/xwiki-platform/GHSA-test\"," +
             "    \"updated_at\": \"2025-06-12T07:31:10Z\"," +
             "    \"state\": \"published\"," +
             "    \"vulnerabilities\": [" +
@@ -109,7 +110,7 @@ class GithubAdvisoryDeserializerTest
             "  }" +
             "]";
         List<SecurityAdvisory> advisoryList = new ArrayList<>();
-        deserializer.processGithubResponse("xwiki", new Date(0), testJson, false, advisoryList);
+        deserializer.processGithubResponse(new Date(0), testJson, false, advisoryList);
 
         assertEquals(1, advisoryList.size());
         SecurityAdvisory advisory = advisoryList.get(0);

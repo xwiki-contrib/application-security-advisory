@@ -91,6 +91,18 @@ $services.localization.render("securityadvisoryapplication.sheet.nextstep.$curre
     &lt;/dt&gt;
     &lt;dd&gt;$doc.display('title1')&lt;/dd&gt;
     &lt;dt #if (!$editing &amp;&amp; $hasEdit)
+      class="editableProperty"
+      data-property="$escapetool.xml($services.model.serialize($object.getPropertyReference('preventOverride')))"
+      data-property-type="object"#end&gt;
+    &lt;label#if ($editing) for="SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_0_preventOverride"#end&gt;
+      $escapetool.xml($doc.displayPrettyName('preventOverride', false, false))
+    &lt;/label&gt;
+    &lt;span class="xHint"&gt;
+      $escapetool.xml($services.localization.render('SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_preventOverride_hint'))
+    &lt;/span&gt;
+    &lt;/dt&gt;
+    &lt;dd&gt;$doc.display('preventOverride')&lt;/dd&gt;
+    &lt;dt #if (!$editing &amp;&amp; $hasEdit)
         class="editableProperty"
         data-property="$escapetool.xml($services.model.serialize($object.getPropertyReference('product')))"
         data-property-type="object"#end&gt;
@@ -211,7 +223,13 @@ $services.localization.render("securityadvisoryapplication.sheet.nextstep.$curre
         $escapetool.xml($services.localization.render('SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_patchedVersions_hint'))
       &lt;/span&gt;
     &lt;/dt&gt;
-    &lt;dd&gt;$impactedPackage.get('patchedVersions')&lt;/dd&gt;
+    &lt;dd&gt;
+    #if ($editing)
+      $impactedPackage.get('patchedVersions')
+    #else
+      #displayVersions($object.getValue('product') $impactedPackage.getValue('patchedVersions'))
+    #end
+    &lt;/dd&gt;
     #end
     
     &lt;dt #if (!$editing &amp;&amp; $hasEdit)

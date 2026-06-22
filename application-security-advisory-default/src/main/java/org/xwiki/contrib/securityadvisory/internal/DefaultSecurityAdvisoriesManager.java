@@ -293,17 +293,17 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
             document = document.clone();
             BaseObject object = document.getXObject(
                 SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.CLASS_REFERENCE);
-            boolean allowOverride = true;
+            boolean preventOverride = false;
 
             if (object == null) {
                 object = document.newXObject(
                     SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.CLASS_REFERENCE,
                     context);
             } else {
-                allowOverride = object.getIntValue(
-                    SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.PREVENT_OVERRIDE, 0) != 1;
+                preventOverride = object.getIntValue(
+                    SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.PREVENT_OVERRIDE, 0) == 1;
             }
-            if (!allowOverride) {
+            if (preventOverride) {
                 logger.info("Data from advisory [{}] won't be imported as the existing advisory prevents overriding.",
                     securityAdvisory.getAdvisoryLink());
                 return;
@@ -320,23 +320,7 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
                 authors.setCreator(securityAdvisory.getAuthor());
             }
             document.setContent(securityAdvisory.getContent());
-            object.setStringValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_ADVISORY_LINK,
-                securityAdvisory.getAdvisoryLink());
-            object.setStringValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_CVSS,
-                securityAdvisory.getSeverity());
-            object.setDoubleValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_CVSS_SCORE,
-                securityAdvisory.getCvssScore());
-            object.setStringValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_PRODUCT,
-                securityAdvisory.getProduct());
-            object.setStringValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_CVE_ID,
-                securityAdvisory.getCveId());
-
-            if (StringUtils.isBlank(object.getStringValue(
-                SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_STATE)))
-            {
-                object.setStringValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_STATE,
-                    securityAdvisory.getState().name());
-            }
+            setObjectValues(securityAdvisory, object);
 
             writeVulnerablePackages(document, securityAdvisory.getVulnerablePackages());
             context.getWiki().saveDocument(document, "Import data", context);
@@ -344,6 +328,30 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
             throw new SecurityAdvisoryException(
                 String.format("Error while trying to access document holding the advisory [%s]",
                     securityAdvisory.getHolderReference()), e);
+        }
+    }
+
+    private static void setObjectValues(SecurityAdvisory securityAdvisory, BaseObject object)
+    {
+        object.setStringValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_ADVISORY_LINK,
+            securityAdvisory.getAdvisoryLink());
+        object.setStringValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_CVSS,
+            securityAdvisory.getSeverity());
+        object.setDoubleValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_CVSS_SCORE,
+            securityAdvisory.getCvssScore());
+        object.setStringValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_PRODUCT,
+            securityAdvisory.getProduct());
+        object.setStringValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_CVE_ID,
+            securityAdvisory.getCveId());
+        object.setIntValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_COMPUTE_EMBARGO_DATE,
+            securityAdvisory.isComputeEmbargoDate() ? 1 : 0);
+        object.setIntValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.PREVENT_OVERRIDE, 0);
+
+        if (StringUtils.isBlank(object.getStringValue(
+            SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_STATE)))
+        {
+            object.setStringValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_STATE,
+                securityAdvisory.getState().name());
         }
     }
 

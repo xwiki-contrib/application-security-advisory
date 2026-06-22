@@ -23,7 +23,6 @@ import java.time.temporal.TemporalUnit;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.xwiki.component.annotation.Role;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.SpaceReference;
@@ -73,18 +72,13 @@ public interface SecurityAdvisoryConfiguration
     String getGithubImporterToken();
 
     /**
-     * List the Github URL repositories that needs to be used for importing advisories, and map them with a product
-     * key, as used in release notes to compute embargo dates. Multiple repositories might be mapped to the same
-     * product, it would be the case for example for the 3 repositories
-     * <a href="https://github.com/xwiki/xwiki-commons">https://github.com/xwiki/xwiki-commons</a>,
-     * <a href="https://github.com/xwiki/xwiki-rendering">https://github.com/xwiki/xwiki-rendering</a>,
-     * <a href="https://github.com/xwiki/xwiki-platform">https://github.com/xwiki/xwiki-platform</a>
-     * all mapped to {@code xwiki}.
+     * List the Github repositories slug (e.g. xwiki/xwiki-platform, or xwiki-contrib/application-changerequest) that
+     * needs to be used for importing advisories.
      *
      * @return the list of repositories from where to import data, mapped to their product name.
      * @since 2.0
      */
-    List<Pair<String, String>> getGithubRepositories();
+    List<String> getGithubRepositories();
 
     /**
      * Retrieve the date of the last execution of the advisory importer.

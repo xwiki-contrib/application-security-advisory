@@ -41,10 +41,10 @@
   This page is only available for admins.
   #stop
 #end
-#if ("$!request.get('advisoryUrl')" != '' &amp;&amp; "$!request.get('projectName')" != '')
+#if ("$!request.get('advisoryUrl')" != '')
   #if ($services.csrf.isTokenValid($request.get('form_token')))
     #try("importException")
-      #set ($importReference = $services.securityadvisory.importAndSaveAdvisory($request.get('advisoryUrl'), $request.get('projectName')))
+      #set ($importReference = $services.securityadvisory.importAndSaveAdvisory($request.get('advisoryUrl')))
     #end
     #if ("$!importException" != '')
       {{html}}
@@ -67,14 +67,6 @@
     &lt;/dt&gt;
     &lt;dd&gt;
       &lt;input id="advisoryUrl" name="advisoryUrl" type="text" size="255" placeholder="Advisory URL" /&gt;
-    &lt;/dd&gt;
-  &lt;/dl&gt;
-  &lt;dl&gt;
-    &lt;dt&gt;
-      &lt;label for="projectName"&gt;Project name (e.g. xwiki):&lt;/label&gt;
-    &lt;/dt&gt;
-    &lt;dd&gt;
-      &lt;input id="projectName" name="projectName" type="text" size="255" placeholder="xwiki" /&gt;
     &lt;/dd&gt;
   &lt;/dl&gt;
   &lt;p&gt;

@@ -21,7 +21,6 @@ package org.xwiki.contrib.securityadvisory.internal.configuration;
 
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -29,8 +28,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import org.apache.commons.lang3.tuple.Pair;
-import org.jodconverter.core.util.StringUtils;
 import org.slf4j.Logger;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.configuration.ConfigurationSource;
@@ -194,26 +191,9 @@ public class DefaultSecurityAdvisoryConfiguration implements SecurityAdvisoryCon
     }
 
     @Override
-    public List<Pair<String, String>> getGithubRepositories()
+    public List<String> getGithubRepositories()
     {
-        List<Pair<String, String>> result = new ArrayList<>();
-        try {
-            XWikiDocument configurationDoc = getConfigurationDoc();
-            for (BaseObject mappingObject : configurationDoc.getXObjects(
-                RepositoryMappingClassMandatoryDocumentInitializer.CLASS_REFERENCE)) {
-                if (mappingObject != null) {
-                    String repositoryName = mappingObject.getStringValue(
-                        RepositoryMappingClassMandatoryDocumentInitializer.REPOSITORY_NAME);
-                    String projectName =
-                        mappingObject.getStringValue(RepositoryMappingClassMandatoryDocumentInitializer.PROJECT_NAME);
-                    if (StringUtils.isNotEmpty(repositoryName) && StringUtils.isNotEmpty(projectName)) {
-                        result.add(Pair.of(repositoryName, projectName));
-                    }
-                }
-            }
-        } catch (XWikiException e) {
-            this.logger.error(CONFIGURATION_DOC_ACCESS_ERROR, e);
-        }
-        return result;
+        return this.configurationSource.getProperty(
+            SecurityAdvisoryConfigurationClassMandatoryDocumentInitializer.GITHUB_REPOSITORIES_SLUG);
     }
 }
