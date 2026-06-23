@@ -128,7 +128,7 @@ SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_importerUser
 SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_githubToken=Github Token
 SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_githubToken.hint=The Github token to use for importing security advisories
 SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_githubRepositoriesSlug=Github Repositories
-SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_githubRepositoriesSlug.hint=The list of Github repositories to use in automatic import in the form orga/repo, e.g. xwiki/xwiki-platform.
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_githubRepositoriesSlug.hint=The list of Github repositories to use in automatic import. The value can be a repository slug in the form orga/repo (e.g. xwiki/xwiki-platform) or it can be an organization (e.g. xwiki).
 
 # Administration - configuration and data migration
 securityadvisoryapplication.admin.settings.heading=Configuration

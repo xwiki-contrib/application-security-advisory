@@ -52,8 +52,9 @@ import jakarta.inject.Singleton;
 public class GithubImporter implements AdvisoryImporter
 {
     private static final String HEADER_ACCEPT = "application/vnd.github+json";
-    private static final String GITHUB_REST_API_ENDPOINT =
+    private static final String GITHUB_REPO_REST_API_ENDPOINT =
         "https://api.github.com/repos/%s/security-advisories";
+    private static final String GITHUB_ORGA_REST_API_ENDPOINT = "https://api.github.com/orgs/%s/security-advisories";
     private static final String GITHUB_REST_API_QUERIES = "?sort=updated&direction=desc";
     private static final String GITHUB_API_TOKEN_HEADER = "Bearer %s";
     private static final String LINK_HEADER = "link";
@@ -74,8 +75,9 @@ public class GithubImporter implements AdvisoryImporter
         List<String> githubRepositories = this.securityAdvisoryConfiguration.getGithubRepositories();
         String githubImporterToken = this.securityAdvisoryConfiguration.getGithubImporterToken();
         for (String githubRepository : githubRepositories) {
-            String firstQuery =
-                String.format(GITHUB_REST_API_ENDPOINT + GITHUB_REST_API_QUERIES, githubRepository);
+            String firstQuery = (githubRepository.contains("/"))
+                ? String.format(GITHUB_REPO_REST_API_ENDPOINT + GITHUB_REST_API_QUERIES, githubRepository)
+                : String.format(GITHUB_ORGA_REST_API_ENDPOINT + GITHUB_REST_API_QUERIES, githubRepository);
             performQuery(firstQuery, limitDate, githubImporterToken, advisories, false);
         }
         return advisories;
@@ -89,7 +91,7 @@ public class GithubImporter implements AdvisoryImporter
             String githubImporterToken = this.securityAdvisoryConfiguration.getGithubImporterToken();
             String repo = matcher.group("repo");
             String ghsaId = matcher.group("ghsaId");
-            String firstQuery = String.format(GITHUB_REST_API_ENDPOINT + "/%s", repo, ghsaId);
+            String firstQuery = String.format(GITHUB_REPO_REST_API_ENDPOINT + "/%s", repo, ghsaId);
             List<SecurityAdvisory> result = new ArrayList<>();
             performQuery(firstQuery, null, githubImporterToken, result, true);
             if (!result.isEmpty()) {
