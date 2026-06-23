@@ -25,26 +25,20 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.slf4j.Logger;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.contrib.securityadvisory.ImpactedPackage;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisory;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryConfiguration;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryException;
-import org.xwiki.extension.ResolveException;
+import org.xwiki.extension.ExtensionId;
 import org.xwiki.extension.repository.ExtensionRepositoryManager;
-import org.xwiki.extension.repository.result.IterableResult;
-import org.xwiki.extension.version.Version;
 import org.xwiki.query.Query;
 import org.xwiki.query.QueryException;
 import org.xwiki.query.QueryManager;
@@ -74,9 +68,6 @@ public class VersionReleasedManager
 
     @Inject
     private ExtensionRepositoryManager extensionRepositoryManager;
-
-    @Inject
-    private Logger logger;
 
     /**
      * A computed embargo date based on the release date of the patched versions, or, if no release dates are
@@ -263,20 +254,7 @@ public class VersionReleasedManager
 
     private boolean isAllExtensionVersionsReleased(String extensionId, List<String> patchedVersions)
     {
-        try {
-            IterableResult<Version> releasedVersions
-                = this.extensionRepositoryManager.resolveVersions(extensionId, 0, -1);
-            Set<String> releasedVersionStrings = new HashSet<>();
-            for (Version releasedVersion : releasedVersions) {
-                releasedVersionStrings.add(releasedVersion.toString());
-            }
-            // All patched versions need to be among the released versions of the extension.
-            return releasedVersionStrings.containsAll(patchedVersions);
-        } catch (ResolveException e) {
-            this.logger.warn(
-                "Error checking if all versions of extension [{}] are released: [{}], not computing embargo date",
-                extensionId, ExceptionUtils.getRootCauseMessage(e));
-            return false;
-        }
+        return patchedVersions.stream()
+            .allMatch(version -> this.extensionRepositoryManager.exists(new ExtensionId(extensionId, version)));
     }
 }

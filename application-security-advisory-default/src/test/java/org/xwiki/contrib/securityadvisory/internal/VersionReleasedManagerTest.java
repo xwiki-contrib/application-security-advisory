@@ -28,19 +28,13 @@ import java.util.List;
 import java.util.Locale;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
 import org.xwiki.contrib.securityadvisory.ImpactedPackage;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisory;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryConfiguration;
-import org.xwiki.extension.ResolveException;
+import org.xwiki.extension.ExtensionId;
 import org.xwiki.extension.repository.ExtensionRepositoryManager;
-import org.xwiki.extension.repository.result.CollectionIterableResult;
-import org.xwiki.extension.version.Version;
-import org.xwiki.extension.version.internal.DefaultVersion;
 import org.xwiki.query.Query;
 import org.xwiki.query.QueryManager;
-import org.xwiki.test.LogLevel;
-import org.xwiki.test.junit5.LogCaptureExtension;
 import org.xwiki.test.junit5.mockito.ComponentTest;
 import org.xwiki.test.junit5.mockito.InjectMockComponents;
 import org.xwiki.test.junit5.mockito.MockComponent;
@@ -77,9 +71,6 @@ class VersionReleasedManagerTest
 
     @MockComponent
     private ExtensionRepositoryManager extensionRepositoryManager;
-
-    @RegisterExtension
-    private LogCaptureExtension logCapture = new LogCaptureExtension(LogLevel.WARN);
 
     private static SecurityAdvisory advisoryWithPackages(ImpactedPackage... packages)
     {
@@ -181,10 +172,8 @@ class VersionReleasedManagerTest
         when(configuration.getEmbargoDurationUnit()).thenReturn(ChronoUnit.DAYS);
         when(configuration.getDefaultEmbargoDuration()).thenReturn(2L);
 
-        List<Version> releasedVersions =
-            List.of(new DefaultVersion("1.0"), new DefaultVersion("1.1"), new DefaultVersion("1.2"));
-        when(this.extensionRepositoryManager.resolveVersions("org.xwiki.contrib:my-extension", 0, -1))
-            .thenReturn(new CollectionIterableResult<>(releasedVersions.size(), 0, releasedVersions));
+        when(this.extensionRepositoryManager.exists(new ExtensionId("org.xwiki.contrib:my-extension", "1.2")))
+            .thenReturn(true);
 
         SecurityAdvisory advisory =
             advisoryWithPackages(impactedPackage("org.xwiki.contrib:my-extension", "1.2"));
@@ -208,30 +197,16 @@ class VersionReleasedManagerTest
     @Test
     void computeEmbargoDateForExtensionWithUnreleasedVersion() throws Exception
     {
-        // The repository only knows about 1.0 and 1.1, but the advisory references the (yet unreleased) 1.2.
-        List<Version> releasedVersions = List.of(new DefaultVersion("1.0"), new DefaultVersion("1.1"));
-        when(this.extensionRepositoryManager.resolveVersions("org.xwiki.contrib:my-extension", 0, -1))
-            .thenReturn(new CollectionIterableResult<>(releasedVersions.size(), 0, releasedVersions));
+        // The repository knows about 1.1, but the advisory also references the (yet unreleased) 1.2.
+        when(this.extensionRepositoryManager.exists(new ExtensionId("org.xwiki.contrib:my-extension", "1.1")))
+            .thenReturn(true);
+        when(this.extensionRepositoryManager.exists(new ExtensionId("org.xwiki.contrib:my-extension", "1.2")))
+            .thenReturn(false);
 
         SecurityAdvisory advisory =
-            advisoryWithPackages(impactedPackage("org.xwiki.contrib:my-extension", "1.2"));
+            advisoryWithPackages(impactedPackage("org.xwiki.contrib:my-extension", "1.1", "1.2"));
 
         assertNull(this.versionReleasedManager.computeEmbargoDate(advisory));
-    }
-
-    @Test
-    void computeEmbargoDateForExtensionWithResolveError() throws Exception
-    {
-        when(this.extensionRepositoryManager.resolveVersions("org.xwiki.contrib:my-extension", 0, -1))
-            .thenThrow(new ResolveException("Repository unreachable"));
-
-        SecurityAdvisory advisory =
-            advisoryWithPackages(impactedPackage("org.xwiki.contrib:my-extension", "1.2"));
-
-        assertNull(this.versionReleasedManager.computeEmbargoDate(advisory));
-        assertEquals(1, this.logCapture.size());
-        assertEquals("Error checking if all versions of extension [org.xwiki.contrib:my-extension] are released: "
-            + "[ResolveException: Repository unreachable], not computing embargo date", this.logCapture.getMessage(0));
     }
 
     @Test
