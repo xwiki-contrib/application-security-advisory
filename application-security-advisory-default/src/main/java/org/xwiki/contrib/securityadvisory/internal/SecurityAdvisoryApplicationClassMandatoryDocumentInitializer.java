@@ -165,11 +165,10 @@ public class SecurityAdvisoryApplicationClassMandatoryDocumentInitializer extend
     {
         xclass.addTextField(FIELD_ADVISORY_LINK, FIELD_ADVISORY_LINK, 255);
         xclass.addTextField(FIELD_CVSS, FIELD_CVSS, 255);
-        xclass.addTextField(FIELD_STATE, FIELD_STATE, 255);
         xclass.addTextField(FIELD_CVE_ID, FIELD_CVE_ID, 255);
         xclass.addNumberField(FIELD_CVSS_SCORE, FIELD_CVSS_SCORE, 10, NumberClass.TYPE_DOUBLE);
         xclass.addBooleanField(FIELD_COMPUTE_EMBARGO_DATE, FIELD_COMPUTE_EMBARGO_DATE, CHECKBOX_INPUT, null, true);
-        xclass.addDateField(FIELD_EMBARGO_DATE, FIELD_EMBARGO_DATE, "dd/MM/yyyy");
+        xclass.addDateField(FIELD_EMBARGO_DATE, FIELD_EMBARGO_DATE, "dd/MM/yyyy", 0);
         xclass.addStaticListField(FIELD_PRODUCT, FIELD_PRODUCT, 1, false, false, null,
             ListClass.DISPLAYTYPE_INPUT, null, null, ListClass.FREE_TEXT_ALLOWED, false);
         xclass.addStaticListField(FIELD_STATE, FIELD_STATE, 1, false,

@@ -30,23 +30,23 @@ import com.xpn.xwiki.plugin.scheduler.AbstractJob;
 import com.xpn.xwiki.web.Utils;
 
 /**
- * Job in charge of checking if an advisory is now disclosable.
+ * Job in charge of importing latest advisories.
  *
  * @version $Id$
- * @since 1.0
+ * @since 2.0
  */
-public class ComputeDisclosableJob extends AbstractJob implements Job
+public class ComputeEmbargoDatesJob extends AbstractJob implements Job
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ComputeDisclosableJob.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ComputeEmbargoDatesJob.class);
 
     @Override
     protected void executeJob(JobExecutionContext jobContext)
     {
         SecurityAdvisoriesManager advisoriesManager = Utils.getComponent(SecurityAdvisoriesManager.class);
         try {
-            advisoriesManager.computeDisclosable();
+            advisoriesManager.computeEmbargoDates();
         } catch (SecurityAdvisoryException e) {
-            LOGGER.error("Error when computing disclosable advisories", e);
+            LOGGER.error("Error when computing embargo dates", e);
         }
     }
 }

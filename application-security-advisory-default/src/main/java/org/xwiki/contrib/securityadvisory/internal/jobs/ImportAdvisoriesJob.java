@@ -24,7 +24,8 @@ import java.util.List;
 
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xwiki.contrib.securityadvisory.AdvisoryImporter;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoriesManager;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisory;
@@ -42,8 +43,10 @@ import com.xpn.xwiki.web.Utils;
  */
 public class ImportAdvisoriesJob extends AbstractJob implements Job
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ImportAdvisoriesJob.class);
+
     @Override
-    protected void executeJob(JobExecutionContext jobContext) throws JobExecutionException
+    protected void executeJob(JobExecutionContext jobContext)
     {
         SecurityAdvisoriesManager advisoriesManager = Utils.getComponent(SecurityAdvisoriesManager.class);
         AdvisoryImporter importer = Utils.getComponent(AdvisoryImporter.class);
@@ -56,7 +59,7 @@ public class ImportAdvisoriesJob extends AbstractJob implements Job
             }
             advisoryConfiguration.updateLatestExecutionDate(new Date());
         } catch (SecurityAdvisoryException e) {
-            throw new JobExecutionException("Error importing advisories", e);
+            LOGGER.error("Error while importing advisories", e);
         }
     }
 }
