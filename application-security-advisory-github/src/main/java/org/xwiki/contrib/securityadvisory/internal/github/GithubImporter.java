@@ -132,6 +132,7 @@ public class GithubImporter implements AdvisoryImporter
         getMethod.addHeader("Accept", HEADER_ACCEPT);
         getMethod.addHeader("Authorization", String.format(GITHUB_API_TOKEN_HEADER, token));
         getMethod.addHeader("User-Agent", "XWiki Security Advisory Application");
+        getMethod.addHeader("X-GitHub-Api-Version", "2026-03-10");
     }
 
     private String getNextPage(HttpGet getMethod) throws SecurityAdvisoryException

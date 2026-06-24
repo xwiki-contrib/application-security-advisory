@@ -31,6 +31,7 @@ import org.xwiki.contrib.securityadvisory.SecurityAdvisoriesManager;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisory;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryConfiguration;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryException;
+import org.xwiki.contrib.securityadvisory.VersionReleasedManager;
 
 import com.xpn.xwiki.plugin.scheduler.AbstractJob;
 import com.xpn.xwiki.web.Utils;
@@ -49,6 +50,7 @@ public class ImportAdvisoriesJob extends AbstractJob implements Job
     protected void executeJob(JobExecutionContext jobContext)
     {
         SecurityAdvisoriesManager advisoriesManager = Utils.getComponent(SecurityAdvisoriesManager.class);
+        VersionReleasedManager versionReleasedManager = Utils.getComponent(VersionReleasedManager.class);
         AdvisoryImporter importer = Utils.getComponent(AdvisoryImporter.class);
         SecurityAdvisoryConfiguration advisoryConfiguration = Utils.getComponent(SecurityAdvisoryConfiguration.class);
         Date lastImport = advisoryConfiguration.getLatestExecution();
@@ -56,6 +58,9 @@ public class ImportAdvisoriesJob extends AbstractJob implements Job
             List<SecurityAdvisory> securityAdvisories = importer.importAdvisories(lastImport);
             for (SecurityAdvisory securityAdvisory : securityAdvisories) {
                 advisoriesManager.writeAdvisory(securityAdvisory);
+                if (versionReleasedManager.updateReleasedVersions(securityAdvisory)) {
+                    advisoriesManager.writeAdvisoryImpactedPackagesReleaseInformation(securityAdvisory);
+                }
             }
             advisoryConfiguration.updateLatestExecutionDate(new Date());
         } catch (SecurityAdvisoryException e) {

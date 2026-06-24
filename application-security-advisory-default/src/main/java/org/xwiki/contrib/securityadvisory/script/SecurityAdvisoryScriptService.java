@@ -21,8 +21,8 @@ package org.xwiki.contrib.securityadvisory.script;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
-import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -34,10 +34,10 @@ import org.xwiki.contrib.securityadvisory.AdvisoryImporter;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoriesManager;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisory;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryException;
+import org.xwiki.contrib.securityadvisory.VersionReleasedManager;
 import org.xwiki.contrib.securityadvisory.internal.SecurityAdvisoryDataMigrator;
 import org.xwiki.contrib.securityadvisory.internal.SecurityAdvisoryMigrationJob;
 import org.xwiki.contrib.securityadvisory.internal.SecurityAdvisoryMigrationRequest;
-import org.xwiki.contrib.securityadvisory.internal.VersionReleasedManager;
 import org.xwiki.job.Job;
 import org.xwiki.job.JobException;
 import org.xwiki.job.JobExecutor;
@@ -60,21 +60,19 @@ import com.xpn.xwiki.XWikiContext;
 @Singleton
 public class SecurityAdvisoryScriptService implements ScriptService
 {
-    private static final Pattern SINGLE_VERSION = Pattern.compile("^([0-9]+\\.)*[0-9]+((-milestone-|-rc-)[0-9]+)?$");
-
     private static final List<String> DEFAULT_ENTRIES_SPACE = Arrays.asList("SecurityAdvisoryApplication",
         "SecurityEntries");
 
     private static final List<String> DATA_MIGRATION_JOB_ID = Arrays.asList("securityadvisory", "datamigration");
 
     @Inject
-    private VersionReleasedManager versionReleasedManager;
-
-    @Inject
     private Provider<XWikiContext> contextProvider;
 
     @Inject
     private SecurityAdvisoriesManager securityAdvisoriesManager;
+
+    @Inject
+    private VersionReleasedManager versionReleasedManager;
 
     @Inject
     private AdvisoryImporter advisoryImporter;
@@ -87,30 +85,6 @@ public class SecurityAdvisoryScriptService implements ScriptService
 
     @Inject
     private JobStatusStore jobStatusStore;
-
-    /**
-     * Check if the given version is released or not.
-     *
-     * @param product the name of the product for which to check if the version is released or not.
-     * @param version the version for which to check if it's released or not.
-     * @return {@code true} if the version has been released.
-     * @throws SecurityAdvisoryException in case of problem to perform the query
-     */
-    public boolean isReleased(String product, String version) throws SecurityAdvisoryException
-    {
-        return this.versionReleasedManager.isVersionReleased(product, version);
-    }
-
-    /**
-     * Check if the given string is a single version (e.g. 14.4.4) or a range of versions (e.g. &gt; 14.4)
-     *
-     * @param version the version string to check if it's single or not
-     * @return {@code true} if the version does not contain any operator and matches our version definition.
-     */
-    public boolean isSingleVersion(String version)
-    {
-        return SINGLE_VERSION.matcher(version).matches();
-    }
 
     /**
      * Check that the new state is reachable from the current state.
@@ -230,5 +204,27 @@ public class SecurityAdvisoryScriptService implements ScriptService
     public long getDataMigrationCandidateCount() throws SecurityAdvisoryException
     {
         return this.dataMigrator.countDocumentsToMigrate();
+    }
+
+    /**
+     * Compute and write release date information for the given advisory.
+     * @param advisoryReference the advisory for which to compute information.
+     * @return {@code true} if data have been updated, {@code false otherwise}.
+     * @throws SecurityAdvisoryException in case of problem when loading information
+     * @since 2.0
+     */
+    public boolean computeReleasedDateInformation(DocumentReference advisoryReference) throws SecurityAdvisoryException
+    {
+        boolean result = false;
+        Optional<SecurityAdvisory> securityAdvisoryOpt = this.securityAdvisoriesManager.loadAdvisory(advisoryReference);
+        if (securityAdvisoryOpt.isPresent()) {
+            SecurityAdvisory securityAdvisory = securityAdvisoryOpt.get();
+            boolean updated = this.versionReleasedManager.updateReleasedVersions(securityAdvisory);
+            if (updated) {
+                this.securityAdvisoriesManager.writeAdvisoryImpactedPackagesReleaseInformation(securityAdvisory);
+                result = true;
+            }
+        }
+        return result;
     }
 }

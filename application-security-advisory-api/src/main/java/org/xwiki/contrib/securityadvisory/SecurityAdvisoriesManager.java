@@ -65,10 +65,26 @@ public interface SecurityAdvisoriesManager
     void writeAdvisory(SecurityAdvisory securityAdvisory) throws SecurityAdvisoryException;
 
     /**
+     * Only write the release information of impacted packages of the given advisory. No other information is written.
+     * @param securityAdvisory the advisory to write in a document.
+     * @throws SecurityAdvisoryException in case of problem to write the document.
+     */
+    void writeAdvisoryImpactedPackagesReleaseInformation(SecurityAdvisory securityAdvisory)
+        throws SecurityAdvisoryException;
+
+    /**
      * Search for an existing advisory having the external advisory URL.
      * @param externalAdvisoryURL an advisory URL to look for in the list of existing advisories.
-     * @return the reference of the document holding that advisory if it exists.
+     * @return that advisory if it exists.
      * @throws SecurityAdvisoryException in case of problem to perform the query to look for the advisory.
      */
-    Optional<DocumentReference> findExistingAdvisory(String externalAdvisoryURL) throws SecurityAdvisoryException;
+    Optional<SecurityAdvisory> findExistingAdvisory(String externalAdvisoryURL) throws SecurityAdvisoryException;
+
+    /**
+     * Load advisory information based on the document reference that hold it.
+     * @param documentReference the document where the advisory is located.
+     * @return an advisory instance or {@link Optional#empty()} if no advisory can be found.
+     * @throws SecurityAdvisoryException in case of problem for loading the document.
+     */
+    Optional<SecurityAdvisory> loadAdvisory(DocumentReference documentReference) throws SecurityAdvisoryException;
 }

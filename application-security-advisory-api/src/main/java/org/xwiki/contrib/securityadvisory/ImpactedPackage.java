@@ -19,24 +19,30 @@
  */
 package org.xwiki.contrib.securityadvisory;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Represent a vulnerable package information in a security advisory.
  *
- * @param packageName the identifier of the package
  * @param ecosystem the ecosystem for this package (e.g. Maven or NPM)
+ * @param packageName the identifier of the package
  * @param affectedVersionsRanges the list of ranges of affected versions
  * @param patchedVersions the list of patched versions
+ * @param releasedVersions the computed list of patched versions that are released
+ * @param dateOfLatestRelease the date of latest release if some patched versions are released
  *
  * @version $Id$
  * @since 2.0
  */
 public record ImpactedPackage(
-    String packageName,
     String ecosystem,
+    String packageName,
     List<String> affectedVersionsRanges,
-    List<String> patchedVersions
+    List<String> patchedVersions,
+    List<String> releasedVersions,
+    Optional<Date> dateOfLatestRelease
 )
 {
 }

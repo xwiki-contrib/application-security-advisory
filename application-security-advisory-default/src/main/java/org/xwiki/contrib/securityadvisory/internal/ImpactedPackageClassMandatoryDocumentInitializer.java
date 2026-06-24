@@ -59,6 +59,16 @@ public class ImpactedPackageClassMandatoryDocumentInitializer extends AbstractMa
     public static final String PATCHED_VERSIONS = "patchedVersions";
 
     /**
+     * List of patched versions that have been released.
+     */
+    public static final String RELEASED_VERSIONS = "releasedVersions";
+
+    /**
+     * Date of latest patched version released.
+     */
+    public static final String LATEST_RELEASED_DATE = "latestReleasedDate";
+
+    /**
      * Ecosystem of the package (e.g. Maven or NPM)
      */
     public static final String ECOSYSTEM = "ecosystem";
@@ -88,5 +98,8 @@ public class ImpactedPackageClassMandatoryDocumentInitializer extends AbstractMa
         xclass.addStaticListField(PATCHED_VERSIONS, PATCHED_VERSIONS, 1, true, false, null,
             ListClass.DISPLAYTYPE_INPUT, null, null, ListClass.FREE_TEXT_ALLOWED, false);
         xclass.addTextField(ECOSYSTEM, ECOSYSTEM, 255);
+        xclass.addStaticListField(RELEASED_VERSIONS, RELEASED_VERSIONS, 1, true, false, null,
+            ListClass.DISPLAYTYPE_INPUT, null, null, ListClass.FREE_TEXT_ALLOWED, false);
+        xclass.addDateField(LATEST_RELEASED_DATE, LATEST_RELEASED_DATE, "dd/MM/yyyy", 0);
     }
 }

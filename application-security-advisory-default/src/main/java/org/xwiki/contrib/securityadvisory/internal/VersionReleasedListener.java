@@ -60,13 +60,12 @@ public class VersionReleasedListener extends AbstractEventListener
     public VersionReleasedListener()
     {
         super(NAME, Collections.singletonList(
-            new XObjectUpdatedEvent(BaseObjectReference.any(VersionReleasedManager.RELEASE_NOTE_CLASS))));
+            new XObjectUpdatedEvent(BaseObjectReference.any(DefaultVersionReleasedManager.RELEASE_NOTE_CLASS))));
     }
 
     @Override
     public void onEvent(Event event, Object source, Object data)
     {
-        // FIXME: This should be optimized to only compute the date for the newly released version.
         try {
             this.securityAdvisoriesManager.computeEmbargoDates();
         } catch (SecurityAdvisoryException e) {

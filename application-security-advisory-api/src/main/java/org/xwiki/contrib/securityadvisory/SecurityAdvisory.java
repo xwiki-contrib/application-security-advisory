@@ -20,6 +20,7 @@
 package org.xwiki.contrib.securityadvisory;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -74,7 +75,7 @@ public class SecurityAdvisory
     };
 
     private final DocumentReference holderReference;
-    private List<ImpactedPackage> vulnerablePackages;
+    private List<ImpactedPackage> vulnerablePackages = new ArrayList<>();
     private Date embargoDate;
     private boolean computeEmbargoDate;
     private State state;

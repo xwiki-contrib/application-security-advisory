@@ -22,6 +22,7 @@ package org.xwiki.contrib.securityadvisory.internal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -30,7 +31,10 @@ import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.xwiki.component.annotation.Component;
+import org.xwiki.contrib.securityadvisory.SecurityAdvisoriesManager;
+import org.xwiki.contrib.securityadvisory.SecurityAdvisory;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryException;
+import org.xwiki.contrib.securityadvisory.VersionReleasedManager;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.DocumentReferenceResolver;
 import org.xwiki.query.Query;
@@ -119,6 +123,12 @@ public class SecurityAdvisoryDataMigrator
     private DocumentReferenceResolver<String> documentReferenceResolver;
 
     @Inject
+    private VersionReleasedManager versionReleasedManager;
+
+    @Inject
+    private SecurityAdvisoriesManager advisoriesManager;
+
+    @Inject
     private Logger logger;
 
     /**
@@ -175,6 +185,7 @@ public class SecurityAdvisoryDataMigrator
             XWikiDocument document = context.getWiki().getDocument(documentReference, context).clone();
             if (migrateDocument(document)) {
                 context.getWiki().saveDocument(document, MIGRATION_SAVE_COMMENT, context);
+                computeReleasedVersionInformation(documentReference);
                 this.logger.info("Migrated security advisory [{}] to the new data model.", documentReference);
                 return true;
             }
@@ -182,6 +193,18 @@ public class SecurityAdvisoryDataMigrator
         } catch (XWikiException e) {
             throw new SecurityAdvisoryException(
                 String.format("Error while migrating the advisory document [%s]", documentReference), e);
+        }
+    }
+
+    private void computeReleasedVersionInformation(DocumentReference documentReference) throws SecurityAdvisoryException
+    {
+        Optional<SecurityAdvisory> securityAdvisoryOpt = this.advisoriesManager.loadAdvisory(documentReference);
+        if (securityAdvisoryOpt.isPresent()) {
+            SecurityAdvisory securityAdvisory = securityAdvisoryOpt.get();
+            boolean updated = this.versionReleasedManager.updateReleasedVersions(securityAdvisory);
+            if (updated) {
+                advisoriesManager.writeAdvisoryImpactedPackagesReleaseInformation(securityAdvisory);
+            }
         }
     }
 

@@ -20,6 +20,7 @@
 package org.xwiki.contrib.securityadvisory.internal;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -37,6 +38,7 @@ import org.xwiki.contrib.securityadvisory.ImpactedPackage;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoriesManager;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisory;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryException;
+import org.xwiki.contrib.securityadvisory.VersionReleasedManager;
 import org.xwiki.contrib.securityadvisory.event.DisclosableComputedEvent;
 import org.xwiki.contrib.securityadvisory.event.EmbargoDateComputedEvent;
 import org.xwiki.model.document.DocumentAuthors;
@@ -69,6 +71,8 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
     private static final String MISSING_OBJECT_EXCEPTION = "The holder document of the advisory does not contain "
         + "the proper xobject";
     private static final String READING_HOLDER_DOCUMENT_EXCEPTION = "Error when loading the holder document [%s]";
+    private static final String ADVISORY_ACCESS_EXCEPTION = "Error while trying to access document holding the "
+        + "advisory [%s]";
 
     @Inject
     private QueryManager queryManager;
@@ -107,7 +111,7 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
             List<SecurityAdvisory> results = new ArrayList<>();
             for (Object reference : query.execute()) {
                 DocumentReference documentReference = this.documentReferenceResolver.resolve(String.valueOf(reference));
-                this.getAdvisoryFromDocument(documentReference).ifPresent(results::add);
+                this.loadAdvisory(documentReference).ifPresent(results::add);
             }
             return results;
         } catch (QueryException e) {
@@ -115,7 +119,8 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
         }
     }
 
-    private Optional<SecurityAdvisory> getAdvisoryFromDocument(DocumentReference documentReference)
+    @Override
+    public Optional<SecurityAdvisory> loadAdvisory(DocumentReference documentReference)
         throws SecurityAdvisoryException
     {
         XWikiContext context = this.contextProvider.get();
@@ -150,7 +155,7 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
             }
         } catch (XWikiException e) {
             throw new SecurityAdvisoryException(
-                String.format("Error when loading the document [%s] to read the advisory", documentReference), e);
+                String.format(ADVISORY_ACCESS_EXCEPTION, documentReference), e);
         }
         return result;
     }
@@ -243,12 +248,14 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
     {
         List<SecurityAdvisory> advisories = this.getAdvisoriesWithStatus(SecurityAdvisory.State.ANNOUNCED, true);
         for (SecurityAdvisory advisory : advisories) {
-            VersionReleasedManager.ComputedEmbargoDate embargoDate
-                = this.versionReleasedManager.computeEmbargoDate(advisory);
-            if (embargoDate != null
+            if (this.versionReleasedManager.updateReleasedVersions(advisory)) {
+                this.writeAdvisoryImpactedPackagesReleaseInformation(advisory);
+            }
+            Optional<Date> embargoDate = this.versionReleasedManager.getEmbargoDate(advisory);
+            if (embargoDate.isPresent()
                 && (advisory.getEmbargoDate() == null
-                || (embargoDate.updateExisting() && !embargoDate.embargoDate().equals(advisory.getEmbargoDate())))) {
-                advisory.setEmbargoDate(embargoDate.embargoDate());
+                || (!embargoDate.get().equals(advisory.getEmbargoDate())))) {
+                advisory.setEmbargoDate(embargoDate.get());
                 this.saveEmbargoDate(advisory);
                 this.observationManager.notify(new EmbargoDateComputedEvent(), advisory, embargoDate);
             }
@@ -326,8 +333,25 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
             context.getWiki().saveDocument(document, "Import data", context);
         } catch (XWikiException e) {
             throw new SecurityAdvisoryException(
-                String.format("Error while trying to access document holding the advisory [%s]",
+                String.format(ADVISORY_ACCESS_EXCEPTION,
                     securityAdvisory.getHolderReference()), e);
+        }
+    }
+
+    @Override
+    public void writeAdvisoryImpactedPackagesReleaseInformation(SecurityAdvisory securityAdvisory)
+        throws SecurityAdvisoryException
+    {
+        XWikiContext context = this.contextProvider.get();
+        XWikiDocument document = null;
+        try {
+            document = context.getWiki().getDocument(securityAdvisory.getHolderReference(), context);
+            document = document.clone();
+            writeVulnerablePackages(document, securityAdvisory.getVulnerablePackages());
+            context.getWiki().saveDocument(document, "Update impacted package information", true, context);
+        } catch (XWikiException e) {
+            throw new SecurityAdvisoryException(
+                String.format(ADVISORY_ACCESS_EXCEPTION, securityAdvisory.getHolderReference()), e);
         }
     }
 
@@ -356,20 +380,20 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
     }
 
     @Override
-    public Optional<DocumentReference> findExistingAdvisory(String externalAdvisoryURL) throws SecurityAdvisoryException
+    public Optional<SecurityAdvisory> findExistingAdvisory(String externalAdvisoryURL) throws SecurityAdvisoryException
     {
         String statement = String.format("from doc.object(%s) as objAdv where objAdv.%s = :advisoryUrl",
             SECURITY_ADVISORY_CLASS,
             SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_ADVISORY_LINK);
 
-        Optional<DocumentReference> result = Optional.empty();
+        Optional<SecurityAdvisory> result = Optional.empty();
         try {
             Query query = this.queryManager.createQuery(statement, Query.XWQL)
                 .bindValue("advisoryUrl", externalAdvisoryURL)
                 .setLimit(1);
             List<String> reference = query.execute();
             if (reference != null && reference.size() == 1) {
-                result = Optional.of(this.documentReferenceResolver.resolve(String.valueOf(reference.get(0))));
+                result = loadAdvisory(this.documentReferenceResolver.resolve(String.valueOf(reference.get(0))));
             }
         } catch (QueryException e) {
             throw new SecurityAdvisoryException(
@@ -411,6 +435,15 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
                 impactedPackageObject.setStringListValue(
                     ImpactedPackageClassMandatoryDocumentInitializer.PATCHED_VERSIONS,
                     vulnerablePackage.patchedVersions());
+                impactedPackageObject.setStringListValue(
+                    ImpactedPackageClassMandatoryDocumentInitializer.RELEASED_VERSIONS,
+                    vulnerablePackage.releasedVersions());
+                if (vulnerablePackage.dateOfLatestRelease().isPresent()) {
+                    impactedPackageObject.setDateValue(
+                        ImpactedPackageClassMandatoryDocumentInitializer.LATEST_RELEASED_DATE,
+                        vulnerablePackage.dateOfLatestRelease().get()
+                    );
+                }
             }
         }
     }
@@ -423,8 +456,14 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
             ImpactedPackageClassMandatoryDocumentInitializer.VULNERABLE_VERSION_RANGE);
         List<String> patchedVersions = impactedPackagesObject.getListValue(
             ImpactedPackageClassMandatoryDocumentInitializer.PATCHED_VERSIONS);
+        List<String> releasedVersions = impactedPackagesObject.getListValue(
+            ImpactedPackageClassMandatoryDocumentInitializer.RELEASED_VERSIONS);
         String ecosystem =
             impactedPackagesObject.getStringValue(ImpactedPackageClassMandatoryDocumentInitializer.ECOSYSTEM);
-        return new ImpactedPackage(packageId, ecosystem, vulnerableRanges, patchedVersions);
+        Date latestReleasedDate =
+            impactedPackagesObject.getDateValue(ImpactedPackageClassMandatoryDocumentInitializer.LATEST_RELEASED_DATE);
+        Optional<Date> optionalDate = (latestReleasedDate != null) ? Optional.of(latestReleasedDate) : Optional.empty();
+        return new ImpactedPackage(ecosystem, packageId, vulnerableRanges, patchedVersions, releasedVersions,
+            optionalDate);
     }
 }

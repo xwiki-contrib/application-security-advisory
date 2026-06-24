@@ -20,9 +20,11 @@
 package org.xwiki.contrib.securityadvisory.internal.github;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import jakarta.inject.Inject;
@@ -165,8 +167,7 @@ public class GithubAdvisoryDeserializer
                 githubAdvisory.htmlUrl());
             return null;
         }
-        DocumentReference advisoryReference = getReference(githubAdvisory);
-        SecurityAdvisory advisory = new SecurityAdvisory(advisoryReference);
+        SecurityAdvisory advisory = loadAdvisory(githubAdvisory);
         boolean isPublished = state == GithubState.PUBLISHED;
         advisory
             .setAdvisoryLink(githubAdvisory.htmlUrl())
@@ -197,27 +198,56 @@ public class GithubAdvisoryDeserializer
     {
         List<ImpactedPackage> impactedPackages = new ArrayList<>();
         for (PackageVulnerability vulnerability : githubAdvisory.vulnerabilities()) {
-            impactedPackages.add(new ImpactedPackage(
-                vulnerability.vulnerablePackage().name(),
-                vulnerability.vulnerablePackage().ecosystem(),
-                getRangeVersions(vulnerability),
-                getPatchedVersions(vulnerability)
-            ));
+            impactedPackages.add(getOrBuildImpactedPackage(vulnerability, advisory.getVulnerablePackages()));
         }
         advisory.setVulnerablePackages(impactedPackages);
     }
 
-    private DocumentReference getReference(Advisory githubAdvisory) throws SecurityAdvisoryException
+    private ImpactedPackage getOrBuildImpactedPackage(PackageVulnerability vulnerability,
+        List<ImpactedPackage> impactedPackages)
     {
-        Optional<DocumentReference> existingAdvisoryReferenceOpt =
+        ImpactedPackage matchingPackage = null;
+        for (ImpactedPackage impactedPackage : impactedPackages) {
+            if (
+                Objects.equals(impactedPackage.ecosystem(), vulnerability.vulnerablePackage().ecosystem())
+                    && Objects.equals(impactedPackage.packageName(), vulnerability.vulnerablePackage().name())
+                    && Objects.equals(impactedPackage.patchedVersions(), getPatchedVersions(vulnerability))
+            ) {
+                matchingPackage = impactedPackage;
+                break;
+            }
+        }
+        Optional<Date> optionalDate = Optional.empty();
+        List<String> releasedVersions = new ArrayList<>();
+        if (matchingPackage != null) {
+            optionalDate = matchingPackage.dateOfLatestRelease();
+            releasedVersions = matchingPackage.releasedVersions();
+        }
+        return new ImpactedPackage(
+            vulnerability.vulnerablePackage().ecosystem(),
+            vulnerability.vulnerablePackage().name(),
+            getRangeVersions(vulnerability),
+            getPatchedVersions(vulnerability),
+            releasedVersions,
+            optionalDate
+        );
+    }
+
+    private SecurityAdvisory loadAdvisory(Advisory githubAdvisory) throws SecurityAdvisoryException
+    {
+        Optional<SecurityAdvisory> existingAdvisoryOpt =
             this.securityAdvisoriesManager.findExistingAdvisory(githubAdvisory.htmlUrl());
-        return existingAdvisoryReferenceOpt.orElseGet(() ->
-            new DocumentReference(githubAdvisory.ghsaId(), this.securityAdvisoryConfiguration.getSecurityDataSpace()));
+
+        return existingAdvisoryOpt.orElseGet(() ->
+            new SecurityAdvisory(new DocumentReference(githubAdvisory.ghsaId(),
+            this.securityAdvisoryConfiguration.getSecurityDataSpace())));
     }
 
     private List<String> getPatchedVersions(PackageVulnerability vulnerability)
     {
-        return List.of(StringUtils.split(vulnerability.patchedVersions(), LIST_SEPARATOR));
+        return Arrays.stream(StringUtils.split(vulnerability.patchedVersions(), LIST_SEPARATOR))
+            .map(String::trim)
+            .toList();
     }
 
     private List<String> getRangeVersions(PackageVulnerability vulnerability)

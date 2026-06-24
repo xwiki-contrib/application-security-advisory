@@ -161,6 +161,16 @@
                   <code>java.class.removed</code>
                   <old>interface org.xwiki.contrib.securityadvisory.SecurityAdvisoryConfiguration</old>
                 </item>
+                <item>
+                  <ignore>true</ignore>
+                  <code>java.method.removed</code>
+                  <old>method boolean org.xwiki.contrib.securityadvisory.script.SecurityAdvisoryScriptService::isReleased(java.lang.String, java.lang.String) throws org.xwiki.contrib.securityadvisory.SecurityAdvisoryException</old>
+                </item>
+                <item>
+                  <ignore>true</ignore>
+                  <code>java.method.removed</code>
+                  <old>method boolean org.xwiki.contrib.securityadvisory.script.SecurityAdvisoryScriptService::isSingleVersion(java.lang.String)</old>
+                </item>
               </differences>
             </revapi.differences>
           </analysisConfiguration>

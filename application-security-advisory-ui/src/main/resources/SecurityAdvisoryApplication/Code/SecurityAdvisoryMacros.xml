@@ -37,18 +37,17 @@
   <syntaxId>xwiki/2.1</syntaxId>
   <hidden>true</hidden>
   <content>{{velocity output="false"}}
-#macro (displayVersions $product $versionList)
+#macro (displayVersions $impactedPackageObject)
   &lt;ul class="version-list"&gt;
-  #foreach ($version in $versionList)
-   #set ($computeReleased = $services.securityadvisory.isSingleVersion($version))
+  #set ($patchedVersions = $impactedPackageObject.getXWikiObject().getListValue('patchedVersions'))
+  #set ($releasedVersions = $impactedPackageObject.getXWikiObject().getListValue('releasedVersions'))
+  #foreach ($version in $patchedVersions)
    &lt;li&gt;
      $escapetool.xml($version)
-     #if ($computeReleased)
-       #if ($services.securityadvisory.isReleased($product,$version))
-         &lt;span class="label label-success"&gt;released&lt;/span&gt;
-       #else
-         &lt;span class="label label-warning"&gt;not released&lt;/span&gt;
-       #end
+     #if ($releasedVersions.contains($version))
+       &lt;span class="label label-success"&gt;released&lt;/span&gt;
+     #else
+       &lt;span class="label label-warning"&gt;not released&lt;/span&gt;
      #end
   &lt;/li&gt;
   #end

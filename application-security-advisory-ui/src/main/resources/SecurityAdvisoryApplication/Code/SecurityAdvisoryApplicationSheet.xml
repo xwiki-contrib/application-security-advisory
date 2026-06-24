@@ -227,7 +227,7 @@ $services.localization.render("securityadvisoryapplication.sheet.nextstep.$curre
     #if ($editing)
       $impactedPackage.get('patchedVersions')
     #else
-      #displayVersions($object.getValue('product') $impactedPackage.getValue('patchedVersions'))
+      #displayVersions($impactedPackage)
     #end
     &lt;/dd&gt;
     #end
