@@ -70,7 +70,10 @@ SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_vulnerable
 SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_vulnerableVersionRange_hint=Range of versions of the given package that are affected by the vulnerability
 SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_patchedVersions=Patched versions
 SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_patchedVersions_hint=List of versions of the given package that have been patched
-
+SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_releasedVersions=Patched versions that are released
+SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_releasedVersions_hint=List of patched versions for which a release has been found
+SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_latestReleasedDate=Date of latest released version
+SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_latestReleasedDate_hint=Computed date of the latest release found
 
 # Sheet keys
 securityadvisoryapplication.sheet.description=This page controls how Security Advisory Application pages are displayed in both view and edit modes.
