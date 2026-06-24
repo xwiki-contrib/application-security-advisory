@@ -68,6 +68,10 @@ SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_description_hi
 ### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_vulnerableVersionRange_hint=Range of versions of the given package that are affected by the vulnerability
 ### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_patchedVersions=Patched versions
 ### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_patchedVersions_hint=List of versions of the given package that have been patched
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_releasedVersions=Patched versions that are released
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_releasedVersions_hint=List of patched versions for which a release has been found
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_latestReleasedDate=Date of latest released version
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_latestReleasedDate_hint=Computed date of the latest release found
 
 # Sheet keys
 securityadvisoryapplication.sheet.description=이 페이지는 보기 및 편집 모드 모두에서 보안 권고 응용 프로그램 페이지가 표시되는 방식을 제어합니다.
