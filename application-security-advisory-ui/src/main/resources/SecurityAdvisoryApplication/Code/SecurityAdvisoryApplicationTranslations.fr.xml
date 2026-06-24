@@ -68,6 +68,10 @@ SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvss_hint=Vale
 ### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_vulnerableVersionRange_hint=Range of versions of the given package that are affected by the vulnerability
 ### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_patchedVersions=Patched versions
 ### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_patchedVersions_hint=List of versions of the given package that have been patched
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_releasedVersions=Patched versions that are released
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_releasedVersions_hint=List of patched versions for which a release has been found
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_latestReleasedDate=Date of latest released version
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_latestReleasedDate_hint=Computed date of the latest release found
 
 # Sheet keys
 securityadvisoryapplication.sheet.description=Cette page contrôle comment les pages de l'application Security Advisory sont affichées à la fois en mode consultation et édition.
