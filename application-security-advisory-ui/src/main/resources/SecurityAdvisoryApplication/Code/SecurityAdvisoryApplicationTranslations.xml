@@ -53,8 +53,8 @@ SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_computeEmbargo
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_computeEmbargo_hint=Define if the embargo date should be computed automatically from versions or not.
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_embargoDate=Embargo date
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_embargoDate_hint=Define a specific embargo date: this one is only taken into account if the compute embargo date flag is not checked.
-SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvss=CVSS
-SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvss_hint=Value of the computed CVSS on the string form.
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvss=CVSS Vector
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvss_hint=The full vector representing a CVSS (e.g. CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:N/SC:N/SI:N/SA:N)
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvssScore=CVSS Score
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvssScore_hint=Score corresponding to the CVSS vector.
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_description=Description
