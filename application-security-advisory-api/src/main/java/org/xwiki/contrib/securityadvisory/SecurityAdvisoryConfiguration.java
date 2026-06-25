@@ -65,13 +65,6 @@ public interface SecurityAdvisoryConfiguration
     UserReference getAdvisoryImporterUser();
 
     /**
-     * @return the Github token used for reading repositories to import data
-     * @see #getGithubRepositories()
-     * @since 2.0
-     */
-    String getGithubImporterToken();
-
-    /**
      * List the Github repositories slug (e.g. xwiki/xwiki-platform, or xwiki-contrib/application-changerequest) that
      * needs to be used for importing advisories.
      *
