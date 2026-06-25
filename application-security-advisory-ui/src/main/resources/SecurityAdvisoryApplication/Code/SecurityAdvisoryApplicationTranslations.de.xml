@@ -52,10 +52,10 @@ SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_computeEmbargo
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_computeEmbargo_hint=Festlegen, ob das Sperrdatum automatisch aus den Versionen berechnet werden soll oder nicht.
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_embargoDate=Sperrdatum
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_embargoDate_hint=Ein bestimmtes Sperrdatum festlegen: Dieses wird nur berücksichtigt, wenn das Kennzeichen Sperrdatum berechnen nicht markiert ist.
-SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvss=CVSS-Score
-SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvss_hint=Wert des berechneten CVSS in Form einer Zeichenkette.
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvss=CVSS-Vektor
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvss_hint=Der vollständige Vektor, der einen CVSS-Wert darstellt (z. B. CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:N/SC:N/SI:N/SA:N)
 ### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvssScore=CVSS Score
-### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvssScore_hint=Score corresponding to the CVSS vector.
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvssScore_hint=Dem CVSS-Vektor entsprechende Punktzahl.
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_description=Beschreibung
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_description_hint=Vollständiger Inhalt des Hinweises.
 ### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_preventOverride=Prevent override
@@ -68,10 +68,10 @@ SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_description_hi
 ### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_vulnerableVersionRange_hint=Range of versions of the given package that are affected by the vulnerability
 ### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_patchedVersions=Patched versions
 ### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_patchedVersions_hint=List of versions of the given package that have been patched
-### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_releasedVersions=Patched versions that are released
-### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_releasedVersions_hint=List of patched versions for which a release has been found
-### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_latestReleasedDate=Date of latest released version
-### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_latestReleasedDate_hint=Computed date of the latest release found
+SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_releasedVersions=Veröffentlichte gepatchte Versionen
+SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_releasedVersions_hint=Liste der gepatchten Versionen, für die eine Veröffentlichung gefunden wurde
+SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_latestReleasedDate=Datum der zuletzt veröffentlichten Version
+SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_latestReleasedDate_hint=Berechnetes Datum der zuletzt gefundenen Version
 
 # Sheet keys
 securityadvisoryapplication.sheet.description=Diese Seite steuert, wie die Seiten der Security Advisory Application sowohl im Anzeige- als auch im Bearbeitungsmodus angezeigt werden.
@@ -107,7 +107,7 @@ securityadvisoryapplication.livetable.advisoryLink=Advisory-Link
 securityadvisoryapplication.livetable.jiraTickets=Jira-Tickets
 securityadvisoryapplication.livetable.computeEmbargo=Sperrdatum errechnen
 securityadvisoryapplication.livetable.embargoDate=Sperrdatum
-securityadvisoryapplication.livetable.cvss=CVSS-Score
+securityadvisoryapplication.livetable.cvss=CVSS
 ### Missing: securityadvisoryapplication.livetable.cvssScore=CVSS Score
 securityadvisoryapplication.livetable.description=Beschreibung
 
