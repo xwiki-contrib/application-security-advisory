@@ -123,13 +123,6 @@ public class DefaultSecurityAdvisoryConfiguration implements SecurityAdvisoryCon
         return this.userReferenceResolver.resolve(importerUser);
     }
 
-    @Override
-    public String getGithubImporterToken()
-    {
-        return this.configurationSource.getProperty(
-            SecurityAdvisoryConfigurationClassMandatoryDocumentInitializer.GITHUB_TOKEN);
-    }
-
     private XWikiDocument getConfigurationDoc() throws XWikiException
     {
         XWikiContext context = this.contextProvider.get();

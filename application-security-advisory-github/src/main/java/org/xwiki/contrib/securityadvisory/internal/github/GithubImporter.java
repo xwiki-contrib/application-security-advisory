@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,6 +33,7 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.ProtocolException;
+import org.slf4j.Logger;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.contrib.securityadvisory.AdvisoryImporter;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisory;
@@ -68,13 +70,26 @@ public class GithubImporter implements AdvisoryImporter
     @Inject
     private SecurityAdvisoryConfiguration securityAdvisoryConfiguration;
 
+    @Inject
+    private GithubTokenManager githubTokenManager;
+
+    @Inject
+    private Logger logger;
+
     @Override
     public List<SecurityAdvisory> importAdvisories(Date limitDate) throws SecurityAdvisoryException
     {
         List<SecurityAdvisory> advisories = new ArrayList<>();
         List<String> githubRepositories = this.securityAdvisoryConfiguration.getGithubRepositories();
-        String githubImporterToken = this.securityAdvisoryConfiguration.getGithubImporterToken();
+        Map<String, String> tokens = this.githubTokenManager.getTokens();
         for (String githubRepository : githubRepositories) {
+            String githubImporterToken;
+            try {
+                githubImporterToken = this.githubTokenManager.getTokenFromRepository(tokens, githubRepository);
+            } catch (SecurityAdvisoryException e) {
+                this.logger.error("No token found for repository [{}]. Skipping.", githubRepository, e);
+                continue;
+            }
             String firstQuery = (githubRepository.contains("/"))
                 ? String.format(GITHUB_REPO_REST_API_ENDPOINT + GITHUB_REST_API_QUERIES, githubRepository)
                 : String.format(GITHUB_ORGA_REST_API_ENDPOINT + GITHUB_REST_API_QUERIES, githubRepository);
@@ -87,10 +102,11 @@ public class GithubImporter implements AdvisoryImporter
     public SecurityAdvisory importAdvisory(String advisoryUrl) throws SecurityAdvisoryException
     {
         Matcher matcher = ADVISORY_URL_PATTERN.matcher(advisoryUrl);
+        Map<String, String> tokens = this.githubTokenManager.getTokens();
         if (matcher.matches()) {
-            String githubImporterToken = this.securityAdvisoryConfiguration.getGithubImporterToken();
             String repo = matcher.group("repo");
             String ghsaId = matcher.group("ghsaId");
+            String githubImporterToken = this.githubTokenManager.getTokenFromRepository(tokens, repo);
             String firstQuery = String.format(GITHUB_REPO_REST_API_ENDPOINT + "/%s", repo, ghsaId);
             List<SecurityAdvisory> result = new ArrayList<>();
             performQuery(firstQuery, null, githubImporterToken, result, true);

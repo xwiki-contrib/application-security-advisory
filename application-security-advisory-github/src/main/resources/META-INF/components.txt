@@ -1,2 +1,4 @@
 org.xwiki.contrib.securityadvisory.internal.github.GithubAdvisoryDeserializer
 org.xwiki.contrib.securityadvisory.internal.github.GithubImporter
+org.xwiki.contrib.securityadvisory.internal.github.GithubTokenClassMandatoryDocumentInitializer
+org.xwiki.contrib.securityadvisory.internal.github.GithubTokenManager

@@ -113,63 +113,13 @@
         <configuration>
           <analysisConfiguration>
             <revapi.differences>
-              <justification>Move to Security Adivsory 2.0 with data closer to Github Security Advisories</justification>
+              <justification>Break API for handling Github authentication properly.</justification>
               <criticality>highlight</criticality>
               <differences>
                 <item>
                   <ignore>true</ignore>
                   <code>java.method.removed</code>
-                  <old>method java.util.List&lt;java.lang.String&gt; org.xwiki.contrib.securityadvisory.SecurityAdvisory::getAffectedVersions()</old>
-                </item>
-                <item>
-                  <ignore>true</ignore>
-                  <code>java.method.removed</code>
-                  <old>method java.util.List&lt;java.lang.String&gt; org.xwiki.contrib.securityadvisory.SecurityAdvisory::getImpactedModules()</old>
-                </item>
-                <item>
-                  <ignore>true</ignore>
-                  <code>java.method.removed</code>
-                  <old>method java.util.List&lt;java.lang.String&gt; org.xwiki.contrib.securityadvisory.SecurityAdvisory::getPatchedVersions()</old>
-                </item>
-                <item>
-                  <ignore>true</ignore>
-                  <code>java.method.removed</code>
-                  <old>method java.util.List&lt;java.lang.String&gt; org.xwiki.contrib.securityadvisory.SecurityAdvisory::getTickets()</old>
-                </item>
-                <item>
-                  <ignore>true</ignore>
-                  <code>java.method.removed</code>
-                  <old>method org.xwiki.contrib.securityadvisory.SecurityAdvisory org.xwiki.contrib.securityadvisory.SecurityAdvisory::setAffectedVersions(java.util.List&lt;java.lang.String&gt;)</old>
-                </item>
-                <item>
-                  <ignore>true</ignore>
-                  <code>java.method.removed</code>
-                  <old>method org.xwiki.contrib.securityadvisory.SecurityAdvisory org.xwiki.contrib.securityadvisory.SecurityAdvisory::setImpactedModules(java.util.List&lt;java.lang.String&gt;)</old>
-                </item>
-                <item>
-                  <ignore>true</ignore>
-                  <code>java.method.removed</code>
-                  <old>method org.xwiki.contrib.securityadvisory.SecurityAdvisory org.xwiki.contrib.securityadvisory.SecurityAdvisory::setPatchedVersions(java.util.List&lt;java.lang.String&gt;)</old>
-                </item>
-                <item>
-                  <ignore>true</ignore>
-                  <code>java.method.removed</code>
-                  <old>method org.xwiki.contrib.securityadvisory.SecurityAdvisory org.xwiki.contrib.securityadvisory.SecurityAdvisory::setTickets(java.util.List&lt;java.lang.String&gt;)</old>
-                </item>
-                <item>
-                  <ignore>true</ignore>
-                  <code>java.class.removed</code>
-                  <old>interface org.xwiki.contrib.securityadvisory.SecurityAdvisoryConfiguration</old>
-                </item>
-                <item>
-                  <ignore>true</ignore>
-                  <code>java.method.removed</code>
-                  <old>method boolean org.xwiki.contrib.securityadvisory.script.SecurityAdvisoryScriptService::isReleased(java.lang.String, java.lang.String) throws org.xwiki.contrib.securityadvisory.SecurityAdvisoryException</old>
-                </item>
-                <item>
-                  <ignore>true</ignore>
-                  <code>java.method.removed</code>
-                  <old>method boolean org.xwiki.contrib.securityadvisory.script.SecurityAdvisoryScriptService::isSingleVersion(java.lang.String)</old>
+                  <old>method java.lang.String org.xwiki.contrib.securityadvisory.SecurityAdvisoryConfiguration::getGithubImporterToken()</old>
                 </item>
               </differences>
             </revapi.differences>

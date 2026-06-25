@@ -29,7 +29,6 @@ import com.xpn.xwiki.doc.AbstractMandatoryClassInitializer;
 import com.xpn.xwiki.objects.classes.BaseClass;
 import com.xpn.xwiki.objects.classes.ListClass;
 import com.xpn.xwiki.objects.classes.NumberClass;
-import com.xpn.xwiki.objects.meta.PasswordMetaClass;
 
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
@@ -103,7 +102,6 @@ public class SecurityAdvisoryConfigurationClassMandatoryDocumentInitializer exte
         xclass.addNumberField(DEFAULT_EMBARGO_DURATION, DEFAULT_EMBARGO_DURATION, 20, NumberClass.TYPE_INTEGER);
         xclass.addTextField(DATA_SPACE, DATA_SPACE, 255);
         xclass.addUsersField(IMPORTER_USER, IMPORTER_USER);
-        xclass.addPasswordField(GITHUB_TOKEN, GITHUB_TOKEN, 255, PasswordMetaClass.CLEAR);
         xclass.addStaticListField(GITHUB_REPOSITORIES_SLUG, GITHUB_REPOSITORIES_SLUG, 1, true, false, null,
             ListClass.DISPLAYTYPE_INPUT, null, null, ListClass.FREE_TEXT_ALLOWED, false);
     }
