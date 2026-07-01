@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 -->
 
-<xwikidoc version="1.7" reference="SecurityAdvisoryApplication.Code.Configuration" locale="">
+<xwikidoc version="1.6" reference="SecurityAdvisoryApplication.Code.Configuration" locale="">
   <web>SecurityAdvisoryApplication.Code</web>
   <name>Configuration</name>
   <language/>
@@ -36,12 +36,57 @@
   <minorEdit>false</minorEdit>
   <syntaxId>xwiki/2.1</syntaxId>
   <hidden>true</hidden>
-  <content/>
+  <content>{{velocity}}
+#if($xwiki.hasAdminRights() &amp;&amp; "$!request.get('githubTokenAction')" != '')
+#set($githubTokenClass = 'SecurityAdvisoryApplication.Code.GithubTokenClass')
+#if ($services.csrf.isTokenValid($request.get('form_token')))
+  #set($redirectURL = $request.get('xredirect'))
+  #if($request.get('githubTokenAction') == 'addToken')
+    #set($newOrga = $request.get('newOrga'))
+    #set($newTokenValue = $request.get('newToken'))
+    #if("$!newOrga" != '' &amp;&amp; "$!newTokenValue" != '')
+      #set($newObj = $doc.newObject($githubTokenClass))
+      #set($discard = $newObj.set('orga', $newOrga))
+      #set($discard = $newObj.set('token', $newTokenValue))
+      #set($discard = $doc.save('Add GitHub token', true))
+      $response.sendRedirect($redirectURL)
+    #else
+      #set ($discard = $response.sendError(400, 'Missing arguments.'))
+    #end
+  #elseif ($request.get('githubTokenAction') == 'removeToken')
+    #set($removeTokenNum = $request.get('githubTokenToRemove'))
+    #if("$!removeTokenNum" != '')
+      #set($objToRemove = $null)
+      #foreach($token in $doc.getObjects($githubTokenClass))
+        #if("$token.number" == $removeTokenNum.trim())
+          #set($objToRemove = $token)
+        #end
+      #end
+      #if($objToRemove)
+        #set($discard = $doc.removeObject($objToRemove))
+        #set($discard = $doc.save('Remove GitHub token', true))
+        $response.sendRedirect($redirectURL)
+      #else
+        #set ($discard = $response.sendError(404, 'Token not found.'))
+      #end
+    #else
+      #set ($discard = $response.sendError(400, 'Missing arguments.'))
+    #end
+  #else
+    #set ($discard = $response.sendError(400, 'Action not recognized.'))
+  #end
+#else
+  #set ($discard = $response.sendError(401, 'CSRF token verification failed.'))
+#end
+#else
+  Hold configuration objects.
+#end
+{{/velocity}}</content>
   <object>
     <name>SecurityAdvisoryApplication.Code.Configuration</name>
     <number>0</number>
     <className>SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass</className>
-    <guid>28bf4c88-ebd7-432b-bc24-69e999eae5ea</guid>
+    <guid>03ceddd5-cd8f-4c0a-845e-48ac96b8b4dc</guid>
     <class>
       <name>SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass</name>
       <customClass/>
@@ -79,16 +124,25 @@
         <unmodifiable>0</unmodifiable>
         <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
       </embargoDurationUnit>
-      <githubToken>
+      <githubRepositoriesSlug>
+        <cache>0</cache>
         <disabled>0</disabled>
-        <name>githubToken</name>
+        <displayType>input</displayType>
+        <freeText>allowed</freeText>
+        <largeStorage>0</largeStorage>
+        <multiSelect>1</multiSelect>
+        <name>githubRepositoriesSlug</name>
         <number>6</number>
-        <prettyName>githubToken</prettyName>
-        <size>255</size>
-        <storageType>Clear</storageType>
+        <picker>1</picker>
+        <prettyName>githubRepositoriesSlug</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
         <unmodifiable>0</unmodifiable>
-        <classType>com.xpn.xwiki.objects.classes.PasswordClass</classType>
-      </githubToken>
+        <values/>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </githubRepositoriesSlug>
       <importerUser>
         <cache>0</cache>
         <disabled>0</disabled>
@@ -120,22 +174,22 @@
         <classType>com.xpn.xwiki.objects.classes.GroupsClass</classType>
       </securityGroup>
     </class>
-    <property type="String">
+    <property>
       <dataSpace/>
     </property>
-    <property type="Integer">
+    <property>
       <defaultEmbargoDuration/>
     </property>
-    <property type="String">
+    <property>
       <embargoDurationUnit/>
     </property>
-    <property type="Password">
-      <githubToken/>
+    <property>
+      <githubRepositoriesSlug/>
     </property>
-    <property type="LargeString">
+    <property>
       <importerUser/>
     </property>
-    <property type="LargeString">
+    <property>
       <securityGroup/>
     </property>
   </object>
@@ -361,15 +415,17 @@
         <classType>com.xpn.xwiki.objects.classes.NumberClass</classType>
       </sectionOrder>
     </class>
-    <property type="String">
+    <property>
       <categoryIcon/>
     </property>
-    <property type="LargeString">
+    <property>
       <codeToExecute>## The content type of this property is "VelocityWiki": it is first evaluated by Velocity and the result is then
 ## parsed as XWiki syntax. We must therefore NOT wrap it in a {{velocity}} macro, otherwise the output (in
 ## particular job log messages containing stack traces) would be evaluated by Velocity a second time and could break
 ## the rendering of the whole administration section.
 #if($xwiki.hasAdminRights())
+#set($githubTokenClass = 'SecurityAdvisoryApplication.Code.GithubTokenClass')
+#set($configDoc = $xwiki.getDocument('SecurityAdvisoryApplication.Code.Configuration'))
 #if("$!request.get('securityAdvisoryMigrate')" == '1' &amp;&amp; $services.csrf.isTokenValid($request.get('form_token')))
   #set($discard = $services.securityadvisory.startDataMigration())
 #end
@@ -399,37 +455,86 @@
 
 ----
 
+(% class="securityadvisory-github-tokens" %)(((
+(% id="h-securityadvisory-github-tokens" %)
+== {{translation key="securityadvisoryapplication.admin.githubTokens.heading"/}} ==
+
+(%%){{translation key="securityadvisoryapplication.admin.githubTokens.description"/}}
+
+#set($githubTokens = $configDoc.getObjects($githubTokenClass))
+#set ($formUrl = $xwiki.getURL('SecurityAdvisoryApplication.Code.Configuration', 'get'))
+{{html clean="false"}}
+#if($githubTokens &amp;&amp; !$githubTokens.isEmpty())
+  #foreach($token in $githubTokens)
+&lt;div class="box"&gt;
+  &lt;form action="$escapetool.xml($formUrl)" method="post" class="xform"&gt;
+    &lt;input type="hidden" name="form_token" value="$!{services.csrf.getToken()}"/&gt;
+    &lt;input type="hidden" name="xredirect" value="$escapetool.xml($xwiki.relativeRequestURL)"/&gt;
+    &lt;input type="hidden" name="githubTokenAction" value="removeToken"/&gt;
+    &lt;input type="hidden" name="githubTokenToRemove" value="$escapetool.xml($token.number)"/&gt;
+    &lt;p&gt;
+      $services.localization.render('securityadvisoryapplication.admin.githubTokens.column.orga'): 
+      $escapetool.xml($token.get('orga'))
+      &lt;button type="submit" class="btn btn-danger btn-xs" title="$escapetool.xml($services.localization.render('securityadvisoryapplication.admin.githubTokens.remove'))"&gt;$services.icon.renderHTML('cross')&lt;/button&gt;
+    &lt;/p&gt;
+  &lt;/form&gt;
+&lt;/div&gt;
+  #end
+#else
+&lt;p&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.admin.githubTokens.empty'))&lt;/p&gt;
+#end
+&lt;div class="box"&gt;
+  &lt;form action="$escapetool.xml($formUrl)" method="post" class="xform"&gt;
+    &lt;input type="hidden" name="form_token" value="$!{services.csrf.getToken()}"/&gt;
+    &lt;input type="hidden" name="githubTokenAction" value="addToken" /&gt;
+    &lt;input type="hidden" name="xredirect" value="$escapetool.xml($xwiki.relativeRequestURL)"/&gt;
+    &lt;dl&gt;
+      &lt;dt&gt;&lt;label for="newOrga"&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.admin.githubTokens.column.orga'))&lt;/label&gt;&lt;/dt&gt;
+      &lt;dd&gt;&lt;input type="text" id="newOrga" name="newOrga" class="form-control" required="required"/&gt;&lt;/dd&gt;
+      &lt;dt&gt;&lt;label for="newToken"&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.admin.githubTokens.column.token'))&lt;/label&gt;&lt;/dt&gt;
+      &lt;dd&gt;&lt;input type="password" id="newToken" name="newToken" class="form-control" required="required"/&gt;&lt;/dd&gt;
+    &lt;/dl&gt;
+    &lt;p&gt;
+      &lt;button type="submit" class="btn btn-primary"&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.admin.githubTokens.add'))&lt;/button&gt;
+    &lt;/p&gt;
+  &lt;/form&gt;
+&lt;/div&gt;
+{{/html}}
+)))
+
+----
+
 == {{translation key="securityadvisoryapplication.admin.settings.heading" /}} ==
 #end</codeToExecute>
     </property>
-    <property type="String">
+    <property>
       <configurationClass>SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass</configurationClass>
     </property>
-    <property type="String">
+    <property>
       <displayBeforeCategory/>
     </property>
-    <property type="String">
+    <property>
       <displayInCategory>other</displayInCategory>
     </property>
-    <property type="String">
+    <property>
       <displayInSection>Security Advisory</displayInSection>
     </property>
-    <property type="String">
+    <property>
       <heading/>
     </property>
-    <property type="String">
+    <property>
       <iconAttachment/>
     </property>
-    <property type="String">
+    <property>
       <linkPrefix/>
     </property>
-    <property type="DBStringList">
+    <property>
       <propertiesToShow/>
     </property>
-    <property type="String">
+    <property>
       <scope>WIKI</scope>
     </property>
-    <property type="Integer">
+    <property>
       <sectionOrder/>
     </property>
   </object>
