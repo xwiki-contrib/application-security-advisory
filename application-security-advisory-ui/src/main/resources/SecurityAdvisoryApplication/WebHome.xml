@@ -53,7 +53,7 @@
 {{/warning}}
 #end
 #if ($services.security.authorization.hasAccess('admin'))
-  You can import an advisory from Github directly using [[this tool>>.Code.SingleAdvisoryImportPage]].
+  You can import an advisory from Github directly using [[this tool&gt;&gt;.Code.SingleAdvisoryImportPage]].
 #end
 #set ($columnsProperties = {
   'doc.date': {"type":"date"},
