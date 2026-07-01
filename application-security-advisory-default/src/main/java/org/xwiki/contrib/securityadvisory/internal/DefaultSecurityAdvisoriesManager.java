@@ -100,9 +100,8 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
             SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_STATE);
 
         if (computeEmbargoDate) {
-            statement += String.format(" and objAdv.%s = 1 and objAdv.%s is null",
-                SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_COMPUTE_EMBARGO_DATE,
-                SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_EMBARGO_DATE);
+            statement += String.format(" and objAdv.%s = 1",
+                SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_COMPUTE_EMBARGO_DATE);
         }
 
         try {
