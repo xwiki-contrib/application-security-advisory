@@ -131,6 +131,15 @@ SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_githubToken.
 SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_githubRepositoriesSlug=Github Repositorys
 SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_githubRepositoriesSlug.hint=Die Liste der GitHub-Repositorys, die für den automatischen Import verwendet werden sollen. Der Wert kann ein Repository-Slug im Format „orga/repo“ (z. B. „xwiki/xwiki-platform“) oder eine Organisation (z. B. „xwiki“) sein.
 
+# Administration - GitHub token management
+securityadvisoryapplication.admin.githubTokens.heading=GitHub Token
+securityadvisoryapplication.admin.githubTokens.description=GitHub-Authentifizierungstoken, die zum Importieren von Sicherheitshinweisen verschiedener Organisationen verwendet werden, verwalten.
+securityadvisoryapplication.admin.githubTokens.column.orga=Organisation
+securityadvisoryapplication.admin.githubTokens.column.token=Token
+securityadvisoryapplication.admin.githubTokens.empty=Es sind keine GitHub Token konfiguriert.
+securityadvisoryapplication.admin.githubTokens.add=GitHub Token hinzufügen
+securityadvisoryapplication.admin.githubTokens.remove=Entfernen
+
 # Administration - configuration and data migration
 ### Missing: securityadvisoryapplication.admin.settings.heading=Configuration
 ### Missing: securityadvisoryapplication.admin.migration.heading=Data migration
