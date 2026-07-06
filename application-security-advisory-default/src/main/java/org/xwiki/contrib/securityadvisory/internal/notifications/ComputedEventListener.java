@@ -28,11 +28,12 @@ import javax.inject.Named;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisory;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryConfiguration;
-import org.xwiki.contrib.securityadvisory.event.DisclosableComputedEvent;
+import org.xwiki.contrib.securityadvisory.event.AdvisoryStateChangedEvent;
 import org.xwiki.contrib.securityadvisory.event.EmbargoDateComputedEvent;
 import org.xwiki.eventstream.RecordableEvent;
 import org.xwiki.model.reference.EntityReferenceSerializer;
@@ -46,7 +47,7 @@ import com.xpn.xwiki.XWikiException;
 import com.xpn.xwiki.doc.XWikiDocument;
 
 /**
- * Listener of {@link DisclosableComputedEvent} and {@link EmbargoDateComputedEvent} in charge of sending the
+ * Listener of {@link AdvisoryStateChangedEvent} and {@link EmbargoDateComputedEvent} in charge of sending the
  * appropriate recordable events.
  *
  * @version $Id$
@@ -82,7 +83,7 @@ public class ComputedEventListener extends AbstractEventListener
      */
     public ComputedEventListener()
     {
-        super(NAME, Arrays.asList(new DisclosableComputedEvent(), new EmbargoDateComputedEvent()));
+        super(NAME, Arrays.asList(new AdvisoryStateChangedEvent(), new EmbargoDateComputedEvent()));
     }
 
     @Override
@@ -94,19 +95,39 @@ public class ComputedEventListener extends AbstractEventListener
         targets.add(this.entityReferenceSerializer.serialize(securityAdvisoryConfiguration.getSecurityGroup()));
 
         RecordableEvent recordableEvent;
-        if (event instanceof DisclosableComputedEvent) {
-            recordableEvent = new DisclosableTargetableEvent(targets);
+        if (event instanceof AdvisoryStateChangedEvent) {
+            recordableEvent = getRecordableEventForStateChangedEvent(data, targets);
         } else {
             recordableEvent = new EmbargoDateTargetableEvent(targets);
         }
-        XWikiContext context = this.contextProvider.get();
-        try {
-            XWikiDocument document = context.getWiki().getDocument(securityAdvisory.getHolderReference(), context);
-            this.observationManager.notify(recordableEvent,
-                "org.xwiki.contrib.security-advisory:application-security-advisory-default", document);
-        } catch (XWikiException e) {
-            this.logger.error("Error while getting the document [{}] for sending advisory notifications",
-                securityAdvisory.getHolderReference(), e);
+        if (recordableEvent != null) {
+            XWikiContext context = this.contextProvider.get();
+            try {
+                XWikiDocument document = context.getWiki().getDocument(securityAdvisory.getHolderReference(), context);
+                this.observationManager.notify(recordableEvent,
+                    "org.xwiki.contrib.security-advisory:application-security-advisory-default", document);
+            } catch (XWikiException e) {
+                this.logger.error("Error while getting the document [{}] for sending advisory notifications",
+                    securityAdvisory.getHolderReference(), e);
+            }
         }
+    }
+
+    private RecordableEvent getRecordableEventForStateChangedEvent(Object data, Set<String> targets)
+    {
+        RecordableEvent result = null;
+        if (data instanceof Pair) {
+            Pair<SecurityAdvisory.State, SecurityAdvisory.State> states =
+                (Pair<SecurityAdvisory.State, SecurityAdvisory.State>) data;
+            SecurityAdvisory.State newState = states.getRight();
+            if (newState == SecurityAdvisory.State.DISCLOSABLE) {
+                result = new DisclosableTargetableEvent(targets);
+            } else if (newState == SecurityAdvisory.State.ANNOUNCED) {
+                result = new AnnouncedAdvisoryTargetableEvent(targets);
+            }
+        } else {
+            this.logger.error("Unexpected data sent for AdvisoryStateChangedEvent: [{}]", data);
+        }
+        return result;
     }
 }

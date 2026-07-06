@@ -26,10 +26,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.metaeffekt.core.security.cvss.CvssVector;
 import org.slf4j.Logger;
 import org.xwiki.component.annotation.Component;
@@ -39,11 +41,12 @@ import org.xwiki.contrib.securityadvisory.SecurityAdvisoriesManager;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisory;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryException;
 import org.xwiki.contrib.securityadvisory.VersionReleasedManager;
-import org.xwiki.contrib.securityadvisory.event.DisclosableComputedEvent;
+import org.xwiki.contrib.securityadvisory.event.AdvisoryStateChangedEvent;
 import org.xwiki.contrib.securityadvisory.event.EmbargoDateComputedEvent;
 import org.xwiki.model.document.DocumentAuthors;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.DocumentReferenceResolver;
+import org.xwiki.model.reference.EntityReferenceSerializer;
 import org.xwiki.observation.ObservationManager;
 import org.xwiki.query.Query;
 import org.xwiki.query.QueryException;
@@ -65,9 +68,6 @@ import com.xpn.xwiki.objects.BaseObject;
 @SuppressWarnings("checkstyle:ClassFanOutComplexity")
 public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManager
 {
-    private static final String SECURITY_ADVISORY_CLASS =
-        "SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass";
-
     private static final String MISSING_OBJECT_EXCEPTION = "The holder document of the advisory does not contain "
         + "the proper xobject";
     private static final String READING_HOLDER_DOCUMENT_EXCEPTION = "Error when loading the holder document [%s]";
@@ -84,6 +84,10 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
     private DocumentReferenceResolver<String> documentReferenceResolver;
 
     @Inject
+    @Named("compactwiki")
+    private EntityReferenceSerializer<String> entityReferenceSerializer;
+
+    @Inject
     private VersionReleasedManager versionReleasedManager;
 
     @Inject
@@ -96,7 +100,8 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
         throws SecurityAdvisoryException
     {
         String statement = String.format("from doc.object(%s) as objAdv where objAdv.%s = :status",
-            SECURITY_ADVISORY_CLASS,
+            this.entityReferenceSerializer
+                .serialize(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.CLASS_REFERENCE),
             SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_STATE);
 
         if (computeEmbargoDate) {
@@ -126,7 +131,8 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
         Optional<SecurityAdvisory> result = Optional.empty();
         try {
             XWikiDocument document = context.getWiki().getDocument(documentReference, context);
-            BaseObject xObject = document.getXObject(this.documentReferenceResolver.resolve(SECURITY_ADVISORY_CLASS));
+            BaseObject xObject = document.getXObject(
+                SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.CLASS_REFERENCE);
             if (xObject != null) {
                 SecurityAdvisory advisory = new SecurityAdvisory(documentReference);
                 advisory
@@ -159,6 +165,82 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
         return result;
     }
 
+    /**
+     * Check that the new state is reachable from the current state.
+     * This method basically defines the automaton of states we allow.
+     *
+     * @param currentStatus the current status of the advisory.
+     * @param nextStatus the next requested status.
+     * @return {@code true} if the transition is allowed.
+     */
+    private boolean isStatusUpdateAuthorized(SecurityAdvisory.State currentStatus, SecurityAdvisory.State nextStatus)
+    {
+        boolean result;
+
+        // We allow any advisory to be discarded, except if it was already disclosed.
+        if (nextStatus == SecurityAdvisory.State.DISCARDED) {
+            result = (currentStatus != SecurityAdvisory.State.DISCLOSED);
+        } else {
+            // The normal cycle is:
+            // Draft -> Completed -> Announced -> Disclosable -> Disclosed
+            // However we allow to rollback from complete to draft, and from disclosable to announced.
+            switch (currentStatus) {
+                case DRAFT:
+                    result = nextStatus == SecurityAdvisory.State.COMPLETED;
+                    break;
+
+                case COMPLETED:
+                    result =
+                        (nextStatus == SecurityAdvisory.State.DRAFT
+                            || nextStatus == SecurityAdvisory.State.ANNOUNCED);
+                    break;
+
+                case ANNOUNCED:
+                    result = (nextStatus == SecurityAdvisory.State.DISCLOSABLE);
+                    break;
+
+                case DISCLOSABLE:
+                    result =
+                        nextStatus == SecurityAdvisory.State.ANNOUNCED
+                            || nextStatus == SecurityAdvisory.State.DISCLOSED;
+                    break;
+
+                default:
+                    result = false;
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public void setStatus(SecurityAdvisory advisory, SecurityAdvisory.State state) throws SecurityAdvisoryException
+    {
+        SecurityAdvisory.State previousState = advisory.getState();
+        if (!isStatusUpdateAuthorized(previousState, state)) {
+            throw new SecurityAdvisoryException(
+                String.format("The status [%s] cannot be set from current status [%s].", state, previousState));
+        }
+
+        XWikiContext context = this.contextProvider.get();
+        try {
+            XWikiDocument advisoryDoc = context.getWiki().getDocument(advisory.getHolderReference(), context).clone();
+            BaseObject xObject =
+                advisoryDoc.getXObject(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.CLASS_REFERENCE);
+            if  (xObject != null) {
+                xObject.setStringValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_STATE,
+                    state.name());
+                context.getWiki().saveDocument(advisoryDoc, "Switch to status " + state, true, context);
+                this.observationManager.notify(new AdvisoryStateChangedEvent(), advisory,
+                    Pair.of(previousState, state));
+            } else {
+                throw new SecurityAdvisoryException(MISSING_OBJECT_EXCEPTION);
+            }
+        } catch (XWikiException e) {
+            throw new SecurityAdvisoryException(
+                String.format("Error while loading the advisory document [%s]", advisory.getHolderReference()), e);
+        }
+    }
+
     private void setImpactedPackages(XWikiDocument document, SecurityAdvisory advisory)
     {
         List<BaseObject> impactedPackagesObjects =
@@ -179,37 +261,12 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
         DocumentReference holderReference = securityAdvisory.getHolderReference();
         try {
             XWikiDocument document = context.getWiki().getDocument(holderReference, context);
-            BaseObject xObject = document.getXObject(this.documentReferenceResolver.resolve(SECURITY_ADVISORY_CLASS));
+            BaseObject xObject = document.getXObject(
+                SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.CLASS_REFERENCE);
             if (xObject != null) {
                 xObject.setDateValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_EMBARGO_DATE,
                     securityAdvisory.getEmbargoDate());
                 context.getWiki().saveDocument(document, "Set embargo date", context);
-            } else {
-                throw new SecurityAdvisoryException(MISSING_OBJECT_EXCEPTION);
-            }
-        } catch (XWikiException e) {
-            throw new SecurityAdvisoryException(String.format(READING_HOLDER_DOCUMENT_EXCEPTION, holderReference), e);
-        }
-    }
-
-    /**
-     * Change the state of the given advisory to make it disclosable and save the new state.
-     *
-     * @param securityAdvisory the advisory that should now be disclosable.
-     * @throws SecurityAdvisoryException in case of problem for saving.
-     */
-    private void saveDisclosable(SecurityAdvisory securityAdvisory) throws SecurityAdvisoryException
-    {
-        XWikiContext context = this.contextProvider.get();
-        DocumentReference holderReference = securityAdvisory.getHolderReference();
-        try {
-            XWikiDocument document = context.getWiki().getDocument(holderReference, context);
-            BaseObject xObject = document.getXObject(this.documentReferenceResolver.resolve(SECURITY_ADVISORY_CLASS));
-            if (xObject != null) {
-                securityAdvisory.setState(SecurityAdvisory.State.DISCLOSABLE);
-                xObject.setStringValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_STATE,
-                    SecurityAdvisory.State.DISCLOSABLE.name());
-                context.getWiki().saveDocument(document, "Set disclosable status", context);
             } else {
                 throw new SecurityAdvisoryException(MISSING_OBJECT_EXCEPTION);
             }
@@ -237,8 +294,7 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
     {
         List<SecurityAdvisory> disclosableAdvisories = this.getDisclosableAdvisories();
         for (SecurityAdvisory disclosableAdvisory : disclosableAdvisories) {
-            this.observationManager.notify(new DisclosableComputedEvent(), disclosableAdvisory);
-            this.saveDisclosable(disclosableAdvisory);
+            this.setStatus(disclosableAdvisory, SecurityAdvisory.State.DISCLOSABLE);
         }
     }
 
@@ -272,8 +328,8 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
                 DocumentReference holderReference = securityAdvisory.getHolderReference();
                 try {
                     XWikiDocument document = context.getWiki().getDocument(holderReference, context);
-                    BaseObject xObject =
-                        document.getXObject(this.documentReferenceResolver.resolve(SECURITY_ADVISORY_CLASS));
+                    BaseObject xObject = document.getXObject(
+                        SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.CLASS_REFERENCE);
                     if (xObject != null) {
                         xObject.setDoubleValue(
                             SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_CVSS_SCORE,
@@ -382,7 +438,8 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
     public Optional<SecurityAdvisory> findExistingAdvisory(String externalAdvisoryURL) throws SecurityAdvisoryException
     {
         String statement = String.format("from doc.object(%s) as objAdv where objAdv.%s = :advisoryUrl",
-            SECURITY_ADVISORY_CLASS,
+            this.entityReferenceSerializer
+                .serialize(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.CLASS_REFERENCE),
             SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_ADVISORY_LINK);
 
         Optional<SecurityAdvisory> result = Optional.empty();

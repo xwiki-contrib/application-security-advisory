@@ -87,53 +87,6 @@ public class SecurityAdvisoryScriptService implements ScriptService
     private JobStatusStore jobStatusStore;
 
     /**
-     * Check that the new state is reachable from the current state.
-     * This method basically defines the automaton of states we allow.
-     *
-     * @param currentStatus the current status of the advisory.
-     * @param nextStatus the next requested status.
-     * @return {@code true} if the transition is allowed.
-     */
-    public boolean isStatusUpdateAuthorized(SecurityAdvisory.State currentStatus, SecurityAdvisory.State nextStatus)
-    {
-        boolean result;
-
-        // We allow any advisory to be discarded, except if it was already disclosed.
-        if (nextStatus == SecurityAdvisory.State.DISCARDED) {
-            result = (currentStatus != SecurityAdvisory.State.DISCLOSED);
-        } else {
-            // The normal cycle is:
-            // Draft -> Completed -> Announced -> Disclosable -> Disclosed
-            // However we allow to rollback from complete to draft, and from disclosable to announced.
-            switch (currentStatus) {
-                case DRAFT:
-                    result = nextStatus == SecurityAdvisory.State.COMPLETED;
-                    break;
-
-                case COMPLETED:
-                    result =
-                        (nextStatus == SecurityAdvisory.State.DRAFT
-                            || nextStatus == SecurityAdvisory.State.ANNOUNCED);
-                    break;
-
-                case ANNOUNCED:
-                    result = (nextStatus == SecurityAdvisory.State.DISCLOSABLE);
-                    break;
-
-                case DISCLOSABLE:
-                    result =
-                        nextStatus == SecurityAdvisory.State.ANNOUNCED
-                            || nextStatus == SecurityAdvisory.State.DISCLOSED;
-                    break;
-
-                default:
-                    result = false;
-            }
-        }
-        return result;
-    }
-
-    /**
      * Create a new unique advisory reference.
      *
      * @return a new unique document reference for an advisory to be created.
@@ -226,5 +179,26 @@ public class SecurityAdvisoryScriptService implements ScriptService
             }
         }
         return result;
+    }
+
+    /**
+     * Set the state of the advisory found thanks to the given reference.
+     *
+     * @param advisoryReference the reference of the advisory.
+     * @param state the new state to set.
+     * @throws SecurityAdvisoryException if no advisory can be found, or in case of problem to set its state
+     * @see SecurityAdvisoriesManager#setStatus(SecurityAdvisory, SecurityAdvisory.State)
+     * @since 2.2.0
+     */
+    public void setStatus(DocumentReference advisoryReference, SecurityAdvisory.State state)
+        throws SecurityAdvisoryException
+    {
+        Optional<SecurityAdvisory> securityAdvisoryOpt = this.securityAdvisoriesManager.loadAdvisory(advisoryReference);
+        if (securityAdvisoryOpt.isPresent()) {
+            this.securityAdvisoriesManager.setStatus(securityAdvisoryOpt.get(), state);
+        } else {
+            throw new SecurityAdvisoryException(String.format("Cannot find advisory with reference [%s]",
+                 advisoryReference));
+        }
     }
 }

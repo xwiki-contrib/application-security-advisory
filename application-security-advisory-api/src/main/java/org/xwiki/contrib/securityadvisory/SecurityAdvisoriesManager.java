@@ -87,4 +87,16 @@ public interface SecurityAdvisoriesManager
      * @throws SecurityAdvisoryException in case of problem for loading the document.
      */
     Optional<SecurityAdvisory> loadAdvisory(DocumentReference documentReference) throws SecurityAdvisoryException;
+
+    /**
+     * Set a new state on the advisory if the state transition is authorized, and notify about the state change.
+     * @param advisory the advisory for which to set a new state
+     * @param state the state to change
+     * @throws SecurityAdvisoryException if the state transition is not authorized or if there's a problem to load or
+     * save the change.
+     * @since 2.2.0
+     */
+    default void setStatus(SecurityAdvisory advisory, SecurityAdvisory.State state) throws SecurityAdvisoryException
+    {
+    }
 }

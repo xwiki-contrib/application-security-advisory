@@ -113,13 +113,20 @@
         <configuration>
           <analysisConfiguration>
             <revapi.differences>
-              <justification>Break API for handling Github authentication properly.</justification>
+              <justification>
+                Provide a unique API for changing advisory state and triggers a generic event for this.
+              </justification>
               <criticality>highlight</criticality>
               <differences>
                 <item>
                   <ignore>true</ignore>
+                  <code>java.class.removed</code>
+                  <old>class org.xwiki.contrib.securityadvisory.event.DisclosableComputedEvent</old>
+                </item>
+                <item>
+                  <ignore>true</ignore>
                   <code>java.method.removed</code>
-                  <old>method java.lang.String org.xwiki.contrib.securityadvisory.SecurityAdvisoryConfiguration::getGithubImporterToken()</old>
+                  <old>method boolean org.xwiki.contrib.securityadvisory.script.SecurityAdvisoryScriptService::isStatusUpdateAuthorized(org.xwiki.contrib.securityadvisory.SecurityAdvisory.State, org.xwiki.contrib.securityadvisory.SecurityAdvisory.State)</old>
                 </item>
               </differences>
             </revapi.differences>

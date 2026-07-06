@@ -58,14 +58,10 @@
 #set ($discard = $doc.use($object))
 #set ($editing = $xcontext.action == 'edit')
 #set ($discard = $xwiki.jsx.use('SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationSheet'))
-#set ($currentStatus = $object.getValue('status'))
 #if ($hasEdit &amp;&amp; $request.method == 'POST' &amp;&amp; "$!request.get('status')" != "")
-  #if ($services.csrf.isTokenValid($request.get('form_token')) &amp;&amp; $services.securityadvisory.isStatusUpdateAuthorized($currentStatus, $request.get('status')))
-   #set ($discard = $object.set('status', $request.get('status')))
-   #set ($discard = $doc.save('Switch to status ' + $request.get('status'), true))
+  #if ($services.csrf.isTokenValid($request.get('form_token')))
+   #set ($discard = $services.securityadvisory.setStatus($doc, $request.get('status')))
    #jsonResponse({'success': 'true'})
-  #elseif (!$services.securityadvisory.isStatusUpdateAuthorized($currentStatus, $request.get('status')))
-   #set ($discard = $response.sendError(400, "The status $request.get('status') cannot be set from current status $currentStatus"))
   #else
    #set ($discard = $response.sendError(401, 'Wrong CSRF token'))
   #end

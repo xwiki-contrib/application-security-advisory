@@ -17,23 +17,40 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.xwiki.contrib.securityadvisory.event;
+package org.xwiki.contrib.securityadvisory.internal.notifications;
 
-import org.xwiki.observation.event.Event;
+import java.util.Set;
+
+import org.xwiki.eventstream.TargetableEvent;
 
 /**
- * Event triggered whenever a security advisory is marked disclosable.
- * The source of the event should be the {@link org.xwiki.contrib.securityadvisory.SecurityAdvisory} that is now
- * disclosable.
+ * Dedicated targetable event to receive notifications about announced advisories.
  *
  * @version $Id$
- * @since 1.0
+ * @since 2.2.0
  */
-public class DisclosableComputedEvent implements Event
+public class AnnouncedAdvisoryTargetableEvent implements TargetableEvent
 {
+    private final Set<String> targets;
+
+    /**
+     * Default constructor.
+     * @param targets the set of targets user who should receive the notification.
+     */
+    public AnnouncedAdvisoryTargetableEvent(Set<String> targets)
+    {
+        this.targets = targets;
+    }
+
+    @Override
+    public Set<String> getTarget()
+    {
+        return targets;
+    }
+
     @Override
     public boolean matches(Object otherEvent)
     {
-        return otherEvent instanceof DisclosableComputedEvent;
+        return otherEvent instanceof AnnouncedAdvisoryTargetableEvent;
     }
 }
