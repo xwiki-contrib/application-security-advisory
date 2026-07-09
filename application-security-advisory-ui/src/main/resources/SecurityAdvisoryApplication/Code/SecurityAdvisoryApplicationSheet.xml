@@ -69,7 +69,7 @@
 {{html wiki="true" clean="false"}}
 #if (!$editing)
 &lt;div class="box infomessage"&gt;
-$services.localization.render("securityadvisoryapplication.sheet.nextstep.$currentStatus")
+$services.localization.render("securityadvisoryapplication.sheet.nextstep.${object.getValue('status')}")
 &lt;/div&gt;
 #end
 &lt;div class="xform"&gt;
