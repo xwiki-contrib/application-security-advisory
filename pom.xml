@@ -58,7 +58,7 @@
     <xwiki.release.jira.skip>false</xwiki.release.jira.skip>
     <xwiki.issueManagement.jira.id>SPAPP</xwiki.issueManagement.jira.id>
     <releasenotes.version>2.3</releasenotes.version>
-    <markdown-syntax.version>8.9</markdown-syntax.version>
+    <markdown-syntax.version>8.9.1</markdown-syntax.version>
   </properties>
   <modules>
     <module>application-security-advisory-api</module>
