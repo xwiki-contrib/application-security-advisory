@@ -53,7 +53,7 @@ SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_computeEmbargo
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_embargoDate=Date de fin d'embargo
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_embargoDate_hint=Définis une date spécifique d'embargo : celle-ci est prise en compte seulement si le calcul automatique de la date d'embargo n'est pas coché.
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvss=Vecteur CVSS
-SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvss_hint=Valeur du CVSS calculé sur la chaîne de caractères.
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvss_hint=Vecteur complet représentant le CVSS (par exemple : CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:N/SC:N/SI:N/SA:N)
 ### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvssScore=CVSS Score
 ### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvssScore_hint=Score corresponding to the CVSS vector.
 ### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_description=Description
@@ -130,6 +130,15 @@ SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_importerUser
 ### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_githubToken.hint=The Github token to use for importing security advisories
 SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_githubRepositoriesSlug=Dépôts Github
 SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_githubRepositoriesSlug.hint=The list of Github repositories to use in automatic import. The value can be a repository slug in the form orga/repo (e.g. xwiki/xwiki-platform) or it can be an organization (e.g. xwiki).
+
+# Administration - GitHub token management
+### Missing: securityadvisoryapplication.admin.githubTokens.heading=GitHub Tokens
+### Missing: securityadvisoryapplication.admin.githubTokens.description=Manage GitHub authentication tokens used for importing security advisories from different organizations.
+### Missing: securityadvisoryapplication.admin.githubTokens.column.orga=Organization
+### Missing: securityadvisoryapplication.admin.githubTokens.column.token=Token
+### Missing: securityadvisoryapplication.admin.githubTokens.empty=No GitHub tokens configured.
+### Missing: securityadvisoryapplication.admin.githubTokens.add=Add GitHub Token
+### Missing: securityadvisoryapplication.admin.githubTokens.remove=Remove
 
 # Administration - configuration and data migration
 ### Missing: securityadvisoryapplication.admin.settings.heading=Configuration
