@@ -23,7 +23,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -33,6 +35,7 @@ import jakarta.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.xwiki.component.annotation.Component;
+import org.xwiki.contrib.securityadvisory.ExternalUser;
 import org.xwiki.contrib.securityadvisory.ImpactedPackage;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoriesManager;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisory;
@@ -40,6 +43,7 @@ import org.xwiki.contrib.securityadvisory.SecurityAdvisoryConfiguration;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryException;
 import org.xwiki.contrib.securityadvisory.github.Advisory;
 import org.xwiki.contrib.securityadvisory.github.CVSSSeverity;
+import org.xwiki.contrib.securityadvisory.github.GithubUser;
 import org.xwiki.contrib.securityadvisory.github.PackageVulnerability;
 import org.xwiki.contrib.securityadvisory.github.GithubState;
 import org.xwiki.model.reference.DocumentReference;
@@ -176,7 +180,8 @@ public class GithubAdvisoryDeserializer
             .setContent(githubAdvisory.description())
             .setProduct(findProductFromAdvisoryURL(githubAdvisory.htmlUrl()))
             .setState(isPublished ? SecurityAdvisory.State.DISCLOSED : SecurityAdvisory.State.DRAFT)
-            .setComputeEmbargoDate(!isPublished);
+            .setComputeEmbargoDate(!isPublished)
+            .setExternalUsers(getExternalUsers(githubAdvisory));
 
         if (githubAdvisory.cvssSeverities() != null) {
             CVSSSeverity severity = (githubAdvisory.cvssSeverities().cvssV4().vectorString() != null)
@@ -192,6 +197,32 @@ public class GithubAdvisoryDeserializer
             advisory.setCveId(githubAdvisory.cveId());
         }
         return advisory;
+    }
+
+    /**
+     * List the GitHub users involved in the advisory by order of priority for being its assignee: the author first
+     * since they created the advisory, then the publisher, then the collaborators. The author can be an external
+     * reporter, when the advisory comes from a private vulnerability report: they won't be mapped to an XWiki user, so
+     * a collaborator from the team will be picked instead.
+     */
+    private List<ExternalUser> getExternalUsers(Advisory githubAdvisory)
+    {
+        List<GithubUser> githubUsers = new ArrayList<>();
+        githubUsers.add(githubAdvisory.author());
+        githubUsers.add(githubAdvisory.publisher());
+        if (githubAdvisory.collaboratingUsers() != null) {
+            githubUsers.addAll(githubAdvisory.collaboratingUsers());
+        }
+
+        // The same user is often both the author and the publisher: keep only their first occurrence.
+        Map<Long, ExternalUser> externalUsers = new LinkedHashMap<>();
+        for (GithubUser githubUser : githubUsers) {
+            if (githubUser != null && githubUser.id() > 0) {
+                externalUsers.putIfAbsent(githubUser.id(),
+                    new ExternalUser(String.valueOf(githubUser.id()), githubUser.login()));
+            }
+        }
+        return new ArrayList<>(externalUsers.values());
     }
 
     private void handlePackages(Advisory githubAdvisory, SecurityAdvisory advisory)

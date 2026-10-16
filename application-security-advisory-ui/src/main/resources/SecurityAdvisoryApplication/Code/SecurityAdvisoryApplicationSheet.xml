@@ -58,6 +58,49 @@
 #set ($discard = $doc.use($object))
 #set ($editing = $xcontext.action == 'edit')
 #set ($discard = $xwiki.jsx.use('SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationSheet'))
+## Warn when the advisory cannot be assigned because the external users involved in it are not mapped to XWiki users,
+## and let administrators create the missing mapping. The mapping is saved by the configuration page.
+#macro (displayUnmappedExternalUsers)
+  #set ($unmappedExternalUsers = $services.securityadvisory.getUnmappedExternalUsers($doc.documentReference))
+  #if ($unmappedExternalUsers &amp;&amp; !$unmappedExternalUsers.isEmpty())
+    #set ($isAdmin = $services.security.authorization.hasAccess('admin', $xcontext.wikiReference))
+    #if ($isAdmin)
+      #set ($discard = $xwiki.jsfx.use('uicomponents/suggest/suggestUsersAndGroups.js', true))
+      #set ($discard = $xwiki.ssfx.use('uicomponents/suggest/xwiki.selectize.css', true))
+      #set ($linkURL = $xwiki.getURL('SecurityAdvisoryApplication.Code.Configuration', 'get'))
+    #end
+    &lt;div class="box warningmessage securityadvisory-unmapped-users"&gt;
+      &lt;p&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.sheet.unmappedUsers.description'))&lt;/p&gt;
+      #foreach ($externalUser in $unmappedExternalUsers)
+        #set ($escapedLogin = $escapetool.xml($externalUser.login()))
+        #set ($githubProfileLink = "&lt;a href='https://github.com/$escapedLogin'&gt;@$escapedLogin&lt;/a&gt;")
+        #if ($isAdmin)
+          #set ($inputId = "securityadvisory-externalUser-$foreach.count")
+          &lt;form action="$escapetool.xml($linkURL)" method="post" class="xform"&gt;
+            &lt;input type="hidden" name="form_token" value="$!escapetool.xml($services.csrf.token)" /&gt;
+            &lt;input type="hidden" name="externalUserAction" value="link" /&gt;
+            &lt;input type="hidden" name="externalId" value="$escapetool.xml($externalUser.id())" /&gt;
+            &lt;input type="hidden" name="externalLogin" value="$escapetool.xml($externalUser.login())" /&gt;
+            &lt;input type="hidden" name="advisoryReference" value="$escapetool.xml($services.model.serialize($doc.documentReference, 'default'))" /&gt;
+            &lt;input type="hidden" name="xredirect" value="$escapetool.xml($doc.getURL())" /&gt;
+            &lt;dl&gt;
+              &lt;dt&gt;&lt;label for="$inputId"&gt;$githubProfileLink&lt;/label&gt;&lt;/dt&gt;
+              &lt;dd&gt;&lt;input type="text" id="$inputId" name="externalUser" class="suggest-users" required="required" /&gt;&lt;/dd&gt;
+              &lt;dd&gt;&lt;label&gt;&lt;input type="checkbox" name="applyToAll" value="true" checked="checked" /&gt;
+                $escapetool.xml($services.localization.render('securityadvisoryapplication.sheet.unmappedUsers.applyToAll'))&lt;/label&gt;&lt;/dd&gt;
+            &lt;/dl&gt;
+            &lt;p&gt;&lt;button type="submit" class="btn btn-primary"&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.sheet.unmappedUsers.link'))&lt;/button&gt;&lt;/p&gt;
+          &lt;/form&gt;
+        #else
+          &lt;p&gt;$githubProfileLink&lt;/p&gt;
+        #end
+      #end
+      #if (!$isAdmin)
+        &lt;p&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.sheet.unmappedUsers.askAdmin'))&lt;/p&gt;
+      #end
+    &lt;/div&gt;
+  #end
+#end
 #if ($hasEdit &amp;&amp; $request.method == 'POST' &amp;&amp; "$!request.get('status')" != "")
   #if ($services.csrf.isTokenValid($request.get('form_token')))
    #set ($discard = $services.securityadvisory.setStatus($doc, $request.get('status')))
@@ -71,6 +114,7 @@
 &lt;div class="box infomessage"&gt;
 $services.localization.render("securityadvisoryapplication.sheet.nextstep.${object.getValue('status')}")
 &lt;/div&gt;
+#displayUnmappedExternalUsers()
 #end
 &lt;div class="xform"&gt;
   &lt;dl&gt;
@@ -86,6 +130,18 @@ $services.localization.render("securityadvisoryapplication.sheet.nextstep.${obje
       &lt;/span&gt;
     &lt;/dt&gt;
     &lt;dd&gt;$doc.display('title1')&lt;/dd&gt;
+    &lt;dt #if (!$editing &amp;&amp; $hasEdit)
+        class="editableProperty"
+        data-property="$escapetool.xml($services.model.serialize($object.getPropertyReference('assignee')))"
+        data-property-type="object"#end&gt;
+      &lt;label#if ($editing) for="SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_0_assignee"#end&gt;
+        $escapetool.xml($doc.displayPrettyName('assignee', false, false))
+      &lt;/label&gt;
+      &lt;span class="xHint"&gt;
+        $escapetool.xml($services.localization.render('SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_assignee_hint'))
+      &lt;/span&gt;
+    &lt;/dt&gt;
+    &lt;dd&gt;$doc.display('assignee')&lt;/dd&gt;
     &lt;dt #if (!$editing &amp;&amp; $hasEdit)
       class="editableProperty"
       data-property="$escapetool.xml($services.model.serialize($object.getPropertyReference('preventOverride')))"

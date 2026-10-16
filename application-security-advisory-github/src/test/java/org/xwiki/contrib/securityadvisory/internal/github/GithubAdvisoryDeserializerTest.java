@@ -29,6 +29,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.xwiki.contrib.securityadvisory.ExternalUser;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisory;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryConfiguration;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryException;
@@ -61,6 +62,30 @@ class GithubAdvisoryDeserializerTest
         // FIXME: build the list for comparison
         List<SecurityAdvisory> expected = new ArrayList<>();
         assertEquals(3, advisoryList.size());
+
+        // The author is also the publisher: they appear only once, before the collaborators.
+        assertEquals(List.of(
+            new ExternalUser("1478232", "surli"),
+            new ExternalUser("370535", "oanat"),
+            new ExternalUser("657716", "lucaa")), advisoryList.get(0).getExternalUsers());
+        assertEquals(List.of(new ExternalUser("89175", "tmortagne")), advisoryList.get(2).getExternalUsers());
+    }
+
+    @Test
+    void deserializeWithoutUsers() throws SecurityAdvisoryException
+    {
+        when(configuration.getSecurityDataSpace()).thenReturn(new SpaceReference("xwiki", "Security", "Data"));
+        String testJson = "{"
+            + "\"ghsa_id\": \"GHSA-test\","
+            + "\"html_url\": \"https://github.com/xwiki/xwiki-platform/GHSA-test\","
+            + "\"state\": \"draft\","
+            + "\"publisher\": null"
+            + "}";
+        List<SecurityAdvisory> advisoryList = new ArrayList<>();
+        deserializer.processGithubResponse(null, testJson, true, advisoryList);
+
+        assertEquals(1, advisoryList.size());
+        assertEquals(List.of(), advisoryList.get(0).getExternalUsers());
     }
 
     @ParameterizedTest

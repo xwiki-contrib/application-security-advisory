@@ -130,6 +130,21 @@
                 </item>
               </differences>
             </revapi.differences>
+            <revapi.differences>
+              <justification>
+                The Advisory record only maps the JSON of the GitHub REST API for Jackson, nobody is expected to
+                instantiate it: it now also maps the GitHub users involved in the advisory.
+              </justification>
+              <criticality>highlight</criticality>
+              <differences>
+                <item>
+                  <ignore>true</ignore>
+                  <code>java.method.numberOfParametersChanged</code>
+                  <old>method void org.xwiki.contrib.securityadvisory.github.Advisory::&lt;init&gt;(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, org.xwiki.contrib.securityadvisory.github.GithubState, java.util.Date, java.util.Date, java.util.Date, java.util.List&lt;org.xwiki.contrib.securityadvisory.github.PackageVulnerability&gt;, org.xwiki.contrib.securityadvisory.github.CVSSSeverities)</old>
+                  <new>method void org.xwiki.contrib.securityadvisory.github.Advisory::&lt;init&gt;(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, org.xwiki.contrib.securityadvisory.github.GithubState, java.util.Date, java.util.Date, java.util.Date, java.util.List&lt;org.xwiki.contrib.securityadvisory.github.PackageVulnerability&gt;, org.xwiki.contrib.securityadvisory.github.CVSSSeverities, org.xwiki.contrib.securityadvisory.github.GithubUser, org.xwiki.contrib.securityadvisory.github.GithubUser, java.util.List&lt;org.xwiki.contrib.securityadvisory.github.GithubUser&gt;)</new>
+                </item>
+              </differences>
+            </revapi.differences>
           </analysisConfiguration>
         </configuration>
       </plugin>

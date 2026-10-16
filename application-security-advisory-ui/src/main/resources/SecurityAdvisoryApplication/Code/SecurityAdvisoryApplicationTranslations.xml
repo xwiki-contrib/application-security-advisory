@@ -61,6 +61,8 @@ SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_description=De
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_description_hint=Full content of the advisory.
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_preventOverride=Prevent override
 SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_preventOverride_hint=Check to prevent overriding data in case of Github import.
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_assignee=Assignee
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_assignee_hint=User in charge of the advisory. Imported advisories are assigned to the XWiki user mapped to the GitHub users involved in the advisory, and advisories created in the wiki to their creator.
 
 SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_ecosystem=Ecosystem
 SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_ecosystem_hint=Package ecosystem for the vulnerable package (e.g. Maven or NPM)
@@ -111,6 +113,7 @@ securityadvisoryapplication.livetable.computeEmbargo=compute embargo
 securityadvisoryapplication.livetable.embargoDate=Embargo date
 securityadvisoryapplication.livetable.cvss=CVSS
 securityadvisoryapplication.livetable.cvssScore=CVSS Score
+securityadvisoryapplication.livetable.assignee=Assignee
 securityadvisoryapplication.livetable.description=Description
 
 # Other keys
@@ -150,6 +153,15 @@ securityadvisoryapplication.admin.migration.candidates=Advisories still using th
 securityadvisoryapplication.admin.migration.button=Migrate advisories
 securityadvisoryapplication.admin.migration.finish.success=The security advisories have been successfully migrated to the new data model.
 securityadvisoryapplication.admin.migration.finish.error=An error occurred while migrating some security advisories. See the log below for details.
+securityadvisoryapplication.admin.externalUsers.heading=GitHub users mapping
+securityadvisoryapplication.admin.externalUsers.description=Imported advisories are assigned to the XWiki user mapped to the first GitHub user involved in the advisory (its author, its publisher, then its collaborators) that has a mapping. The GitHub users below prevent some advisories from being assigned because they are not mapped yet. Linking a GitHub user to an XWiki user also assigns the advisories without assignee it's involved in.
+securityadvisoryapplication.admin.externalUsers.empty=All the advisories involving GitHub users are assigned.
+securityadvisoryapplication.admin.externalUsers.advisories=Involved in {0} advisories without assignee.
+securityadvisoryapplication.admin.externalUsers.link=Link to this user
+securityadvisoryapplication.admin.externalUsers.resolve.description=Assign all the advisories without assignee from the current mapping of their GitHub users. This runs as a background job.
+securityadvisoryapplication.admin.externalUsers.resolve.button=Assign advisories
+securityadvisoryapplication.admin.externalUsers.resolve.finish.success=The advisories without assignee have been assigned from the current mapping.
+securityadvisoryapplication.admin.externalUsers.resolve.finish.error=An error occurred while assigning some advisories. See the log below for details.
 job.log.label.securityadvisory.datamigration=Migration log
 
 # Sheet Explanations
@@ -159,6 +171,10 @@ securityadvisoryapplication.sheet.nextstep.ANNOUNCED=This advisory has been anno
 securityadvisoryapplication.sheet.nextstep.DISCLOSABLE=This advisory can now be disclosed according to its embargo date. You should request a CVE and publish it. Once done you need to mark it disclosed with the button on top of the page.
 securityadvisoryapplication.sheet.nextstep.DISCLOSED=This advisory has been disclosed and is now public.
 securityadvisoryapplication.sheet.severity=Severity
+securityadvisoryapplication.sheet.unmappedUsers.description=This advisory has no assignee because none of the GitHub users involved in it is mapped to an XWiki user.
+securityadvisoryapplication.sheet.unmappedUsers.applyToAll=Also assign the other advisories without assignee
+securityadvisoryapplication.sheet.unmappedUsers.link=Link to this user
+securityadvisoryapplication.sheet.unmappedUsers.askAdmin=Ask an administrator to link one of these GitHub users to an XWiki user, or set the assignee by hand.
 
 # Deprecated keys
 securityadvisoryapplication.dataSpace.title=Data
