@@ -62,7 +62,7 @@
   'doc.title': {"link":"view"},
   'cvssScore': {},
   'embargoDate': {"html": true},
-  'doc.author': {"link":"author"},
+  'assignee': {},
   '_actions': {"sortable":false,"filterable":false,"html":true,"actions":["edit","delete"]}
 })
 #set ($options = {
@@ -74,7 +74,7 @@
   'selectedColumn': 'status',
   'defaultOrder': 'asc'
 })
-#set ($columns = ['doc.date','status', 'product', 'doc.title', 'cvssScore', 'doc.author', 'embargoDate', '_actions'])
+#set ($columns = ['doc.date','status', 'product', 'doc.title', 'cvssScore', 'assignee', 'embargoDate', '_actions'])
 #livetable('securityadvisoryapplication' $columns $columnsProperties $options)
 {{/velocity}}</content>
   <object>

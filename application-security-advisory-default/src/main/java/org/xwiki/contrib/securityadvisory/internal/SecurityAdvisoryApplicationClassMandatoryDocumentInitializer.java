@@ -99,6 +99,13 @@ public class SecurityAdvisoryApplicationClassMandatoryDocumentInitializer extend
     public static final String PREVENT_OVERRIDE = "preventOverride";
 
     /**
+     * Field containing the reference of the user in charge of the advisory.
+     *
+     * @since 2.2.2
+     */
+    public static final String FIELD_ASSIGNEE = "assignee";
+
+    /**
      * Space where the UI code is located.
      */
     public static final List<String> CODE_SPACE_LIST = List.of("SecurityAdvisoryApplication", "Code");
@@ -177,6 +184,7 @@ public class SecurityAdvisoryApplicationClassMandatoryDocumentInitializer extend
                 .collect(Collectors.joining(ListClass.DEFAULT_SEPARATOR)),
             StaticListClass.DISPLAYTYPE_SELECT, ListClass.DEFAULT_SEPARATOR);
         xclass.addBooleanField(PREVENT_OVERRIDE, PREVENT_OVERRIDE, CHECKBOX_INPUT, null, false);
+        xclass.addUsersField(FIELD_ASSIGNEE, FIELD_ASSIGNEE, false);
 
         String titleFieldName = "title1";
         ComputedFieldClass titleFieldClass = new ComputedFieldClass();
