@@ -55,27 +55,51 @@
 #if ($services.security.authorization.hasAccess('admin'))
   You can import an advisory from Github directly using [[this tool&gt;&gt;.Code.SingleAdvisoryImportPage]].
 #end
-#set ($columnsProperties = {
-  'doc.date': {"type":"date"},
-  'status': {},
-  'product': {"type": "suggest"},
-  'doc.title': {"link":"view"},
-  'cvssScore': {},
-  'embargoDate': {"html": true},
-  'doc.author': {"link":"author"},
-  '_actions': {"sortable":false,"filterable":false,"html":true,"actions":["edit","delete"]}
-})
-#set ($options = {
+## The patched versions are stored in the impacted package objects, not in the advisory object: the live table results
+## page joins them through the "patchedVersions_class" parameter. Since an advisory can have several impacted packages
+## with the same patched version, the "unique" query filter avoids listing the same advisory several times.
+#set ($impactedPackageClassName = 'SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass')
+#set ($sourceParameters = $escapetool.url({
   'className': 'SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass',
   'translationPrefix': 'securityadvisoryapplication.livetable.',
-  'tagCloud': true,
-  'rowCount': 15,
-  'maxPages': 10,
-  'selectedColumn': 'status',
-  'defaultOrder': 'asc'
+  'resultPage': 'SecurityAdvisoryApplication.Code.AdvisoriesLiveTableResults',
+  'patchedVersions_class': $impactedPackageClassName,
+  'queryFilters': 'currentlanguage,hidden,unique'
+}))
+## Suggest the patched versions already used, as the live data does for the list properties of the advisory class.
+#set ($patchedVersionsSearchURL = "${request.contextPath}/rest/wikis/$escapetool.url($xcontext.database)/classes/")
+#set ($patchedVersionsSearchURL = "${patchedVersionsSearchURL}$escapetool.url($impactedPackageClassName)")
+#set ($patchedVersionsSearchURL = "${patchedVersionsSearchURL}/properties/patchedVersions/values?fp={encodedQuery}")
+## The CVE identifier is displayed as HTML because the results page renders it as a link to its CVE record.
+#set ($liveDataConfig = {
+  'meta': {
+    'propertyDescriptors': [
+      {'id': 'cveId', 'editable': false, 'displayer': 'html'},
+      {
+        'id': 'patchedVersions',
+        'type': 'StaticList',
+        'sortable': false,
+        'editable': false,
+        'displayer': 'text',
+        'filter': {
+          'id': 'list',
+          'searchURL': $patchedVersionsSearchURL,
+          'operators': [{'id': 'equals'}, {'id': 'empty'}],
+          'defaultOperator': 'equals'
+        }
+      }
+    ]
+  }
 })
-#set ($columns = ['doc.date','status', 'product', 'doc.title', 'cvssScore', 'doc.author', 'embargoDate', '_actions'])
-#livetable('securityadvisoryapplication' $columns $columnsProperties $options)
+
+{{liveData
+  id="securityadvisoryapplication"
+  properties="doc.date,status,product,doc.title,cveId,cvssScore,patchedVersions,doc.author,embargoDate,_actions"
+  source="liveTable"
+  sourceParameters="$sourceParameters"
+  sort="status:asc"
+  limit="15"
+}}$jsontool.serialize($liveDataConfig){{/liveData}}
 {{/velocity}}</content>
   <object>
     <name>SecurityAdvisoryApplication.WebHome</name>
