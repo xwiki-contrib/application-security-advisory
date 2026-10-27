@@ -109,6 +109,7 @@ securityadvisoryapplication.livetable.computeEmbargo=Sperrdatum errechnen
 securityadvisoryapplication.livetable.embargoDate=Sperrdatum
 securityadvisoryapplication.livetable.cvss=CVSS
 ### Missing: securityadvisoryapplication.livetable.cvssScore=CVSS Score
+securityadvisoryapplication.livetable.cveId=CVE
 securityadvisoryapplication.livetable.description=Beschreibung
 
 # Other keys

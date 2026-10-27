@@ -276,6 +276,11 @@ public class GithubAdvisoryDeserializer
 
     private List<String> getPatchedVersions(PackageVulnerability vulnerability)
     {
+        // GitHub returns no patched versions for a range that doesn't end with a fixed version.
+        if (StringUtils.isBlank(vulnerability.patchedVersions())) {
+            return List.of();
+        }
+
         return Arrays.stream(StringUtils.split(vulnerability.patchedVersions(), LIST_SEPARATOR))
             .map(String::trim)
             .toList();

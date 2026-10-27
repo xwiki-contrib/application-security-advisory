@@ -116,7 +116,34 @@ class GithubAdvisoryDeserializerTest
             List.of("[11.3.7,)", "[12.0RC1,)", "[11.10.3,)"));
     }
 
+    @ParameterizedTest
+    @CsvSource({
+        "null, ''",
+        "'\"2.0.0\"', '2.0.0'",
+        "'\"1.1, 2.0.0\"', '1.1|2.0.0'"
+    })
+    void patchedVersions(String githubPatchedVersions, String expectedPatchedVersions)
+        throws SecurityAdvisoryException
+    {
+        when(configuration.getSecurityDataSpace()).thenReturn(new SpaceReference("xwiki", "Security", "Data"));
+
+        SecurityAdvisory advisory = deserialize("<= 1.0.0", githubPatchedVersions);
+
+        List<String> expected =
+            expectedPatchedVersions.isEmpty() ? List.of() : List.of(expectedPatchedVersions.split("\\|"));
+        assertEquals(expected, advisory.getVulnerablePackages().get(0).patchedVersions());
+        assertEquals(List.of("(,1.0.0]"), advisory.getVulnerablePackages().get(0).affectedVersionsRanges());
+    }
+
     private void assertRangeConversion(String githubRange, List<String> expectedMavenRanges)
+        throws SecurityAdvisoryException
+    {
+        SecurityAdvisory advisory = deserialize(githubRange, "\"2.0.0\"");
+        List<String> actual = advisory.getVulnerablePackages().get(0).affectedVersionsRanges();
+        assertEquals(expectedMavenRanges, actual);
+    }
+
+    private SecurityAdvisory deserialize(String githubRange, String githubPatchedVersions)
         throws SecurityAdvisoryException
     {
         String testJson = "[" +
@@ -129,7 +156,7 @@ class GithubAdvisoryDeserializerTest
             "      {" +
             "        \"package\": {\"ecosystem\": \"maven\", \"name\": \"group:artifact\"}," +
             "        \"vulnerable_version_range\": \"" + githubRange + "\"," +
-            "        \"patched_versions\": \"2.0.0\"" +
+            "        \"patched_versions\": " + githubPatchedVersions +
             "      }" +
             "    ]" +
             "  }" +
@@ -138,8 +165,6 @@ class GithubAdvisoryDeserializerTest
         deserializer.processGithubResponse(new Date(0), testJson, false, advisoryList);
 
         assertEquals(1, advisoryList.size());
-        SecurityAdvisory advisory = advisoryList.get(0);
-        List<String> actual = advisory.getVulnerablePackages().get(0).affectedVersionsRanges();
-        assertEquals(expectedMavenRanges, actual);
+        return advisoryList.get(0);
     }
 }

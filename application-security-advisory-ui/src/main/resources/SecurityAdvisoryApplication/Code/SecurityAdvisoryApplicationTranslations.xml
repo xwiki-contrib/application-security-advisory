@@ -114,6 +114,7 @@ securityadvisoryapplication.livetable.embargoDate=Embargo date
 securityadvisoryapplication.livetable.cvss=CVSS
 securityadvisoryapplication.livetable.cvssScore=CVSS Score
 securityadvisoryapplication.livetable.assignee=Assignee
+securityadvisoryapplication.livetable.cveId=CVE
 securityadvisoryapplication.livetable.description=Description
 
 # Other keys
