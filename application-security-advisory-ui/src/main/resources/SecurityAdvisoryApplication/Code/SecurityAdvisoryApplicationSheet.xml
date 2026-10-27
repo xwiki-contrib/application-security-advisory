@@ -65,8 +65,6 @@
   #if ($unmappedExternalUsers &amp;&amp; !$unmappedExternalUsers.isEmpty())
     #set ($isAdmin = $services.security.authorization.hasAccess('admin', $xcontext.wikiReference))
     #if ($isAdmin)
-      #set ($discard = $xwiki.jsfx.use('uicomponents/suggest/suggestUsersAndGroups.js', true))
-      #set ($discard = $xwiki.ssfx.use('uicomponents/suggest/xwiki.selectize.css', true))
       #set ($linkURL = $xwiki.getURL('SecurityAdvisoryApplication.Code.Configuration', 'get'))
     #end
     &lt;div class="box warningmessage securityadvisory-unmapped-users"&gt;
@@ -85,7 +83,7 @@
             &lt;input type="hidden" name="xredirect" value="$escapetool.xml($doc.getURL())" /&gt;
             &lt;dl&gt;
               &lt;dt&gt;&lt;label for="$inputId"&gt;$externalUserLabel&lt;/label&gt;&lt;/dt&gt;
-              &lt;dd&gt;&lt;input type="text" id="$inputId" name="externalUser" class="suggest-users" required="required" /&gt;&lt;/dd&gt;
+              &lt;dd&gt;#userPicker(false {'id': $inputId, 'name': 'externalUser', 'required': 'required'})&lt;/dd&gt;
               &lt;dd&gt;&lt;label&gt;&lt;input type="checkbox" name="applyToAll" value="true" checked="checked" /&gt;
                 $escapetool.xml($services.localization.render('securityadvisoryapplication.sheet.unmappedUsers.applyToAll'))&lt;/label&gt;&lt;/dd&gt;
             &lt;/dl&gt;
@@ -109,13 +107,19 @@
    #set ($discard = $response.sendError(401, 'Wrong CSRF token'))
   #end
 #end
-{{html wiki="true" clean="false"}}
 #if (!$editing)
+{{html wiki="true" clean="false"}}
 &lt;div class="box infomessage"&gt;
 $services.localization.render("securityadvisoryapplication.sheet.nextstep.${object.getValue('status')}")
 &lt;/div&gt;
+{{/html}}
+
+## Not parsed as wiki syntax: it would turn the URLs of the links to the external users profiles into links of their own.
+{{html clean="false"}}
 #displayUnmappedExternalUsers()
+{{/html}}
 #end
+{{html wiki="true" clean="false"}}
 &lt;div class="xform"&gt;
   &lt;dl&gt;
     &lt;dt #if (!$editing &amp;&amp; $hasEdit)

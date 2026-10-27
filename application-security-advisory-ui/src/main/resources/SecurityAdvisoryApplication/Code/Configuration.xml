@@ -453,7 +453,7 @@
 ## this code is evaluated by Velocity before the wiki syntax it produces is parsed.
 #macro (displayExternalUser $externalUser)
 #set ($escapedLogin = $escapetool.xml($externalUser.login()))
-#if ($externalUser.hint() == 'github')&lt;a href='https://github.com/$escapedLogin'&gt;@$escapedLogin&lt;/a&gt;#{else}$escapedLogin ($escapetool.xml($externalUser.hint()))#end
+#if ($externalUser.hint() == 'github')&lt;a href="https://github.com/$escapedLogin"&gt;@$escapedLogin&lt;/a&gt;#{else}$escapedLogin ($escapetool.xml($externalUser.hint()))#end
 #end
 #set($githubTokenClass = 'SecurityAdvisoryApplication.Code.GithubTokenClass')
 #set($configDoc = $xwiki.getDocument('SecurityAdvisoryApplication.Code.Configuration'))
@@ -499,8 +499,6 @@
 #set($resolutionState = "$!resolutionStatus.state")
 #set($unmappedExternalUsers = $services.securityadvisory.getUnmappedExternalUsers())
 #set ($linkURL = $xwiki.getURL('SecurityAdvisoryApplication.Code.Configuration', 'get'))
-#set ($discard = $xwiki.jsfx.use('uicomponents/suggest/suggestUsersAndGroups.js', true))
-#set ($discard = $xwiki.ssfx.use('uicomponents/suggest/xwiki.selectize.css', true))
 {{html clean="false"}}
 #if($unmappedExternalUsers.isEmpty())
 &lt;p&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.admin.externalUsers.empty'))&lt;/p&gt;
@@ -520,7 +518,7 @@
     &lt;dl&gt;
       &lt;dt&gt;&lt;label for="$inputId"&gt;#displayExternalUser($externalUser)&lt;/label&gt;
         &lt;span class="xHint"&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.admin.externalUsers.advisories', [$entry.value]))&lt;/span&gt;&lt;/dt&gt;
-      &lt;dd&gt;&lt;input type="text" id="$inputId" name="externalUser" class="suggest-users" required="required"/&gt;&lt;/dd&gt;
+      &lt;dd&gt;#userPicker(false {'id': $inputId, 'name': 'externalUser', 'required': 'required'})&lt;/dd&gt;
     &lt;/dl&gt;
     &lt;p&gt;&lt;button type="submit" class="btn btn-primary"&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.admin.externalUsers.link'))&lt;/button&gt;&lt;/p&gt;
   &lt;/form&gt;
