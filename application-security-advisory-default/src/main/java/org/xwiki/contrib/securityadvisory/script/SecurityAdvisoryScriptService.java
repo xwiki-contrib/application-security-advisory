@@ -22,7 +22,6 @@ package org.xwiki.contrib.securityadvisory.script;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -41,8 +40,7 @@ import org.xwiki.contrib.securityadvisory.VersionReleasedManager;
 import org.xwiki.contrib.securityadvisory.internal.SecurityAdvisoryDataMigrator;
 import org.xwiki.contrib.securityadvisory.internal.SecurityAdvisoryMigrationJob;
 import org.xwiki.contrib.securityadvisory.internal.SecurityAdvisoryMigrationRequest;
-import org.xwiki.contrib.securityadvisory.internal.assignee.AssigneeResolutionJob;
-import org.xwiki.contrib.securityadvisory.internal.assignee.AssigneeResolutionRequest;
+import org.xwiki.contrib.securityadvisory.internal.assignee.AssigneeResolutionJobManager;
 import org.xwiki.contrib.securityadvisory.internal.assignee.AssigneeResolver;
 import org.xwiki.contrib.securityadvisory.internal.assignee.ExternalUserMappingStore;
 import org.xwiki.job.Job;
@@ -76,11 +74,7 @@ public class SecurityAdvisoryScriptService implements ScriptService
     private static final List<String> DEFAULT_ENTRIES_SPACE = Arrays.asList("SecurityAdvisoryApplication",
         "SecurityEntries");
 
-    private static final String JOB_ID_PREFIX = "securityadvisory";
-
-    private static final List<String> DATA_MIGRATION_JOB_ID = Arrays.asList(JOB_ID_PREFIX, "datamigration");
-
-    private static final List<String> ASSIGNEE_RESOLUTION_JOB_ID = Arrays.asList(JOB_ID_PREFIX, "assigneeresolution");
+    private static final List<String> DATA_MIGRATION_JOB_ID = Arrays.asList("securityadvisory", "datamigration");
 
     @Inject
     private Provider<XWikiContext> contextProvider;
@@ -105,6 +99,9 @@ public class SecurityAdvisoryScriptService implements ScriptService
 
     @Inject
     private AssigneeResolver assigneeResolver;
+
+    @Inject
+    private AssigneeResolutionJobManager jobManager;
 
     @Inject
     private ExternalUserMappingStore externalUserMappingStore;
@@ -256,44 +253,40 @@ public class SecurityAdvisoryScriptService implements ScriptService
     }
 
     /**
-     * List the external users which prevent advisories from being assigned because they are not mapped to an XWiki
-     * user. Only administrators can get this list.
+     * Only administrators can get this count, which is meant for the live data listing the external users.
      *
-     * @return the external users without mapping, associated with the number of advisories without assignee they are
-     *     involved in, or an empty map if the current user is not an administrator
-     * @throws SecurityAdvisoryException in case of problem to load the advisories or to read the mapping
+     * @param hint the hint of the external system the user belongs to (e.g. {@code github})
+     * @param externalId the stable identifier of the user in the external system
+     * @return the number of advisories without assignee the external user is involved in, or {@code 0} if the
+     *     current user is not an administrator
+     * @throws SecurityAdvisoryException in case of problem to query or load the advisories
      * @since 2.2.2
      */
-    public Map<ExternalUser, Integer> getUnmappedExternalUsers() throws SecurityAdvisoryException
+    public int countUnassignedAdvisories(String hint, String externalId) throws SecurityAdvisoryException
     {
-        Map<ExternalUser, Integer> result = Collections.emptyMap();
+        int result = 0;
         if (this.authorizationManager.hasAccess(Right.ADMIN, this.contextProvider.get().getWikiReference())) {
-            result = this.assigneeResolver.getUnmappedExternalUsers();
+            result = this.assigneeResolver.countUnassignedAdvisories(new ExternalUser(hint, externalId, null));
         }
         return result;
     }
 
     /**
      * Map an external user to an XWiki user, replacing the existing mapping of the external user if any, and assign
-     * the given advisory if it has no assignee yet. Only administrators can create a mapping: it decides who is in
-     * charge of embargoed advisories.
+     * the given advisory if it has no assignee yet. The other advisories without assignee are then assigned in the
+     * background. Only administrators can create a mapping: it decides who is in charge of embargoed advisories.
      *
      * @param hint the hint of the external system the user belongs to (e.g. {@code github})
      * @param externalId the stable identifier of the user in the external system
      * @param login the login of the user in the external system
      * @param userReference the reference of the XWiki user to map the external user to
      * @param advisoryReference the reference of an advisory to assign right away, or {@code null}
-     * @param applyToAllAdvisories {@code true} to start a job assigning all the advisories without assignee from the
-     *     mapping of their external users
-     * @return the status of the started job, or {@code null} if no job was started
      * @throws AccessDeniedException if the current user is not an administrator
      * @throws SecurityAdvisoryException in case of problem to save the mapping or the advisory
-     * @throws JobException in case of problem to start the job
      * @since 2.2.2
      */
-    public JobStatus linkExternalUser(String hint, String externalId, String login, DocumentReference userReference,
-        DocumentReference advisoryReference, boolean applyToAllAdvisories)
-        throws AccessDeniedException, SecurityAdvisoryException, JobException
+    public void linkExternalUser(String hint, String externalId, String login, DocumentReference userReference,
+        DocumentReference advisoryReference) throws AccessDeniedException, SecurityAdvisoryException
     {
         XWikiContext context = this.contextProvider.get();
         this.authorizationManager.checkAccess(Right.ADMIN, context.getWikiReference());
@@ -301,15 +294,29 @@ public class SecurityAdvisoryScriptService implements ScriptService
         UserReference user = this.userReferenceResolver.resolve(userReference);
         this.externalUserMappingStore.setMapping(new ExternalUser(hint, externalId, login), user);
 
-        UserReference author = this.userReferenceResolver.resolve(context.getUserReference());
         if (advisoryReference != null) {
-            this.assigneeResolver.resolveAssignee(advisoryReference, author);
+            this.assigneeResolver.resolveAssignee(advisoryReference,
+                this.userReferenceResolver.resolve(context.getUserReference()));
         }
-        JobStatus result = null;
-        if (applyToAllAdvisories) {
-            result = startAssigneeResolution();
-        }
-        return result;
+    }
+
+    /**
+     * Archive or unarchive an external user: an archived external user is known not to be mappable, and is not
+     * proposed for mapping anymore. Only administrators can archive an external user.
+     *
+     * @param hint the hint of the external system the user belongs to (e.g. {@code github})
+     * @param externalId the stable identifier of the user in the external system
+     * @param login the login of the user in the external system
+     * @param archived {@code true} to archive the external user, {@code false} to unarchive it
+     * @throws AccessDeniedException if the current user is not an administrator
+     * @throws SecurityAdvisoryException in case of problem to save the external user
+     * @since 2.2.2
+     */
+    public void setExternalUserArchived(String hint, String externalId, String login, boolean archived)
+        throws AccessDeniedException, SecurityAdvisoryException
+    {
+        this.authorizationManager.checkAccess(Right.ADMIN, this.contextProvider.get().getWikiReference());
+        this.externalUserMappingStore.setArchived(new ExternalUser(hint, externalId, login), archived);
     }
 
     /**
@@ -325,8 +332,7 @@ public class SecurityAdvisoryScriptService implements ScriptService
     {
         XWikiContext context = this.contextProvider.get();
         this.authorizationManager.checkAccess(Right.ADMIN, context.getWikiReference());
-        return this.jobExecutor.execute(AssigneeResolutionJob.JOBTYPE,
-            new AssigneeResolutionRequest(ASSIGNEE_RESOLUTION_JOB_ID, context.getUserReference())).getStatus();
+        return this.jobManager.startResolution(context.getUserReference());
     }
 
     /**
@@ -336,10 +342,6 @@ public class SecurityAdvisoryScriptService implements ScriptService
      */
     public JobStatus getAssigneeResolutionStatus()
     {
-        Job job = this.jobExecutor.getJob(ASSIGNEE_RESOLUTION_JOB_ID);
-        if (job != null) {
-            return job.getStatus();
-        }
-        return this.jobStatusStore.getJobStatus(ASSIGNEE_RESOLUTION_JOB_ID);
+        return this.jobManager.getResolutionStatus();
     }
 }

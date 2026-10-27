@@ -22,3 +22,6 @@ org.xwiki.contrib.securityadvisory.internal.assignee.ExternalUserClassMandatoryD
 org.xwiki.contrib.securityadvisory.internal.assignee.ExternalUserMappingClassMandatoryDocumentInitializer
 org.xwiki.contrib.securityadvisory.internal.assignee.ExternalUserMappingStore
 org.xwiki.contrib.securityadvisory.internal.assignee.UserPropertyConverter
+org.xwiki.contrib.securityadvisory.internal.assignee.ExternalUserMappingListener
+org.xwiki.contrib.securityadvisory.internal.assignee.ExternalUsersRightsInitializer
+org.xwiki.contrib.securityadvisory.internal.assignee.AssigneeResolutionJobManager

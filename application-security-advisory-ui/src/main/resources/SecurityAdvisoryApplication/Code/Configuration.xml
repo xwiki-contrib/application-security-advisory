@@ -37,13 +37,22 @@
   <syntaxId>xwiki/2.1</syntaxId>
   <hidden>true</hidden>
   <content>{{velocity}}
-#if("$!request.get('externalUserAction')" == 'link')
-## Map an external user to an XWiki user, from the advisory sheet or from the administration.
+#if("$!request.get('externalUserAction')" != '')
+## Map or archive an external user, from the advisory sheet.
+#set ($externalUserAction = $request.get('externalUserAction'))
+#set ($externalHint = $request.get('externalHint'))
+#set ($externalId = $request.get('externalId'))
+#set ($externalLogin = $request.get('externalLogin'))
 #if (!$services.security.authorization.hasAccess('admin', $xcontext.wikiReference))
   #set ($discard = $response.sendError(403, 'Only administrators can map external users.'))
 #elseif ($request.method != 'POST' || !$services.csrf.isTokenValid($request.get('form_token')))
   #set ($discard = $response.sendError(401, 'CSRF token verification failed.'))
-#elseif ("$!request.get('externalHint')" == '' || "$!request.get('externalId')" == '' || "$!request.get('externalUser')" == '')
+#elseif ("$!externalHint" == '' || "$!externalId" == '')
+  #set ($discard = $response.sendError(400, 'Missing arguments.'))
+#elseif ($externalUserAction == 'archive')
+  #set ($discard = $services.securityadvisory.setExternalUserArchived($externalHint, $externalId, $externalLogin, true))
+  $response.sendRedirect($request.get('xredirect'))
+#elseif ($externalUserAction != 'link' || "$!request.get('externalUser')" == '')
   #set ($discard = $response.sendError(400, 'Missing arguments.'))
 #else
   #set ($userReference = $services.model.resolveDocument($request.get('externalUser')))
@@ -54,11 +63,7 @@
     #if ("$!request.get('advisoryReference')" != '')
       #set ($advisoryReference = $services.model.resolveDocument($request.get('advisoryReference')))
     #end
-    #set ($applyToAll = "$!request.get('applyToAll')" == 'true')
-    #set ($externalHint = $request.get('externalHint'))
-    #set ($externalId = $request.get('externalId'))
-    #set ($externalLogin = $request.get('externalLogin'))
-    #set ($discard = $services.securityadvisory.linkExternalUser($externalHint, $externalId, $externalLogin, $userReference, $advisoryReference, $applyToAll))
+    #set ($discard = $services.securityadvisory.linkExternalUser($externalHint, $externalId, $externalLogin, $userReference, $advisoryReference))
     $response.sendRedirect($request.get('xredirect'))
   #end
 #end
@@ -449,12 +454,6 @@
 ## particular job log messages containing stack traces) would be evaluated by Velocity a second time and could break
 ## the rendering of the whole administration section.
 #if($xwiki.hasAdminRights())
-## Same as the macro of SecurityAdvisoryApplication.Code.SecurityAdvisoryMacros, which cannot be included here since
-## this code is evaluated by Velocity before the wiki syntax it produces is parsed.
-#macro (displayExternalUser $externalUser)
-#set ($escapedLogin = $escapetool.xml($externalUser.login()))
-#if ($externalUser.hint() == 'github')&lt;a href="https://github.com/$escapedLogin"&gt;@$escapedLogin&lt;/a&gt;#{else}$escapedLogin ($escapetool.xml($externalUser.hint()))#end
-#end
 #set($githubTokenClass = 'SecurityAdvisoryApplication.Code.GithubTokenClass')
 #set($configDoc = $xwiki.getDocument('SecurityAdvisoryApplication.Code.Configuration'))
 #if("$!request.get('securityAdvisoryMigrate')" == '1' &amp;&amp; $services.csrf.isTokenValid($request.get('form_token')))
@@ -497,34 +496,35 @@
 #end
 #set($resolutionStatus = $services.securityadvisory.getAssigneeResolutionStatus())
 #set($resolutionState = "$!resolutionStatus.state")
-#set($unmappedExternalUsers = $services.securityadvisory.getUnmappedExternalUsers())
-#set ($linkURL = $xwiki.getURL('SecurityAdvisoryApplication.Code.Configuration', 'get'))
+## The external user pages are hidden: the default "hidden" query filter must not be used. The login is displayed as
+## HTML because the results page renders it as a link to the GitHub profile.
+#set ($externalUsersSourceParameters = $escapetool.url({
+  'className': 'SecurityAdvisoryApplication.Code.ExternalUserMappingClass',
+  'translationPrefix': 'securityadvisoryapplication.externalUsers.livetable.',
+  'resultPage': 'SecurityAdvisoryApplication.Code.ExternalUsersLiveTableResults',
+  'queryFilters': 'currentlanguage'
+}))
+#set ($externalUsersLiveDataConfig = {
+  'meta': {
+    'propertyDescriptors': [
+      {'id': 'login', 'editable': false, 'displayer': 'html'},
+      {'id': 'hint', 'editable': false},
+      {'id': 'unassignedAdvisories', 'sortable': false, 'filterable': false, 'editable': false}
+    ]
+  }
+})
+
+{{liveData
+  id="securityadvisory-external-users"
+  properties="login,hint,user,archived,unassignedAdvisories"
+  source="liveTable"
+  sourceParameters="$externalUsersSourceParameters"
+  filters="archived=0"
+  sort="login:asc"
+  limit="10"
+}}$jsontool.serialize($externalUsersLiveDataConfig){{/liveData}}
+
 {{html clean="false"}}
-#if($unmappedExternalUsers.isEmpty())
-&lt;p&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.admin.externalUsers.empty'))&lt;/p&gt;
-#else
-  #foreach($entry in $unmappedExternalUsers.entrySet())
-  #set($externalUser = $entry.key)
-  #set($inputId = "securityadvisory-admin-externalUser-$foreach.count")
-&lt;div class="box"&gt;
-  &lt;form action="$escapetool.xml($linkURL)" method="post" class="xform"&gt;
-    &lt;input type="hidden" name="form_token" value="$!{services.csrf.getToken()}"/&gt;
-    &lt;input type="hidden" name="externalUserAction" value="link"/&gt;
-    &lt;input type="hidden" name="externalHint" value="$escapetool.xml($externalUser.hint())"/&gt;
-    &lt;input type="hidden" name="externalId" value="$escapetool.xml($externalUser.id())"/&gt;
-    &lt;input type="hidden" name="externalLogin" value="$escapetool.xml($externalUser.login())"/&gt;
-    &lt;input type="hidden" name="applyToAll" value="true"/&gt;
-    &lt;input type="hidden" name="xredirect" value="$escapetool.xml($xwiki.relativeRequestURL)"/&gt;
-    &lt;dl&gt;
-      &lt;dt&gt;&lt;label for="$inputId"&gt;#displayExternalUser($externalUser)&lt;/label&gt;
-        &lt;span class="xHint"&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.admin.externalUsers.advisories', [$entry.value]))&lt;/span&gt;&lt;/dt&gt;
-      &lt;dd&gt;#userPicker(false {'id': $inputId, 'name': 'externalUser', 'required': 'required'})&lt;/dd&gt;
-    &lt;/dl&gt;
-    &lt;p&gt;&lt;button type="submit" class="btn btn-primary"&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.admin.externalUsers.link'))&lt;/button&gt;&lt;/p&gt;
-  &lt;/form&gt;
-&lt;/div&gt;
-  #end
-#end
 &lt;form action="$escapetool.xml($xwiki.relativeRequestURL)" method="post" class="xform"&gt;
   &lt;input type="hidden" name="form_token" value="$!{services.csrf.getToken()}"/&gt;
   &lt;input type="hidden" name="securityAdvisoryResolveAssignees" value="1"/&gt;

@@ -403,6 +403,10 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
 
             writeVulnerablePackages(document, securityAdvisory.getVulnerablePackages());
             writeExternalUsers(document, securityAdvisory.getExternalUsers());
+            // Make the external users known, so that administrators can map them before an advisory needs them.
+            for (ExternalUser externalUser : securityAdvisory.getExternalUsers()) {
+                this.externalUserMappingStore.register(externalUser);
+            }
             writeAssignee(document, object, securityAdvisory);
             context.getWiki().saveDocument(document, "Import data", context);
         } catch (XWikiException e) {

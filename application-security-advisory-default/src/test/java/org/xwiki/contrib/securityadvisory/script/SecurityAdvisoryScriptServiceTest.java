@@ -20,17 +20,13 @@
 package org.xwiki.contrib.securityadvisory.script;
 
 import java.util.List;
-import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.xwiki.contrib.securityadvisory.ExternalUser;
-import org.xwiki.contrib.securityadvisory.internal.assignee.AssigneeResolutionJob;
-import org.xwiki.contrib.securityadvisory.internal.assignee.AssigneeResolutionRequest;
+import org.xwiki.contrib.securityadvisory.internal.assignee.AssigneeResolutionJobManager;
 import org.xwiki.contrib.securityadvisory.internal.assignee.AssigneeResolver;
 import org.xwiki.contrib.securityadvisory.internal.assignee.ExternalUserMappingStore;
-import org.xwiki.job.Job;
-import org.xwiki.job.JobExecutor;
 import org.xwiki.job.event.status.JobStatus;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.WikiReference;
@@ -49,11 +45,9 @@ import com.xpn.xwiki.test.reference.ReferenceComponentList;
 import jakarta.inject.Named;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -85,10 +79,10 @@ class SecurityAdvisoryScriptServiceTest
     private AssigneeResolver assigneeResolver;
 
     @MockComponent
-    private ExternalUserMappingStore externalUserMappingStore;
+    private AssigneeResolutionJobManager jobManager;
 
     @MockComponent
-    private JobExecutor jobExecutor;
+    private ExternalUserMappingStore externalUserMappingStore;
 
     @MockComponent
     @Named("document")
@@ -115,55 +109,66 @@ class SecurityAdvisoryScriptServiceTest
     }
 
     @Test
-    void linkExternalUserRequiresAdmin() throws Exception
+    void mappingRequiresAdmin() throws Exception
     {
         doThrow(AccessDeniedException.class).when(this.oldcore.getMockContextualAuthorizationManager())
             .checkAccess(Right.ADMIN, this.wikiReference);
 
         assertThrows(AccessDeniedException.class, () -> this.scriptService.linkExternalUser(SURLI.hint(), SURLI.id(),
-            SURLI.login(), USER_DOCUMENT, ADVISORY_REFERENCE, true));
+            SURLI.login(), USER_DOCUMENT, ADVISORY_REFERENCE));
+        assertThrows(AccessDeniedException.class,
+            () -> this.scriptService.setExternalUserArchived(SURLI.hint(), SURLI.id(), SURLI.login(), true));
         assertThrows(AccessDeniedException.class, () -> this.scriptService.startAssigneeResolution());
 
-        verifyNoInteractions(this.externalUserMappingStore, this.assigneeResolver, this.jobExecutor);
+        verifyNoInteractions(this.externalUserMappingStore, this.assigneeResolver, this.jobManager);
     }
 
     @Test
     void linkExternalUser() throws Exception
     {
-        assertNull(this.scriptService.linkExternalUser(SURLI.hint(), SURLI.id(), SURLI.login(), USER_DOCUMENT, ADVISORY_REFERENCE,
-            false));
+        this.scriptService.linkExternalUser(SURLI.hint(), SURLI.id(), SURLI.login(), USER_DOCUMENT,
+            ADVISORY_REFERENCE);
 
         verify(this.externalUserMappingStore).setMapping(SURLI, this.user);
         verify(this.assigneeResolver).resolveAssignee(ADVISORY_REFERENCE, this.admin);
-        verifyNoInteractions(this.jobExecutor);
     }
 
     @Test
-    void linkExternalUserAndApplyToAllAdvisories() throws Exception
+    void linkExternalUserWithoutAdvisory() throws Exception
     {
-        Job job = mock(Job.class);
-        JobStatus jobStatus = mock(JobStatus.class);
-        when(job.getStatus()).thenReturn(jobStatus);
-        when(this.jobExecutor.execute(eq(AssigneeResolutionJob.JOBTYPE), any(AssigneeResolutionRequest.class)))
-            .thenReturn(job);
-
-        assertSame(jobStatus,
-            this.scriptService.linkExternalUser(SURLI.hint(), SURLI.id(), SURLI.login(), USER_DOCUMENT, null, true));
+        this.scriptService.linkExternalUser(SURLI.hint(), SURLI.id(), SURLI.login(), USER_DOCUMENT, null);
 
         verify(this.externalUserMappingStore).setMapping(SURLI, this.user);
         verifyNoInteractions(this.assigneeResolver);
     }
 
     @Test
-    void getUnmappedExternalUsersRequiresRights() throws Exception
+    void setExternalUserArchived() throws Exception
     {
-        when(this.assigneeResolver.getUnmappedExternalUsers()).thenReturn(Map.of(SURLI, 2));
+        this.scriptService.setExternalUserArchived(SURLI.hint(), SURLI.id(), SURLI.login(), true);
 
-        assertEquals(Map.of(), this.scriptService.getUnmappedExternalUsers());
+        verify(this.externalUserMappingStore).setArchived(SURLI, true);
+    }
+
+    @Test
+    void startAssigneeResolution() throws Exception
+    {
+        JobStatus jobStatus = mock(JobStatus.class);
+        when(this.jobManager.startResolution(ADMIN_DOCUMENT)).thenReturn(jobStatus);
+
+        assertSame(jobStatus, this.scriptService.startAssigneeResolution());
+    }
+
+    @Test
+    void readMethodsRequireRights() throws Exception
+    {
+        when(this.assigneeResolver.countUnassignedAdvisories(any())).thenReturn(2);
+
+        assertEquals(0, this.scriptService.countUnassignedAdvisories(SURLI.hint(), SURLI.id()));
         assertEquals(List.of(), this.scriptService.getUnmappedExternalUsers(ADVISORY_REFERENCE));
 
         when(this.oldcore.getMockContextualAuthorizationManager().hasAccess(Right.ADMIN, this.wikiReference))
             .thenReturn(true);
-        assertEquals(Map.of(SURLI, 2), this.scriptService.getUnmappedExternalUsers());
+        assertEquals(2, this.scriptService.countUnassignedAdvisories(SURLI.hint(), SURLI.id()));
     }
 }

@@ -75,7 +75,6 @@
           #set ($inputId = "securityadvisory-externalUser-$foreach.count")
           &lt;form action="$escapetool.xml($linkURL)" method="post" class="xform"&gt;
             &lt;input type="hidden" name="form_token" value="$!escapetool.xml($services.csrf.token)" /&gt;
-            &lt;input type="hidden" name="externalUserAction" value="link" /&gt;
             &lt;input type="hidden" name="externalHint" value="$escapetool.xml($externalUser.hint())" /&gt;
             &lt;input type="hidden" name="externalId" value="$escapetool.xml($externalUser.id())" /&gt;
             &lt;input type="hidden" name="externalLogin" value="$escapetool.xml($externalUser.login())" /&gt;
@@ -84,10 +83,12 @@
             &lt;dl&gt;
               &lt;dt&gt;&lt;label for="$inputId"&gt;$externalUserLabel&lt;/label&gt;&lt;/dt&gt;
               &lt;dd&gt;#userPicker(false {'id': $inputId, 'name': 'externalUser', 'required': 'required'})&lt;/dd&gt;
-              &lt;dd&gt;&lt;label&gt;&lt;input type="checkbox" name="applyToAll" value="true" checked="checked" /&gt;
-                $escapetool.xml($services.localization.render('securityadvisoryapplication.sheet.unmappedUsers.applyToAll'))&lt;/label&gt;&lt;/dd&gt;
             &lt;/dl&gt;
-            &lt;p&gt;&lt;button type="submit" class="btn btn-primary"&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.sheet.unmappedUsers.link'))&lt;/button&gt;&lt;/p&gt;
+            &lt;p&gt;
+              &lt;button type="submit" name="externalUserAction" value="link" class="btn btn-primary"&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.sheet.unmappedUsers.link'))&lt;/button&gt;
+              ## Archiving doesn't need a user: skip the validation of the user picker.
+              &lt;button type="submit" name="externalUserAction" value="archive" formnovalidate="formnovalidate" class="btn btn-default" title="$escapetool.xml($services.localization.render('securityadvisoryapplication.sheet.unmappedUsers.archive.hint'))"&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.sheet.unmappedUsers.archive'))&lt;/button&gt;
+            &lt;/p&gt;
           &lt;/form&gt;
         #else
           &lt;p&gt;$externalUserLabel&lt;/p&gt;

@@ -31,8 +31,9 @@ import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 
 /**
- * Mandatory class initializer for the class holding, in the configuration document, the mapping between a user of the
- * external system advisories are imported from and an XWiki user.
+ * Mandatory class initializer for the class holding a user of an external system advisories are imported from, and
+ * its mapping to an XWiki user. There is one page holding an object of this class per external user, see
+ * {@link ExternalUserMappingStore}.
  *
  * @version $Id$
  * @since 2.2.2
@@ -63,6 +64,11 @@ public class ExternalUserMappingClassMandatoryDocumentInitializer extends Abstra
     public static final String USER = "user";
 
     /**
+     * Whether the external user has been archived, i.e. it's known that it cannot be mapped to an XWiki user.
+     */
+    public static final String ARCHIVED = "archived";
+
+    /**
      * Reference of the xclass.
      */
     public static final EntityReference CLASS_REFERENCE =
@@ -84,5 +90,6 @@ public class ExternalUserMappingClassMandatoryDocumentInitializer extends Abstra
         xclass.addTextField(EXTERNAL_ID, EXTERNAL_ID, 255);
         xclass.addTextField(LOGIN, LOGIN, 255);
         xclass.addUsersField(USER, USER, false);
+        xclass.addBooleanField(ARCHIVED, ARCHIVED, "checkbox", null, false);
     }
 }

@@ -20,10 +20,8 @@
 package org.xwiki.contrib.securityadvisory.internal.assignee;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -38,6 +36,7 @@ import org.xwiki.model.document.DocumentAuthors;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.DocumentReferenceResolver;
 import org.xwiki.model.reference.EntityReferenceSerializer;
+import org.xwiki.query.Query;
 import org.xwiki.query.QueryException;
 import org.xwiki.query.QueryManager;
 import org.xwiki.user.UserReference;
@@ -87,8 +86,8 @@ public class AssigneeResolver
 
     /**
      * @param advisory an advisory
-     * @return the external users of the advisory without mapping, by order of priority, or an empty list if the
-     *     advisory already has an assignee
+     * @return the external users of the advisory without mapping and not archived, by order of priority, or an empty
+     *     list if the advisory already has an assignee
      * @throws SecurityAdvisoryException in case of problem to read the mapping
      */
     public List<ExternalUser> getUnmappedExternalUsers(SecurityAdvisory advisory) throws SecurityAdvisoryException
@@ -96,7 +95,9 @@ public class AssigneeResolver
         List<ExternalUser> result = new ArrayList<>();
         if (advisory.getAssignee() == null) {
             for (ExternalUser externalUser : advisory.getExternalUsers()) {
-                if (this.externalUserMappingStore.getMappedUser(externalUser).isEmpty()) {
+                if (this.externalUserMappingStore.getMappedUser(externalUser).isEmpty()
+                    && !this.externalUserMappingStore.isArchived(externalUser))
+                {
                     result.add(externalUser);
                 }
             }
@@ -105,28 +106,25 @@ public class AssigneeResolver
     }
 
     /**
-     * List the external users without mapping involved in advisories without assignee. An external user appears only
-     * once, with the latest login found, even if they renamed their account between two imports: they are identified
-     * by the hint of their system and their identifier in it.
-     *
-     * @return the external users without mapping, associated with the number of advisories without assignee they
-     *     are involved in
+     * @param externalUser an external user
+     * @return the number of advisories without assignee the external user is involved in
      * @throws SecurityAdvisoryException in case of problem to query or load the advisories
      */
-    public Map<ExternalUser, Integer> getUnmappedExternalUsers() throws SecurityAdvisoryException
+    public int countUnassignedAdvisories(ExternalUser externalUser) throws SecurityAdvisoryException
     {
-        Map<List<String>, ExternalUser> externalUsersById = new LinkedHashMap<>();
-        Map<List<String>, Integer> countById = new LinkedHashMap<>();
-        for (SecurityAdvisory advisory : getUnassignedAdvisories()) {
-            for (ExternalUser externalUser : getUnmappedExternalUsers(advisory)) {
-                List<String> id = List.of(externalUser.hint(), externalUser.id());
-                externalUsersById.put(id, externalUser);
-                countById.merge(id, 1, Integer::sum);
-            }
+        String statement = String.format("from doc.object(%s) as externalUser where externalUser.%s = :hint and "
+            + "externalUser.%s = :externalId",
+            this.entityReferenceSerializer.serialize(ExternalUserClassMandatoryDocumentInitializer.CLASS_REFERENCE),
+            ExternalUserClassMandatoryDocumentInitializer.HINT,
+            ExternalUserClassMandatoryDocumentInitializer.EXTERNAL_ID);
+        try {
+            return getUnassignedAdvisories(this.queryManager.createQuery(statement, Query.XWQL)
+                .bindValue("hint", externalUser.hint())
+                .bindValue("externalId", externalUser.id())).size();
+        } catch (QueryException e) {
+            throw new SecurityAdvisoryException(
+                String.format("Error when counting the advisories of external user [%s]", externalUser.login()), e);
         }
-        Map<ExternalUser, Integer> result = new LinkedHashMap<>();
-        externalUsersById.forEach((id, externalUser) -> result.put(externalUser, countById.get(id)));
-        return result;
     }
 
     /**
@@ -137,17 +135,23 @@ public class AssigneeResolver
     {
         String statement = String.format("from doc.object(%s) as externalUser",
             this.entityReferenceSerializer.serialize(ExternalUserClassMandatoryDocumentInitializer.CLASS_REFERENCE));
-        List<SecurityAdvisory> result = new ArrayList<>();
         try {
-            // The query returns a document once per external user object it holds.
-            Set<String> documentNames = new LinkedHashSet<>(this.queryManager.createQuery(statement, "xwql").execute());
-            for (String documentName : documentNames) {
-                this.securityAdvisoriesManager.loadAdvisory(this.documentReferenceResolver.resolve(documentName))
-                    .filter(advisory -> advisory.getAssignee() == null)
-                    .ifPresent(result::add);
-            }
+            return getUnassignedAdvisories(this.queryManager.createQuery(statement, Query.XWQL));
         } catch (QueryException e) {
             throw new SecurityAdvisoryException("Error when retrieving the advisories with external users", e);
+        }
+    }
+
+    private List<SecurityAdvisory> getUnassignedAdvisories(Query query)
+        throws QueryException, SecurityAdvisoryException
+    {
+        List<SecurityAdvisory> result = new ArrayList<>();
+        // The query returns a document once per external user object it holds.
+        Set<String> documentNames = new LinkedHashSet<>(query.execute());
+        for (String documentName : documentNames) {
+            this.securityAdvisoriesManager.loadAdvisory(this.documentReferenceResolver.resolve(documentName))
+                .filter(advisory -> advisory.getAssignee() == null)
+                .ifPresent(result::add);
         }
         return result;
     }

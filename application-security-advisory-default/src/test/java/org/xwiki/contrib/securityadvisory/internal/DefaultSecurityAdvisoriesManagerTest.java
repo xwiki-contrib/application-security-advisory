@@ -118,6 +118,11 @@ class DefaultSecurityAdvisoriesManagerTest
         assertEquals("XWiki.surli", getAdvisoryObject().getLargeStringValue(
             SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_ASSIGNEE));
 
+        // The external users are registered, so that administrators can map them.
+        for (ExternalUser externalUser : EXTERNAL_USERS) {
+            verify(this.externalUserMappingStore).register(externalUser);
+        }
+
         SecurityAdvisory loadedAdvisory = this.manager.loadAdvisory(ADVISORY_REFERENCE).orElseThrow();
         assertEquals(this.mappedUser, loadedAdvisory.getAssignee());
         assertEquals(EXTERNAL_USERS, loadedAdvisory.getExternalUsers());

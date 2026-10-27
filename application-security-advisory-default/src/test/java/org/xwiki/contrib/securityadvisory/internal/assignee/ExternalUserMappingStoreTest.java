@@ -25,12 +25,14 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.xwiki.contrib.securityadvisory.ExternalUser;
-import org.xwiki.contrib.securityadvisory.internal.configuration.SecurityAdvisoryConfigurationSource;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.EntityReference;
+import org.xwiki.security.authorization.AuthorizationManager;
+import org.xwiki.security.authorization.Right;
 import org.xwiki.test.junit5.mockito.InjectMockComponents;
 import org.xwiki.test.junit5.mockito.MockComponent;
 import org.xwiki.user.UserReference;
+import org.xwiki.user.UserReferenceSerializer;
 
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
@@ -39,7 +41,10 @@ import com.xpn.xwiki.test.junit5.mockito.InjectMockitoOldcore;
 import com.xpn.xwiki.test.junit5.mockito.OldcoreTest;
 import com.xpn.xwiki.test.reference.ReferenceComponentList;
 
+import jakarta.inject.Named;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -59,11 +64,22 @@ class ExternalUserMappingStoreTest
 
     private static final ExternalUser OANAT = new ExternalUser("github", "370535", "oanat");
 
+    private static final DocumentReference ADMIN = new DocumentReference("xwiki", "XWiki", "Admin");
+
+    private static final DocumentReference EDITOR = new DocumentReference("xwiki", "XWiki", "Editor");
+
     @InjectMockComponents
     private ExternalUserMappingStore store;
 
     @MockComponent
     private UserPropertyConverter userPropertyConverter;
+
+    @MockComponent
+    private AuthorizationManager authorizationManager;
+
+    @MockComponent
+    @Named("document")
+    private UserReferenceSerializer<DocumentReference> userReferenceSerializer;
 
     @InjectMockitoOldcore
     private MockitoOldcore oldcore;
@@ -72,14 +88,9 @@ class ExternalUserMappingStoreTest
 
     private UserReference userB;
 
-    private DocumentReference configurationReference;
-
     @BeforeEach
     void setUp()
     {
-        this.configurationReference =
-            new DocumentReference(SecurityAdvisoryConfigurationSource.DOC_REFERENCE, this.oldcore.getXWikiContext()
-                .getWikiReference());
         this.userA = mock(UserReference.class);
         this.userB = mock(UserReference.class);
         when(this.userPropertyConverter.serialize(eq(this.userA), any(EntityReference.class))).thenReturn("XWiki.A");
@@ -88,13 +99,29 @@ class ExternalUserMappingStoreTest
             .thenReturn(Optional.of(this.userA));
         when(this.userPropertyConverter.resolve(eq("XWiki.B"), any(EntityReference.class)))
             .thenReturn(Optional.of(this.userB));
+
+        // The pages are saved by the context user, an administrator.
+        this.oldcore.getXWikiContext().setUserReference(ADMIN);
+        when(this.userReferenceSerializer.serialize(any())).thenReturn(ADMIN);
+        when(this.authorizationManager.hasAccess(eq(Right.ADMIN), eq(ADMIN), any())).thenReturn(true);
     }
 
-    private List<BaseObject> getMappingObjects() throws Exception
+    private XWikiDocument getDocument(ExternalUser externalUser) throws Exception
     {
-        XWikiDocument configurationDocument =
-            this.oldcore.getSpyXWiki().getDocument(this.configurationReference, this.oldcore.getXWikiContext());
-        return configurationDocument.getXObjects(ExternalUserMappingClassMandatoryDocumentInitializer.CLASS_REFERENCE);
+        return this.oldcore.getSpyXWiki().getDocument(this.store.getReference(externalUser),
+            this.oldcore.getXWikiContext());
+    }
+
+    private BaseObject getObject(ExternalUser externalUser) throws Exception
+    {
+        return getDocument(externalUser).getXObject(ExternalUserMappingClassMandatoryDocumentInitializer.CLASS_REFERENCE);
+    }
+
+    @Test
+    void getReference()
+    {
+        assertEquals(new DocumentReference("xwiki", List.of("SecurityAdvisoryApplication", "ExternalUsers"),
+            "github-1478232"), this.store.getReference(SURLI));
     }
 
     @Test
@@ -104,14 +131,13 @@ class ExternalUserMappingStoreTest
 
         this.store.setMapping(SURLI, this.userA);
         assertEquals(Optional.of(this.userA), this.store.getMappedUser(SURLI));
+        assertTrue(getDocument(SURLI).isHidden());
 
         // Mapping the same external user again, after they renamed their account, replaces the existing mapping.
         this.store.setMapping(new ExternalUser("github", SURLI.id(), "surli-renamed"), this.userB);
         assertEquals(Optional.of(this.userB), this.store.getMappedUser(SURLI));
 
-        List<BaseObject> mappingObjects = getMappingObjects();
-        assertEquals(1, mappingObjects.size());
-        BaseObject mappingObject = mappingObjects.get(0);
+        BaseObject mappingObject = getObject(SURLI);
         assertEquals("github", mappingObject.getStringValue(ExternalUserMappingClassMandatoryDocumentInitializer.HINT));
         assertEquals(SURLI.id(),
             mappingObject.getStringValue(ExternalUserMappingClassMandatoryDocumentInitializer.EXTERNAL_ID));
@@ -119,6 +145,17 @@ class ExternalUserMappingStoreTest
             mappingObject.getStringValue(ExternalUserMappingClassMandatoryDocumentInitializer.LOGIN));
         assertEquals("XWiki.B",
             mappingObject.getLargeStringValue(ExternalUserMappingClassMandatoryDocumentInitializer.USER));
+    }
+
+    @Test
+    void mappingNotSavedByAdministratorIsIgnored() throws Exception
+    {
+        this.store.setMapping(SURLI, this.userA);
+
+        // The page was last saved by a user who is not an administrator, e.g. by editing it directly.
+        when(this.userReferenceSerializer.serialize(any())).thenReturn(EDITOR);
+
+        assertEquals(Optional.empty(), this.store.getMappedUser(SURLI));
     }
 
     @Test
@@ -133,7 +170,6 @@ class ExternalUserMappingStoreTest
         this.store.setMapping(otherSystemUser, this.userB);
         assertEquals(Optional.of(this.userA), this.store.getMappedUser(SURLI));
         assertEquals(Optional.of(this.userB), this.store.getMappedUser(otherSystemUser));
-        assertEquals(2, getMappingObjects().size());
     }
 
     @Test
@@ -147,5 +183,45 @@ class ExternalUserMappingStoreTest
         this.store.setMapping(SURLI, this.userA);
         assertEquals(Optional.of(this.userA), this.store.resolveAssignee(List.of(SURLI, OANAT)));
         assertEquals(Optional.of(this.userB), this.store.resolveAssignee(List.of(OANAT, SURLI)));
+    }
+
+    @Test
+    void setArchived() throws Exception
+    {
+        assertFalse(this.store.isArchived(SURLI));
+
+        this.store.setArchived(SURLI, true);
+        assertTrue(this.store.isArchived(SURLI));
+        assertEquals(Optional.empty(), this.store.getMappedUser(SURLI));
+
+        this.store.setArchived(SURLI, false);
+        assertFalse(this.store.isArchived(SURLI));
+
+        // Mapping an archived user unarchives it.
+        this.store.setArchived(SURLI, true);
+        this.store.setMapping(SURLI, this.userA);
+        assertFalse(this.store.isArchived(SURLI));
+    }
+
+    @Test
+    void register() throws Exception
+    {
+        this.store.register(SURLI);
+        BaseObject mappingObject = getObject(SURLI);
+        assertEquals("surli", mappingObject.getStringValue(ExternalUserMappingClassMandatoryDocumentInitializer.LOGIN));
+        assertEquals("", mappingObject.getLargeStringValue(ExternalUserMappingClassMandatoryDocumentInitializer.USER));
+        assertTrue(getDocument(SURLI).isHidden());
+
+        // The login of a user who is not mapped yet is updated when they rename their account.
+        this.store.register(new ExternalUser("github", SURLI.id(), "surli-renamed"));
+        assertEquals("surli-renamed",
+            getObject(SURLI).getStringValue(ExternalUserMappingClassMandatoryDocumentInitializer.LOGIN));
+
+        // The page of a mapped user is left untouched, to keep the mapping authored by the administrator.
+        this.store.setMapping(SURLI, this.userA);
+        String version = getDocument(SURLI).getVersion();
+        this.store.register(new ExternalUser("github", SURLI.id(), "surli-renamed-again"));
+        assertEquals(version, getDocument(SURLI).getVersion());
+        assertEquals(Optional.of(this.userA), this.store.getMappedUser(SURLI));
     }
 }

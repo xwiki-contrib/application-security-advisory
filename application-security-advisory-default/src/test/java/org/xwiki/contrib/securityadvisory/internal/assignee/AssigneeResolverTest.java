@@ -20,7 +20,6 @@
 package org.xwiki.contrib.securityadvisory.internal.assignee;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -50,7 +49,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -143,31 +144,35 @@ class AssigneeResolverTest
         SecurityAdvisory unassigned = registerAdvisory("Unassigned", null, REPORTER, OANAT, SURLI);
         assertEquals(List.of(REPORTER, SURLI), this.resolver.getUnmappedExternalUsers(unassigned));
 
-        SecurityAdvisory assigned = registerAdvisory("Assigned", mock(UserReference.class), REPORTER);
+        // An archived external user is not proposed for mapping anymore.
+        when(this.externalUserMappingStore.isArchived(REPORTER)).thenReturn(true);
+        assertEquals(List.of(SURLI), this.resolver.getUnmappedExternalUsers(unassigned));
+
+        SecurityAdvisory assigned = registerAdvisory("Assigned", mock(UserReference.class), SURLI);
         assertEquals(List.of(), this.resolver.getUnmappedExternalUsers(assigned));
     }
 
     @Test
-    void getUnmappedExternalUsersOfAllAdvisories() throws Exception
+    void countUnassignedAdvisories() throws Exception
     {
         registerAdvisory("Advisory1", null, SURLI, REPORTER);
-        registerAdvisory("Advisory2", null, new ExternalUser("github", SURLI.id(), "surli-renamed"), OANAT);
+        registerAdvisory("Advisory2", null, OANAT, SURLI);
         registerAdvisory("Advisory3", mock(UserReference.class), SURLI);
 
         Query query = mock(Query.class);
-        when(this.queryManager.createQuery(anyString(), anyString())).thenReturn(query);
-        // A document is returned once per external user object it holds.
+        when(this.queryManager.createQuery(anyString(), eq(Query.XWQL))).thenReturn(query);
+        when(query.bindValue(anyString(), any())).thenReturn(query);
+        // A document holding several external user objects can be returned several times.
         when(query.execute()).thenReturn(List.of(
-            "SecurityAdvisoryApplication.SecurityEntries.Advisory1",
             "SecurityAdvisoryApplication.SecurityEntries.Advisory1",
             "SecurityAdvisoryApplication.SecurityEntries.Advisory2",
             "SecurityAdvisoryApplication.SecurityEntries.Advisory2",
             "SecurityAdvisoryApplication.SecurityEntries.Advisory3"));
 
-        Map<ExternalUser, Integer> unmappedExternalUsers = this.resolver.getUnmappedExternalUsers();
-
-        // The assigned advisory is not counted, and the renamed user is counted once with their latest login.
-        assertEquals(Map.of(new ExternalUser("github", SURLI.id(), "surli-renamed"), 2, REPORTER, 1), unmappedExternalUsers);
+        // The assigned advisory is not counted, and each advisory is counted once.
+        assertEquals(2, this.resolver.countUnassignedAdvisories(SURLI));
+        verify(query).bindValue("hint", "github");
+        verify(query).bindValue("externalId", SURLI.id());
     }
 
     @Test
