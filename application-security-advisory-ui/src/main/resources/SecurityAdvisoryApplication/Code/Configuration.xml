@@ -38,7 +38,7 @@
   <hidden>true</hidden>
   <content>{{velocity}}
 #if("$!request.get('externalUserAction')" != '')
-## Map or archive an external user, from the advisory sheet.
+## Map or ignore an external user, from the advisory sheet.
 #set ($externalUserAction = $request.get('externalUserAction'))
 #set ($externalHint = $request.get('externalHint'))
 #set ($externalId = $request.get('externalId'))

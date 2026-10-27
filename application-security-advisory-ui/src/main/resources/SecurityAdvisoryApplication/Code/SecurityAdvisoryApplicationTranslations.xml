@@ -155,11 +155,11 @@ securityadvisoryapplication.admin.migration.button=Migrate advisories
 securityadvisoryapplication.admin.migration.finish.success=The security advisories have been successfully migrated to the new data model.
 securityadvisoryapplication.admin.migration.finish.error=An error occurred while migrating some security advisories. See the log below for details.
 securityadvisoryapplication.admin.externalUsers.heading=GitHub users mapping
-securityadvisoryapplication.admin.externalUsers.description=Imported advisories are assigned to the XWiki user mapped to the first GitHub user involved in the advisory (its author, its publisher, then its collaborators) that has a mapping. Every GitHub user found in an imported advisory is listed below: map them by editing their XWiki user, and archive the ones that cannot be mapped (e.g. external reporters) to hide them. Mapping a GitHub user assigns the advisories without assignee it is involved in.
+securityadvisoryapplication.admin.externalUsers.description=Imported advisories are assigned to the XWiki user mapped to the first GitHub user involved in the advisory (its author, its publisher, then its collaborators) that has a mapping. Every GitHub user found in an imported advisory is listed below: map them by editing their XWiki user, and mark as ignored the ones that cannot be mapped (e.g. external reporters who have no XWiki account) so that they are no longer proposed. Ignored users are hidden by default: set the Ignored filter to see them again. Mapping a GitHub user assigns the advisories without assignee it is involved in.
 securityadvisoryapplication.externalUsers.livetable.login=Login
 securityadvisoryapplication.externalUsers.livetable.hint=System
 securityadvisoryapplication.externalUsers.livetable.user=XWiki user
-securityadvisoryapplication.externalUsers.livetable.archived=Archived
+securityadvisoryapplication.externalUsers.livetable.archived=Ignored
 securityadvisoryapplication.externalUsers.livetable.unassignedAdvisories=Advisories without assignee
 securityadvisoryapplication.externalUsers.livetable.emptyvalue=-
 securityadvisoryapplication.admin.externalUsers.resolve.description=Assign all the advisories without assignee from the current mapping of their GitHub users. This runs as a background job.
@@ -177,8 +177,8 @@ securityadvisoryapplication.sheet.nextstep.DISCLOSED=This advisory has been disc
 securityadvisoryapplication.sheet.severity=Severity
 securityadvisoryapplication.sheet.unmappedUsers.description=This advisory has no assignee because none of the GitHub users involved in it is mapped to an XWiki user.
 securityadvisoryapplication.sheet.unmappedUsers.link=Link to this user
-securityadvisoryapplication.sheet.unmappedUsers.archive=Archive
-securityadvisoryapplication.sheet.unmappedUsers.archive.hint=Stop proposing this GitHub user for mapping, e.g. because they are an external reporter.
+securityadvisoryapplication.sheet.unmappedUsers.ignore=Ignore
+securityadvisoryapplication.sheet.unmappedUsers.ignore.hint=Ignore this GitHub user: it will no longer be proposed for mapping on any advisory, e.g. because it is an external reporter without an XWiki account. This can be undone from the Security Advisory administration.
 securityadvisoryapplication.sheet.unmappedUsers.askAdmin=Ask an administrator to link one of these GitHub users to an XWiki user, or set the assignee by hand.
 
 # Deprecated keys

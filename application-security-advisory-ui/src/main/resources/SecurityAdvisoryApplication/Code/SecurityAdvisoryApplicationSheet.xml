@@ -86,8 +86,8 @@
             &lt;/dl&gt;
             &lt;p&gt;
               &lt;button type="submit" name="externalUserAction" value="link" class="btn btn-primary"&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.sheet.unmappedUsers.link'))&lt;/button&gt;
-              ## Archiving doesn't need a user: skip the validation of the user picker.
-              &lt;button type="submit" name="externalUserAction" value="archive" formnovalidate="formnovalidate" class="btn btn-default" title="$escapetool.xml($services.localization.render('securityadvisoryapplication.sheet.unmappedUsers.archive.hint'))"&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.sheet.unmappedUsers.archive'))&lt;/button&gt;
+              ## Ignoring doesn't need a user: skip the validation of the user picker.
+              &lt;button type="submit" name="externalUserAction" value="archive" formnovalidate="formnovalidate" class="btn btn-default" title="$escapetool.xml($services.localization.render('securityadvisoryapplication.sheet.unmappedUsers.ignore.hint'))"&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.sheet.unmappedUsers.ignore'))&lt;/button&gt;
             &lt;/p&gt;
           &lt;/form&gt;
         #else
