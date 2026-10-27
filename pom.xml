@@ -25,7 +25,7 @@
   <parent>
     <groupId>org.xwiki.contrib</groupId>
     <artifactId>parent-platform</artifactId>
-    <version>17.10-1</version>
+    <version>17.10.0-3</version>
   </parent>
   <groupId>org.xwiki.contrib.security-advisory</groupId>
   <artifactId>application-security-advisory</artifactId>
@@ -66,6 +66,14 @@
     <module>application-security-advisory-github</module>
     <module>application-security-advisory-ui</module>
   </modules>
+  <profiles>
+    <profile>
+      <id>integration-tests</id>
+      <modules>
+        <module>application-security-advisory-test</module>
+      </modules>
+    </profile>
+  </profiles>
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -101,6 +109,25 @@
       <dependency>
         <groupId>org.xwiki.platform</groupId>
         <artifactId>xwiki-platform-rendering-wikimacro-store</artifactId>
+        <version>${platform.version}</version>
+      </dependency>
+      <!-- The Release Notes Application depends on older versions of these modules than the AppWithinMinutes
+           Application does. -->
+      <dependency>
+        <groupId>org.xwiki.platform</groupId>
+        <artifactId>xwiki-platform-livetable-ui</artifactId>
+        <version>${platform.version}</version>
+        <type>xar</type>
+      </dependency>
+      <dependency>
+        <groupId>org.xwiki.platform</groupId>
+        <artifactId>xwiki-platform-sheet-ui</artifactId>
+        <version>${platform.version}</version>
+        <type>xar</type>
+      </dependency>
+      <dependency>
+        <groupId>org.xwiki.platform</groupId>
+        <artifactId>xwiki-platform-security-authorization-script</artifactId>
         <version>${platform.version}</version>
       </dependency>
     </dependencies>

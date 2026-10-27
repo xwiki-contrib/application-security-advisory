@@ -39,10 +39,15 @@
   <content>{{velocity}}
 #if ($request.get('action') == "getuid")
   #if ($services.csrf.isTokenValid($request.get('form_token')))
-    #set ($template = "SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationTemplate")
     #set ($pageReference = $services.securityadvisory.getNewAdvisoryReference())
-    #set ($pageDoc = $xwiki.getDocument($pageReference))
-    #set ($pageURL = $xwiki.getURL($pageReference, "edit", "template=$template"))
+    ## There is no template for advisories: the advisory object is created on the edited document from the request
+    ## parameters thanks to the updateOrCreate object policy, so that the advisory sheet is used for the edit form.
+    #set ($pageURL = $xwiki.getURL($pageReference, 'edit', $escapetool.url({
+      'editor': 'inline',
+      'objectPolicy': 'updateOrCreate',
+      'SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_0_status': 'DRAFT',
+      'form_token': $services.csrf.token
+    })))
     #set ($discard = $response.sendRedirect($pageURL))
   #else
     #set ($discard = $response.sendError(403, 'Bad CSRF token'))

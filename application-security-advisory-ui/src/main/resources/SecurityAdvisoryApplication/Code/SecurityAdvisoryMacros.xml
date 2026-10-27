@@ -39,8 +39,9 @@
   <content>{{velocity output="false"}}
 #macro (displayVersions $impactedPackageObject)
   &lt;ul class="version-list"&gt;
-  #set ($patchedVersions = $impactedPackageObject.getXWikiObject().getListValue('patchedVersions'))
-  #set ($releasedVersions = $impactedPackageObject.getXWikiObject().getListValue('releasedVersions'))
+  ## Read the values through the script API object: getting the underlying XWiki object requires programming rights.
+  #set ($patchedVersions = $impactedPackageObject.getValue('patchedVersions'))
+  #set ($releasedVersions = $impactedPackageObject.getValue('releasedVersions'))
   #foreach ($version in $patchedVersions)
    &lt;li&gt;
      $escapetool.xml($version)
@@ -51,7 +52,7 @@
      #end
   &lt;/li&gt;
   #end
-  &lt;ul&gt;
+  &lt;/ul&gt;
 #end
 {{/velocity}}
 </content>
