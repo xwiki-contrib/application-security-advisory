@@ -65,10 +65,10 @@ class GithubAdvisoryDeserializerTest
 
         // The author is also the publisher: they appear only once, before the collaborators.
         assertEquals(List.of(
-            new ExternalUser("1478232", "surli"),
-            new ExternalUser("370535", "oanat"),
-            new ExternalUser("657716", "lucaa")), advisoryList.get(0).getExternalUsers());
-        assertEquals(List.of(new ExternalUser("89175", "tmortagne")), advisoryList.get(2).getExternalUsers());
+            new ExternalUser("github", "1478232", "surli"),
+            new ExternalUser("github", "370535", "oanat"),
+            new ExternalUser("github", "657716", "lucaa")), advisoryList.get(0).getExternalUsers());
+        assertEquals(List.of(new ExternalUser("github", "89175", "tmortagne")), advisoryList.get(2).getExternalUsers());
     }
 
     @Test

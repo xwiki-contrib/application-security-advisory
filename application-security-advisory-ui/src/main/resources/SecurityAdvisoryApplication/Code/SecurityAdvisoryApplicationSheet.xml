@@ -72,19 +72,19 @@
     &lt;div class="box warningmessage securityadvisory-unmapped-users"&gt;
       &lt;p&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.sheet.unmappedUsers.description'))&lt;/p&gt;
       #foreach ($externalUser in $unmappedExternalUsers)
-        #set ($escapedLogin = $escapetool.xml($externalUser.login()))
-        #set ($githubProfileLink = "&lt;a href='https://github.com/$escapedLogin'&gt;@$escapedLogin&lt;/a&gt;")
+        #set ($externalUserLabel = "#displayExternalUser($externalUser)")
         #if ($isAdmin)
           #set ($inputId = "securityadvisory-externalUser-$foreach.count")
           &lt;form action="$escapetool.xml($linkURL)" method="post" class="xform"&gt;
             &lt;input type="hidden" name="form_token" value="$!escapetool.xml($services.csrf.token)" /&gt;
             &lt;input type="hidden" name="externalUserAction" value="link" /&gt;
+            &lt;input type="hidden" name="externalHint" value="$escapetool.xml($externalUser.hint())" /&gt;
             &lt;input type="hidden" name="externalId" value="$escapetool.xml($externalUser.id())" /&gt;
             &lt;input type="hidden" name="externalLogin" value="$escapetool.xml($externalUser.login())" /&gt;
             &lt;input type="hidden" name="advisoryReference" value="$escapetool.xml($services.model.serialize($doc.documentReference, 'default'))" /&gt;
             &lt;input type="hidden" name="xredirect" value="$escapetool.xml($doc.getURL())" /&gt;
             &lt;dl&gt;
-              &lt;dt&gt;&lt;label for="$inputId"&gt;$githubProfileLink&lt;/label&gt;&lt;/dt&gt;
+              &lt;dt&gt;&lt;label for="$inputId"&gt;$externalUserLabel&lt;/label&gt;&lt;/dt&gt;
               &lt;dd&gt;&lt;input type="text" id="$inputId" name="externalUser" class="suggest-users" required="required" /&gt;&lt;/dd&gt;
               &lt;dd&gt;&lt;label&gt;&lt;input type="checkbox" name="applyToAll" value="true" checked="checked" /&gt;
                 $escapetool.xml($services.localization.render('securityadvisoryapplication.sheet.unmappedUsers.applyToAll'))&lt;/label&gt;&lt;/dd&gt;
@@ -92,7 +92,7 @@
             &lt;p&gt;&lt;button type="submit" class="btn btn-primary"&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.sheet.unmappedUsers.link'))&lt;/button&gt;&lt;/p&gt;
           &lt;/form&gt;
         #else
-          &lt;p&gt;$githubProfileLink&lt;/p&gt;
+          &lt;p&gt;$externalUserLabel&lt;/p&gt;
         #end
       #end
       #if (!$isAdmin)

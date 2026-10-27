@@ -23,6 +23,8 @@ package org.xwiki.contrib.securityadvisory;
  * Represents a user of the external system an advisory is imported from (e.g. a GitHub account), which can be mapped
  * to an XWiki user.
  *
+ * @param hint the hint of the external system the user belongs to (e.g. {@code github}), so that users of
+ *     different systems with the same identifier are never mixed up
  * @param id the stable identifier of the user in the external system (e.g. the numeric GitHub user id), which does
  *     not change when the user renames their account
  * @param login the login of the user in the external system, only used for display since it can change
@@ -30,6 +32,6 @@ package org.xwiki.contrib.securityadvisory;
  * @version $Id$
  * @since 2.2.2
  */
-public record ExternalUser(String id, String login)
+public record ExternalUser(String hint, String id, String login)
 {
 }

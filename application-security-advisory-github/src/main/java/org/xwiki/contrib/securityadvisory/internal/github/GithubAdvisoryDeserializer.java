@@ -65,6 +65,11 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 @Singleton
 public class GithubAdvisoryDeserializer
 {
+    /**
+     * Hint of the external system of the users involved in the advisories imported from GitHub.
+     */
+    public static final String EXTERNAL_SYSTEM_HINT = "github";
+
     private static final String LOWER_INCLUSIVE = ">=";
 
     private static final String LOWER_EXCLUSIVE = ">";
@@ -219,7 +224,7 @@ public class GithubAdvisoryDeserializer
         for (GithubUser githubUser : githubUsers) {
             if (githubUser != null && githubUser.id() > 0) {
                 externalUsers.putIfAbsent(githubUser.id(),
-                    new ExternalUser(String.valueOf(githubUser.id()), githubUser.login()));
+                    new ExternalUser(EXTERNAL_SYSTEM_HINT, String.valueOf(githubUser.id()), githubUser.login()));
             }
         }
         return new ArrayList<>(externalUsers.values());

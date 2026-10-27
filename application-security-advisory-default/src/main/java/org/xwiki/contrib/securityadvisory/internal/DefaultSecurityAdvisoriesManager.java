@@ -423,6 +423,7 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
         return document.getXObjects(ExternalUserClassMandatoryDocumentInitializer.CLASS_REFERENCE).stream()
             .filter(Objects::nonNull)
             .map(externalUserObject -> new ExternalUser(
+                externalUserObject.getStringValue(ExternalUserClassMandatoryDocumentInitializer.HINT),
                 externalUserObject.getStringValue(ExternalUserClassMandatoryDocumentInitializer.EXTERNAL_ID),
                 externalUserObject.getStringValue(ExternalUserClassMandatoryDocumentInitializer.LOGIN)))
             .toList();
@@ -436,6 +437,8 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
             for (ExternalUser externalUser : externalUsers) {
                 BaseObject externalUserObject =
                     document.newXObject(ExternalUserClassMandatoryDocumentInitializer.CLASS_REFERENCE, context);
+                externalUserObject.setStringValue(ExternalUserClassMandatoryDocumentInitializer.HINT,
+                    externalUser.hint());
                 externalUserObject.setStringValue(ExternalUserClassMandatoryDocumentInitializer.EXTERNAL_ID,
                     externalUser.id());
                 externalUserObject.setStringValue(ExternalUserClassMandatoryDocumentInitializer.LOGIN,

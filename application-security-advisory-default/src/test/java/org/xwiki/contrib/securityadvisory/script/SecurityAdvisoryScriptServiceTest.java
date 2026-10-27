@@ -69,7 +69,7 @@ import static org.mockito.Mockito.when;
 @ReferenceComponentList
 class SecurityAdvisoryScriptServiceTest
 {
-    private static final ExternalUser SURLI = new ExternalUser("1478232", "surli");
+    private static final ExternalUser SURLI = new ExternalUser("github", "1478232", "surli");
 
     private static final DocumentReference USER_DOCUMENT = new DocumentReference("xwiki", "XWiki", "surli");
 
@@ -120,7 +120,7 @@ class SecurityAdvisoryScriptServiceTest
         doThrow(AccessDeniedException.class).when(this.oldcore.getMockContextualAuthorizationManager())
             .checkAccess(Right.ADMIN, this.wikiReference);
 
-        assertThrows(AccessDeniedException.class, () -> this.scriptService.linkExternalUser(SURLI.id(),
+        assertThrows(AccessDeniedException.class, () -> this.scriptService.linkExternalUser(SURLI.hint(), SURLI.id(),
             SURLI.login(), USER_DOCUMENT, ADVISORY_REFERENCE, true));
         assertThrows(AccessDeniedException.class, () -> this.scriptService.startAssigneeResolution());
 
@@ -130,7 +130,7 @@ class SecurityAdvisoryScriptServiceTest
     @Test
     void linkExternalUser() throws Exception
     {
-        assertNull(this.scriptService.linkExternalUser(SURLI.id(), SURLI.login(), USER_DOCUMENT, ADVISORY_REFERENCE,
+        assertNull(this.scriptService.linkExternalUser(SURLI.hint(), SURLI.id(), SURLI.login(), USER_DOCUMENT, ADVISORY_REFERENCE,
             false));
 
         verify(this.externalUserMappingStore).setMapping(SURLI, this.user);
@@ -148,7 +148,7 @@ class SecurityAdvisoryScriptServiceTest
             .thenReturn(job);
 
         assertSame(jobStatus,
-            this.scriptService.linkExternalUser(SURLI.id(), SURLI.login(), USER_DOCUMENT, null, true));
+            this.scriptService.linkExternalUser(SURLI.hint(), SURLI.id(), SURLI.login(), USER_DOCUMENT, null, true));
 
         verify(this.externalUserMappingStore).setMapping(SURLI, this.user);
         verifyNoInteractions(this.assigneeResolver);

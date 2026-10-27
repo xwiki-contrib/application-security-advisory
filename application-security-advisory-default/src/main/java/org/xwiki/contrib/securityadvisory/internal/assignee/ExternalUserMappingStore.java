@@ -67,25 +67,28 @@ public class ExternalUserMappingStore
         }
     }
 
-    private Optional<BaseObject> findMappingObject(XWikiDocument configurationDocument, String externalId)
+    private Optional<BaseObject> findMappingObject(XWikiDocument configurationDocument, ExternalUser externalUser)
     {
         return configurationDocument.getXObjects(ExternalUserMappingClassMandatoryDocumentInitializer.CLASS_REFERENCE)
             .stream()
             .filter(Objects::nonNull)
-            .filter(mappingObject -> Objects.equals(externalId,
+            .filter(mappingObject -> Objects.equals(externalUser.hint(),
+                mappingObject.getStringValue(ExternalUserMappingClassMandatoryDocumentInitializer.HINT)))
+            .filter(mappingObject -> Objects.equals(externalUser.id(),
                 mappingObject.getStringValue(ExternalUserMappingClassMandatoryDocumentInitializer.EXTERNAL_ID)))
             .findFirst();
     }
 
     /**
-     * @param externalId the stable identifier of a user in the external system
+     * @param externalUser a user of an external system, identified by the hint of the system and their identifier in
+     *     it (their login is ignored since it can change)
      * @return the XWiki user mapped to the external user, or {@link Optional#empty()} if there's no mapping
      * @throws SecurityAdvisoryException in case of problem to read the configuration document
      */
-    public Optional<UserReference> getMappedUser(String externalId) throws SecurityAdvisoryException
+    public Optional<UserReference> getMappedUser(ExternalUser externalUser) throws SecurityAdvisoryException
     {
         XWikiDocument configurationDocument = getConfigurationDocument();
-        return findMappingObject(configurationDocument, externalId)
+        return findMappingObject(configurationDocument, externalUser)
             .flatMap(mappingObject -> this.userPropertyConverter.resolve(
                 mappingObject.getLargeStringValue(ExternalUserMappingClassMandatoryDocumentInitializer.USER),
                 configurationDocument.getDocumentReference()));
@@ -100,7 +103,7 @@ public class ExternalUserMappingStore
     public Optional<UserReference> resolveAssignee(List<ExternalUser> externalUsers) throws SecurityAdvisoryException
     {
         for (ExternalUser externalUser : externalUsers) {
-            Optional<UserReference> mappedUser = getMappedUser(externalUser.id());
+            Optional<UserReference> mappedUser = getMappedUser(externalUser);
             if (mappedUser.isPresent()) {
                 return mappedUser;
             }
@@ -121,10 +124,12 @@ public class ExternalUserMappingStore
         XWikiContext context = this.contextProvider.get();
         XWikiDocument configurationDocument = getConfigurationDocument().clone();
         try {
-            BaseObject mappingObject = findMappingObject(configurationDocument, externalUser.id()).orElse(null);
+            BaseObject mappingObject = findMappingObject(configurationDocument, externalUser).orElse(null);
             if (mappingObject == null) {
                 mappingObject = configurationDocument.newXObject(
                     ExternalUserMappingClassMandatoryDocumentInitializer.CLASS_REFERENCE, context);
+                mappingObject.setStringValue(ExternalUserMappingClassMandatoryDocumentInitializer.HINT,
+                    externalUser.hint());
                 mappingObject.setStringValue(ExternalUserMappingClassMandatoryDocumentInitializer.EXTERNAL_ID,
                     externalUser.id());
             }

@@ -96,7 +96,7 @@ public class AssigneeResolver
         List<ExternalUser> result = new ArrayList<>();
         if (advisory.getAssignee() == null) {
             for (ExternalUser externalUser : advisory.getExternalUsers()) {
-                if (this.externalUserMappingStore.getMappedUser(externalUser.id()).isEmpty()) {
+                if (this.externalUserMappingStore.getMappedUser(externalUser).isEmpty()) {
                     result.add(externalUser);
                 }
             }
@@ -106,7 +106,8 @@ public class AssigneeResolver
 
     /**
      * List the external users without mapping involved in advisories without assignee. An external user appears only
-     * once, with the latest login found, even if they renamed their account between two imports.
+     * once, with the latest login found, even if they renamed their account between two imports: they are identified
+     * by the hint of their system and their identifier in it.
      *
      * @return the external users without mapping, associated with the number of advisories without assignee they
      *     are involved in
@@ -114,12 +115,13 @@ public class AssigneeResolver
      */
     public Map<ExternalUser, Integer> getUnmappedExternalUsers() throws SecurityAdvisoryException
     {
-        Map<String, ExternalUser> externalUsersById = new LinkedHashMap<>();
-        Map<String, Integer> countById = new LinkedHashMap<>();
+        Map<List<String>, ExternalUser> externalUsersById = new LinkedHashMap<>();
+        Map<List<String>, Integer> countById = new LinkedHashMap<>();
         for (SecurityAdvisory advisory : getUnassignedAdvisories()) {
             for (ExternalUser externalUser : getUnmappedExternalUsers(advisory)) {
-                externalUsersById.put(externalUser.id(), externalUser);
-                countById.merge(externalUser.id(), 1, Integer::sum);
+                List<String> id = List.of(externalUser.hint(), externalUser.id());
+                externalUsersById.put(id, externalUser);
+                countById.merge(id, 1, Integer::sum);
             }
         }
         Map<ExternalUser, Integer> result = new LinkedHashMap<>();

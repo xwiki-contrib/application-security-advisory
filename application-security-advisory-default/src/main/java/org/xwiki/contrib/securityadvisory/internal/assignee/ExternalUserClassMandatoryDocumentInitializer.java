@@ -43,6 +43,11 @@ import jakarta.inject.Singleton;
 public class ExternalUserClassMandatoryDocumentInitializer extends AbstractMandatoryClassInitializer
 {
     /**
+     * Hint of the external system the user belongs to.
+     */
+    public static final String HINT = "hint";
+
+    /**
      * Stable identifier of the user in the external system.
      */
     public static final String EXTERNAL_ID = "externalId";
@@ -70,6 +75,7 @@ public class ExternalUserClassMandatoryDocumentInitializer extends AbstractManda
     @Override
     protected void createClass(BaseClass xclass)
     {
+        xclass.addTextField(HINT, HINT, 255);
         xclass.addTextField(EXTERNAL_ID, EXTERNAL_ID, 255);
         xclass.addTextField(LOGIN, LOGIN, 255);
     }

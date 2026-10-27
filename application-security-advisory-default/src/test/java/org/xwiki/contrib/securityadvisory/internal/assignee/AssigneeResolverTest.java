@@ -47,6 +47,7 @@ import com.xpn.xwiki.test.reference.ReferenceComponentList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -61,11 +62,11 @@ import static org.mockito.Mockito.when;
 @ReferenceComponentList
 class AssigneeResolverTest
 {
-    private static final ExternalUser SURLI = new ExternalUser("1478232", "surli");
+    private static final ExternalUser SURLI = new ExternalUser("github", "1478232", "surli");
 
-    private static final ExternalUser OANAT = new ExternalUser("370535", "oanat");
+    private static final ExternalUser OANAT = new ExternalUser("github", "370535", "oanat");
 
-    private static final ExternalUser REPORTER = new ExternalUser("42", "reporter");
+    private static final ExternalUser REPORTER = new ExternalUser("github", "42", "reporter");
 
     @InjectMockComponents
     private AssigneeResolver resolver;
@@ -91,8 +92,8 @@ class AssigneeResolverTest
     void setUp() throws Exception
     {
         this.mappedUser = mock(UserReference.class);
-        when(this.externalUserMappingStore.getMappedUser(anyString())).thenReturn(Optional.empty());
-        when(this.externalUserMappingStore.getMappedUser(OANAT.id())).thenReturn(Optional.of(this.mappedUser));
+        when(this.externalUserMappingStore.getMappedUser(any())).thenReturn(Optional.empty());
+        when(this.externalUserMappingStore.getMappedUser(OANAT)).thenReturn(Optional.of(this.mappedUser));
         when(this.externalUserMappingStore.resolveAssignee(anyList())).thenReturn(Optional.empty());
         when(this.externalUserMappingStore.resolveAssignee(List.of(REPORTER, OANAT)))
             .thenReturn(Optional.of(this.mappedUser));
@@ -150,7 +151,7 @@ class AssigneeResolverTest
     void getUnmappedExternalUsersOfAllAdvisories() throws Exception
     {
         registerAdvisory("Advisory1", null, SURLI, REPORTER);
-        registerAdvisory("Advisory2", null, new ExternalUser(SURLI.id(), "surli-renamed"), OANAT);
+        registerAdvisory("Advisory2", null, new ExternalUser("github", SURLI.id(), "surli-renamed"), OANAT);
         registerAdvisory("Advisory3", mock(UserReference.class), SURLI);
 
         Query query = mock(Query.class);
@@ -166,7 +167,7 @@ class AssigneeResolverTest
         Map<ExternalUser, Integer> unmappedExternalUsers = this.resolver.getUnmappedExternalUsers();
 
         // The assigned advisory is not counted, and the renamed user is counted once with their latest login.
-        assertEquals(Map.of(new ExternalUser(SURLI.id(), "surli-renamed"), 2, REPORTER, 1), unmappedExternalUsers);
+        assertEquals(Map.of(new ExternalUser("github", SURLI.id(), "surli-renamed"), 2, REPORTER, 1), unmappedExternalUsers);
     }
 
     @Test

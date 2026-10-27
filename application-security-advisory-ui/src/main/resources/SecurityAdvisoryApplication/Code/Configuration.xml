@@ -43,7 +43,7 @@
   #set ($discard = $response.sendError(403, 'Only administrators can map external users.'))
 #elseif ($request.method != 'POST' || !$services.csrf.isTokenValid($request.get('form_token')))
   #set ($discard = $response.sendError(401, 'CSRF token verification failed.'))
-#elseif ("$!request.get('externalId')" == '' || "$!request.get('externalUser')" == '')
+#elseif ("$!request.get('externalHint')" == '' || "$!request.get('externalId')" == '' || "$!request.get('externalUser')" == '')
   #set ($discard = $response.sendError(400, 'Missing arguments.'))
 #else
   #set ($userReference = $services.model.resolveDocument($request.get('externalUser')))
@@ -55,9 +55,10 @@
       #set ($advisoryReference = $services.model.resolveDocument($request.get('advisoryReference')))
     #end
     #set ($applyToAll = "$!request.get('applyToAll')" == 'true')
+    #set ($externalHint = $request.get('externalHint'))
     #set ($externalId = $request.get('externalId'))
     #set ($externalLogin = $request.get('externalLogin'))
-    #set ($discard = $services.securityadvisory.linkExternalUser($externalId, $externalLogin, $userReference, $advisoryReference, $applyToAll))
+    #set ($discard = $services.securityadvisory.linkExternalUser($externalHint, $externalId, $externalLogin, $userReference, $advisoryReference, $applyToAll))
     $response.sendRedirect($request.get('xredirect'))
   #end
 #end
@@ -448,6 +449,12 @@
 ## particular job log messages containing stack traces) would be evaluated by Velocity a second time and could break
 ## the rendering of the whole administration section.
 #if($xwiki.hasAdminRights())
+## Same as the macro of SecurityAdvisoryApplication.Code.SecurityAdvisoryMacros, which cannot be included here since
+## this code is evaluated by Velocity before the wiki syntax it produces is parsed.
+#macro (displayExternalUser $externalUser)
+#set ($escapedLogin = $escapetool.xml($externalUser.login()))
+#if ($externalUser.hint() == 'github')&lt;a href='https://github.com/$escapedLogin'&gt;@$escapedLogin&lt;/a&gt;#{else}$escapedLogin ($escapetool.xml($externalUser.hint()))#end
+#end
 #set($githubTokenClass = 'SecurityAdvisoryApplication.Code.GithubTokenClass')
 #set($configDoc = $xwiki.getDocument('SecurityAdvisoryApplication.Code.Configuration'))
 #if("$!request.get('securityAdvisoryMigrate')" == '1' &amp;&amp; $services.csrf.isTokenValid($request.get('form_token')))
@@ -500,18 +507,18 @@
 #else
   #foreach($entry in $unmappedExternalUsers.entrySet())
   #set($externalUser = $entry.key)
-  #set($escapedLogin = $escapetool.xml($externalUser.login()))
   #set($inputId = "securityadvisory-admin-externalUser-$foreach.count")
 &lt;div class="box"&gt;
   &lt;form action="$escapetool.xml($linkURL)" method="post" class="xform"&gt;
     &lt;input type="hidden" name="form_token" value="$!{services.csrf.getToken()}"/&gt;
     &lt;input type="hidden" name="externalUserAction" value="link"/&gt;
+    &lt;input type="hidden" name="externalHint" value="$escapetool.xml($externalUser.hint())"/&gt;
     &lt;input type="hidden" name="externalId" value="$escapetool.xml($externalUser.id())"/&gt;
-    &lt;input type="hidden" name="externalLogin" value="$escapedLogin"/&gt;
+    &lt;input type="hidden" name="externalLogin" value="$escapetool.xml($externalUser.login())"/&gt;
     &lt;input type="hidden" name="applyToAll" value="true"/&gt;
     &lt;input type="hidden" name="xredirect" value="$escapetool.xml($xwiki.relativeRequestURL)"/&gt;
     &lt;dl&gt;
-      &lt;dt&gt;&lt;label for="$inputId"&gt;&lt;a href='https://github.com/$escapedLogin'&gt;@$escapedLogin&lt;/a&gt;&lt;/label&gt;
+      &lt;dt&gt;&lt;label for="$inputId"&gt;#displayExternalUser($externalUser)&lt;/label&gt;
         &lt;span class="xHint"&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.admin.externalUsers.advisories', [$entry.value]))&lt;/span&gt;&lt;/dt&gt;
       &lt;dd&gt;&lt;input type="text" id="$inputId" name="externalUser" class="suggest-users" required="required"/&gt;&lt;/dd&gt;
     &lt;/dl&gt;

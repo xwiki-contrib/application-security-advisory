@@ -278,6 +278,7 @@ public class SecurityAdvisoryScriptService implements ScriptService
      * the given advisory if it has no assignee yet. Only administrators can create a mapping: it decides who is in
      * charge of embargoed advisories.
      *
+     * @param hint the hint of the external system the user belongs to (e.g. {@code github})
      * @param externalId the stable identifier of the user in the external system
      * @param login the login of the user in the external system
      * @param userReference the reference of the XWiki user to map the external user to
@@ -290,7 +291,7 @@ public class SecurityAdvisoryScriptService implements ScriptService
      * @throws JobException in case of problem to start the job
      * @since 2.2.2
      */
-    public JobStatus linkExternalUser(String externalId, String login, DocumentReference userReference,
+    public JobStatus linkExternalUser(String hint, String externalId, String login, DocumentReference userReference,
         DocumentReference advisoryReference, boolean applyToAllAdvisories)
         throws AccessDeniedException, SecurityAdvisoryException, JobException
     {
@@ -298,7 +299,7 @@ public class SecurityAdvisoryScriptService implements ScriptService
         this.authorizationManager.checkAccess(Right.ADMIN, context.getWikiReference());
 
         UserReference user = this.userReferenceResolver.resolve(userReference);
-        this.externalUserMappingStore.setMapping(new ExternalUser(externalId, login), user);
+        this.externalUserMappingStore.setMapping(new ExternalUser(hint, externalId, login), user);
 
         UserReference author = this.userReferenceResolver.resolve(context.getUserReference());
         if (advisoryReference != null) {

@@ -62,7 +62,7 @@ class DefaultSecurityAdvisoriesManagerTest
         new DocumentReference("xwiki", List.of("SecurityAdvisoryApplication", "SecurityEntries"), "GHSA-test");
 
     private static final List<ExternalUser> EXTERNAL_USERS =
-        List.of(new ExternalUser("42", "reporter"), new ExternalUser("1478232", "surli"));
+        List.of(new ExternalUser("github", "42", "reporter"), new ExternalUser("github", "1478232", "surli"));
 
     @InjectMockComponents
     private DefaultSecurityAdvisoriesManager manager;

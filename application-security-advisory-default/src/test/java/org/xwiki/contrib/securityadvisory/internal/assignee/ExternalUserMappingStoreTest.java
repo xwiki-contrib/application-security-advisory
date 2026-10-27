@@ -55,9 +55,9 @@ import static org.mockito.Mockito.when;
 @ReferenceComponentList
 class ExternalUserMappingStoreTest
 {
-    private static final ExternalUser SURLI = new ExternalUser("1478232", "surli");
+    private static final ExternalUser SURLI = new ExternalUser("github", "1478232", "surli");
 
-    private static final ExternalUser OANAT = new ExternalUser("370535", "oanat");
+    private static final ExternalUser OANAT = new ExternalUser("github", "370535", "oanat");
 
     @InjectMockComponents
     private ExternalUserMappingStore store;
@@ -100,24 +100,40 @@ class ExternalUserMappingStoreTest
     @Test
     void setMappingCreatesThenReplacesMapping() throws Exception
     {
-        assertEquals(Optional.empty(), this.store.getMappedUser(SURLI.id()));
+        assertEquals(Optional.empty(), this.store.getMappedUser(SURLI));
 
         this.store.setMapping(SURLI, this.userA);
-        assertEquals(Optional.of(this.userA), this.store.getMappedUser(SURLI.id()));
+        assertEquals(Optional.of(this.userA), this.store.getMappedUser(SURLI));
 
         // Mapping the same external user again, after they renamed their account, replaces the existing mapping.
-        this.store.setMapping(new ExternalUser(SURLI.id(), "surli-renamed"), this.userB);
-        assertEquals(Optional.of(this.userB), this.store.getMappedUser(SURLI.id()));
+        this.store.setMapping(new ExternalUser("github", SURLI.id(), "surli-renamed"), this.userB);
+        assertEquals(Optional.of(this.userB), this.store.getMappedUser(SURLI));
 
         List<BaseObject> mappingObjects = getMappingObjects();
         assertEquals(1, mappingObjects.size());
         BaseObject mappingObject = mappingObjects.get(0);
+        assertEquals("github", mappingObject.getStringValue(ExternalUserMappingClassMandatoryDocumentInitializer.HINT));
         assertEquals(SURLI.id(),
             mappingObject.getStringValue(ExternalUserMappingClassMandatoryDocumentInitializer.EXTERNAL_ID));
         assertEquals("surli-renamed",
             mappingObject.getStringValue(ExternalUserMappingClassMandatoryDocumentInitializer.LOGIN));
         assertEquals("XWiki.B",
             mappingObject.getLargeStringValue(ExternalUserMappingClassMandatoryDocumentInitializer.USER));
+    }
+
+    @Test
+    void mappingIsSpecificToExternalSystem() throws Exception
+    {
+        this.store.setMapping(SURLI, this.userA);
+
+        // The same identifier in another external system is another user.
+        ExternalUser otherSystemUser = new ExternalUser("other", SURLI.id(), SURLI.login());
+        assertEquals(Optional.empty(), this.store.getMappedUser(otherSystemUser));
+
+        this.store.setMapping(otherSystemUser, this.userB);
+        assertEquals(Optional.of(this.userA), this.store.getMappedUser(SURLI));
+        assertEquals(Optional.of(this.userB), this.store.getMappedUser(otherSystemUser));
+        assertEquals(2, getMappingObjects().size());
     }
 
     @Test
