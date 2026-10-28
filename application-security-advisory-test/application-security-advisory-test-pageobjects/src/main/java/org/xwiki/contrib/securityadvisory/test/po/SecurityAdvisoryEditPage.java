@@ -28,7 +28,7 @@ import org.xwiki.test.ui.po.InlinePage;
  * Represents the edit form of an advisory.
  *
  * @version $Id$
- * @since 2.2.2
+ * @since 2.3
  */
 public class SecurityAdvisoryEditPage extends InlinePage
 {

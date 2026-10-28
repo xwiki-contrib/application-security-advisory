@@ -26,7 +26,7 @@ import org.xwiki.test.ui.po.ViewPage;
  * Represents the home page of the Security Advisory Application, listing the advisories.
  *
  * @version $Id$
- * @since 2.2.2
+ * @since 2.3
  */
 public class SecurityAdvisoryHomePage extends ViewPage
 {

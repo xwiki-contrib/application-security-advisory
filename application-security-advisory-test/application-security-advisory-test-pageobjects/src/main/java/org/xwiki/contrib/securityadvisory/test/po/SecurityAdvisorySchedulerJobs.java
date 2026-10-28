@@ -26,7 +26,7 @@ import org.xwiki.test.ui.po.BaseElement;
  * The scheduler jobs of the Security Advisory Application, as listed on the home page of the Scheduler application.
  *
  * @version $Id$
- * @since 2.2.2
+ * @since 2.3
  */
 public class SecurityAdvisorySchedulerJobs extends BaseElement
 {

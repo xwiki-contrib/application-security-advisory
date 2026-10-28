@@ -39,7 +39,7 @@ import org.xwiki.test.ui.po.ViewPage;
  * Represents the view of an advisory.
  *
  * @version $Id$
- * @since 2.2.2
+ * @since 2.3
  */
 public class SecurityAdvisoryViewPage extends ViewPage
 {
