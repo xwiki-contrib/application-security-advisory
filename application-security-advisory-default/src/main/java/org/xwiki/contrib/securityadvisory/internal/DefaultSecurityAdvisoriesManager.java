@@ -94,6 +94,9 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
     private ObservationManager observationManager;
 
     @Inject
+    private DisclosedAdvisoryPublisher disclosedAdvisoryPublisher;
+
+    @Inject
     private Logger logger;
 
     private List<SecurityAdvisory> getAdvisoriesWithStatus(SecurityAdvisory.State status, boolean computeEmbargoDate)
@@ -115,7 +118,7 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
             List<SecurityAdvisory> results = new ArrayList<>();
             for (Object reference : query.execute()) {
                 DocumentReference documentReference = this.documentReferenceResolver.resolve(String.valueOf(reference));
-                this.loadAdvisory(documentReference).ifPresent(results::add);
+                this.loadActiveAdvisory(documentReference).ifPresent(results::add);
             }
             return results;
         } catch (QueryException e) {
@@ -163,6 +166,29 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
                 String.format(ADVISORY_ACCESS_EXCEPTION, documentReference), e);
         }
         return result;
+    }
+
+    /**
+     * Load the advisory held by the given document, unless the document is an original advisory page that has been
+     * published in the public data space: the published page is then the one to use.
+     *
+     * @param documentReference the document where the advisory is located
+     * @return an advisory instance or {@link Optional#empty()} if no advisory can be found or if it's been published
+     * @throws SecurityAdvisoryException in case of problem for loading the document
+     */
+    private Optional<SecurityAdvisory> loadActiveAdvisory(DocumentReference documentReference)
+        throws SecurityAdvisoryException
+    {
+        XWikiContext context = this.contextProvider.get();
+        try {
+            if (this.disclosedAdvisoryPublisher.isPublishedOriginal(
+                context.getWiki().getDocument(documentReference, context))) {
+                return Optional.empty();
+            }
+        } catch (XWikiException e) {
+            throw new SecurityAdvisoryException(String.format(ADVISORY_ACCESS_EXCEPTION, documentReference), e);
+        }
+        return loadAdvisory(documentReference);
     }
 
     /**
@@ -219,6 +245,15 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
         if (!isStatusUpdateAuthorized(previousState, state)) {
             throw new SecurityAdvisoryException(
                 String.format("The status [%s] cannot be set from current status [%s].", state, previousState));
+        }
+
+        if (state == SecurityAdvisory.State.DISCLOSED) {
+            // Disclosing an advisory publishes it in the public data space, which also saves its new state.
+            DocumentReference publicReference =
+                this.disclosedAdvisoryPublisher.publish(advisory.getHolderReference());
+            this.observationManager.notify(new AdvisoryStateChangedEvent(),
+                loadAdvisory(publicReference).orElse(advisory), Pair.of(previousState, state));
+            return;
         }
 
         XWikiContext context = this.contextProvider.get();
@@ -444,12 +479,18 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
 
         Optional<SecurityAdvisory> result = Optional.empty();
         try {
+            // Once published, the advisory is held by two documents: the original and the published one. The query
+            // is thus not limited to a single result, so that the original can be ignored.
             Query query = this.queryManager.createQuery(statement, Query.XWQL)
-                .bindValue("advisoryUrl", externalAdvisoryURL)
-                .setLimit(1);
-            List<String> reference = query.execute();
-            if (reference != null && reference.size() == 1) {
-                result = loadAdvisory(this.documentReferenceResolver.resolve(String.valueOf(reference.get(0))));
+                .bindValue("advisoryUrl", externalAdvisoryURL);
+            List<String> references = query.execute();
+            if (references != null) {
+                for (String reference : references) {
+                    result = loadActiveAdvisory(this.documentReferenceResolver.resolve(reference));
+                    if (result.isPresent()) {
+                        break;
+                    }
+                }
             }
         } catch (QueryException e) {
             throw new SecurityAdvisoryException(

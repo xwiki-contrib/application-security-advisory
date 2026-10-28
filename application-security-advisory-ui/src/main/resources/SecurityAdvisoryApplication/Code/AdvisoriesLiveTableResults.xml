@@ -41,9 +41,12 @@
 {{velocity wiki="false"}}
 ## Same results as XWiki.LiveTableResults, except that the CVE identifier is displayed as a link to its CVE record.
 ## Advisories without CVE identifier keep the default empty value, instead of a link without target.
+## Once disclosed, an advisory is published on a new page, and the original page holds a redirect to it: the original
+## pages are skipped so that each advisory is listed once.
 #if ($xcontext.action == 'get' and "$!request.outputSyntax" == 'plain')
   #set ($map = {})
-  #gridresultwithfilter_buildJSON("$!request.classname" $request.collist.split(',') '' '' {} $map)
+  #set ($skipPublishedOriginals = "and not exists (select redirectObj.id from BaseObject redirectObj where redirectObj.name = doc.fullName and redirectObj.className = 'XWiki.RedirectClass')")
+  #gridresultwithfilter_buildJSON("$!request.classname" $request.collist.split(',') '' $skipPublishedOriginals {} $map)
   #foreach ($row in $map.rows)
     #if ("$!row.cveId_value" != '')
       #set ($cveURL = "https://www.cve.org/CVERecord?id=$escapetool.url($row.cveId_value)")

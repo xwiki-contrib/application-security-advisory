@@ -167,8 +167,8 @@ public class GithubAdvisoryDeserializer
                 githubAdvisory.htmlUrl());
             return null;
         }
-        SecurityAdvisory advisory = loadAdvisory(githubAdvisory);
         boolean isPublished = state == GithubState.PUBLISHED;
+        SecurityAdvisory advisory = loadAdvisory(githubAdvisory, isPublished);
         advisory
             .setAdvisoryLink(githubAdvisory.htmlUrl())
             .setAuthor(this.securityAdvisoryConfiguration.getAdvisoryImporterUser())
@@ -233,14 +233,17 @@ public class GithubAdvisoryDeserializer
         );
     }
 
-    private SecurityAdvisory loadAdvisory(Advisory githubAdvisory) throws SecurityAdvisoryException
+    private SecurityAdvisory loadAdvisory(Advisory githubAdvisory, boolean isPublished)
+        throws SecurityAdvisoryException
     {
         Optional<SecurityAdvisory> existingAdvisoryOpt =
             this.securityAdvisoriesManager.findExistingAdvisory(githubAdvisory.htmlUrl());
 
+        // An advisory already published on GitHub is public: it doesn't need to go through the security data space.
         return existingAdvisoryOpt.orElseGet(() ->
-            new SecurityAdvisory(new DocumentReference(githubAdvisory.ghsaId(),
-            this.securityAdvisoryConfiguration.getSecurityDataSpace())));
+            new SecurityAdvisory(new DocumentReference(githubAdvisory.ghsaId(), isPublished
+                ? this.securityAdvisoryConfiguration.getPublicDataSpace()
+                : this.securityAdvisoryConfiguration.getSecurityDataSpace())));
     }
 
     private List<String> getPatchedVersions(PackageVulnerability vulnerability)

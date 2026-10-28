@@ -60,8 +60,19 @@
 #set ($discard = $xwiki.jsx.use('SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationSheet'))
 #if ($hasEdit &amp;&amp; $request.method == 'POST' &amp;&amp; "$!request.get('status')" != "")
   #if ($services.csrf.isTokenValid($request.get('form_token')))
-   #set ($discard = $services.securityadvisory.setStatus($doc, $request.get('status')))
-   #jsonResponse({'success': 'true'})
+   ## Disclosing an advisory publishes it in the disclosed entries space, which requires edit right on that space.
+   #if ($request.get('status') == 'DISCLOSED')
+     #if ($services.securityadvisory.canDisclose($doc.documentReference))
+       #set ($discard = $services.securityadvisory.setStatus($doc, 'DISCLOSED'))
+       #set ($publicReference = $services.securityadvisory.getPublicReference($doc.documentReference))
+       #jsonResponse({'success': 'true', 'url': $xwiki.getURL($publicReference)})
+     #else
+       #set ($discard = $response.sendError(403, 'You are not allowed to disclose this advisory.'))
+     #end
+   #else
+     #set ($discard = $services.securityadvisory.setStatus($doc, $request.get('status')))
+     #jsonResponse({'success': 'true'})
+   #end
   #else
    #set ($discard = $response.sendError(401, 'Wrong CSRF token'))
   #end
@@ -351,7 +362,12 @@ require(['jquery', 'xwiki-meta'], function ($, xm) {
     $.post(postUrl, data).done(function (data) {
       if (data.success) {
         notification.replace(new XWiki.widgets.Notification('Advisory status updated','done'));
-        window.location.reload();
+        // A disclosed advisory is published on another page.
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          window.location.reload();
+        }
       } else {
         notification.replace(new XWiki.widgets.Notification('Error during update of advisory status','error'));
         console.error("Error during advisory status");
@@ -687,7 +703,12 @@ require(['jquery', 'xwiki-meta'], function ($, xm) {
 #elseif ($status == "COMPLETED")
   &lt;button title="complete" class="btn btn-primary btn-announce"&gt;Mark announced&lt;/button&gt;
 #elseif ($status == "DISCLOSABLE")
+  #if ($services.securityadvisory.canDisclose($doc.documentReference))
   &lt;button title="complete" class="btn btn-primary btn-disclose"&gt;Mark disclosed&lt;/button&gt;
+  #elseif ($services.security.authorization.hasAccess('edit', $doc.documentReference))
+  #set ($publicDataSpace = $services.model.serialize($services.securityadvisory.getPublicDataSpace(), 'local'))
+  &lt;span class="text-muted securityadvisory-disclose-forbidden"&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.sheet.disclose.forbidden', [$publicDataSpace]))&lt;/span&gt;
+  #end
 #end
 &lt;/div&gt;
 {{/html}}

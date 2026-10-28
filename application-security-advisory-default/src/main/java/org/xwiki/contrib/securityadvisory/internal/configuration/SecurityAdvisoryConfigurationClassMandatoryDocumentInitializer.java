@@ -65,6 +65,13 @@ public class SecurityAdvisoryConfigurationClassMandatoryDocumentInitializer exte
     public static final String DATA_SPACE = "dataSpace";
 
     /**
+     * Field for holding the space where disclosed advisories are published.
+     *
+     * @since 2.3.0
+     */
+    public static final String PUBLIC_DATA_SPACE = "publicDataSpace";
+
+    /**
      * Field for holding importer user.
      */
     public static final String IMPORTER_USER = "importerUser";
@@ -101,6 +108,7 @@ public class SecurityAdvisoryConfigurationClassMandatoryDocumentInitializer exte
         xclass.addGroupsField(SECURITY_GROUP, SECURITY_GROUP);
         xclass.addNumberField(DEFAULT_EMBARGO_DURATION, DEFAULT_EMBARGO_DURATION, 20, NumberClass.TYPE_INTEGER);
         xclass.addTextField(DATA_SPACE, DATA_SPACE, 255);
+        xclass.addTextField(PUBLIC_DATA_SPACE, PUBLIC_DATA_SPACE, 255);
         xclass.addUsersField(IMPORTER_USER, IMPORTER_USER);
         xclass.addStaticListField(GITHUB_REPOSITORIES_SLUG, GITHUB_REPOSITORIES_SLUG, 1, true, false, null,
             ListClass.DISPLAYTYPE_INPUT, null, null, ListClass.FREE_TEXT_ALLOWED, false);

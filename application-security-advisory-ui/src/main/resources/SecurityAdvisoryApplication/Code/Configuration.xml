@@ -158,6 +158,15 @@
         <unmodifiable>0</unmodifiable>
         <classType>com.xpn.xwiki.objects.classes.UsersClass</classType>
       </importerUser>
+      <publicDataSpace>
+        <disabled>0</disabled>
+        <name>publicDataSpace</name>
+        <number>7</number>
+        <prettyName>publicDataSpace</prettyName>
+        <size>255</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </publicDataSpace>
       <securityGroup>
         <cache>0</cache>
         <disabled>0</disabled>
@@ -188,6 +197,9 @@
     </property>
     <property>
       <importerUser/>
+    </property>
+    <property>
+      <publicDataSpace/>
     </property>
     <property>
       <securityGroup/>
@@ -451,6 +463,49 @@
 #displayJobStatus($migrationStatus 'securityadvisoryapplication.admin.migration' '' true)
 #end
 {{/html}}
+)))
+
+----
+
+#set($publishAdvisoriesResults = $NULL)
+#if("$!request.get('securityAdvisoryPublishDisclosed')" == '1' &amp;&amp; $request.method == 'POST' &amp;&amp; $services.csrf.isTokenValid($request.get('form_token')))
+  #set($publishAdvisoriesResults = $services.securityadvisory.publishDisclosedAdvisories())
+#end
+#set($unpublishedAdvisories = $services.securityadvisory.getUnpublishedDisclosedAdvisories())
+(% class="securityadvisory-publish-disclosed" %)(((
+(% id="h-securityadvisory-publish-disclosed" %)
+== {{translation key="securityadvisoryapplication.admin.publishDisclosed.heading"/}} ==
+
+(%%){{translation key="securityadvisoryapplication.admin.publishDisclosed.description"/}}
+
+#set($publicDataSpace = $services.securityadvisory.getPublicDataSpace())
+#if(!$services.security.authorization.hasAccess('view', 'XWiki.XWikiAllGroup', $publicDataSpace))
+{{warning}}$services.rendering.escape($services.localization.render('securityadvisoryapplication.admin.publishDisclosed.notPublic', [$services.model.serialize($publicDataSpace, 'local')]), 'xwiki/2.1'){{/warning}}
+#end
+
+#if($publishAdvisoriesResults)
+#foreach($publishResult in $publishAdvisoriesResults.entrySet())
+#set($advisoryLabel = $services.model.serialize($publishResult.key, 'local'))
+#if("$!publishResult.value" == '')
+{{success}}$services.rendering.escape($services.localization.render('securityadvisoryapplication.admin.publishDisclosed.success', [$advisoryLabel]), 'xwiki/2.1'){{/success}}
+#else
+{{error}}$services.rendering.escape($services.localization.render('securityadvisoryapplication.admin.publishDisclosed.error', [$advisoryLabel, $publishResult.value]), 'xwiki/2.1'){{/error}}
+#end
+#end
+#end
+#if($unpublishedAdvisories.isEmpty())
+{{info}}{{translation key="securityadvisoryapplication.admin.publishDisclosed.none"/}}{{/info}}
+#else
+{{info}}{{translation key="securityadvisoryapplication.admin.publishDisclosed.candidates" parameters="$unpublishedAdvisories.size()"/}}{{/info}}
+
+{{html clean="false"}}
+&lt;form action="$escapetool.xml($xwiki.relativeRequestURL)" method="post" class="xform"&gt;
+  &lt;input type="hidden" name="form_token" value="$!{services.csrf.getToken()}"/&gt;
+  &lt;input type="hidden" name="securityAdvisoryPublishDisclosed" value="1"/&gt;
+  &lt;p&gt;&lt;span class="buttonwrapper"&gt;&lt;button type="submit" class="btn btn-primary"&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.admin.publishDisclosed.button'))&lt;/button&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;/form&gt;
+{{/html}}
+#end
 )))
 
 ----
