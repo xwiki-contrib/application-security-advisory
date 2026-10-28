@@ -53,5 +53,21 @@
       <version>${releasenotes.version}</version>
       <type>xar</type>
     </dependency>
+    <!-- The home page is an AppWithinMinutes application home page, and the advisory sheet displays the title and the
+         description of the advisories through the AppWithinMinutes displayers. -->
+    <dependency>
+      <groupId>org.xwiki.platform</groupId>
+      <artifactId>xwiki-platform-appwithinminutes-ui</artifactId>
+      <version>${platform.version}</version>
+      <type>xar</type>
+      <scope>runtime</scope>
+    </dependency>
+    <!-- The home page lists the advisories with the Live Data macro. -->
+    <dependency>
+      <groupId>org.xwiki.platform</groupId>
+      <artifactId>xwiki-platform-livedata-macro</artifactId>
+      <version>${platform.version}</version>
+      <scope>runtime</scope>
+    </dependency>
   </dependencies>
 </project>

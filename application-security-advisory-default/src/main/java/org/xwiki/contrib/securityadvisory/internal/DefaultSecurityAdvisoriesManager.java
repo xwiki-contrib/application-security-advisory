@@ -260,7 +260,7 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
         XWikiContext context = this.contextProvider.get();
         DocumentReference holderReference = securityAdvisory.getHolderReference();
         try {
-            XWikiDocument document = context.getWiki().getDocument(holderReference, context);
+            XWikiDocument document = context.getWiki().getDocument(holderReference, context).clone();
             BaseObject xObject = document.getXObject(
                 SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.CLASS_REFERENCE);
             if (xObject != null) {
@@ -327,7 +327,7 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
                 XWikiContext context = this.contextProvider.get();
                 DocumentReference holderReference = securityAdvisory.getHolderReference();
                 try {
-                    XWikiDocument document = context.getWiki().getDocument(holderReference, context);
+                    XWikiDocument document = context.getWiki().getDocument(holderReference, context).clone();
                     BaseObject xObject = document.getXObject(
                         SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.CLASS_REFERENCE);
                     if (xObject != null) {

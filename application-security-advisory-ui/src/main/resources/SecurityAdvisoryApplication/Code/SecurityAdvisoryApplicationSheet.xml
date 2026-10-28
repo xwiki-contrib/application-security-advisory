@@ -246,6 +246,8 @@ $services.localization.render("securityadvisoryapplication.sheet.nextstep.${obje
   #set ($discard = $object.set('status', 'DRAFT'))
   &lt;div class="hidden"&gt;
   $doc.display('status')
+  ## The advisory object only exists in the edited document: ask the save to create it from the submitted values.
+  &lt;input type="hidden" name="objectPolicy" value="updateOrCreate" /&gt;
   &lt;/div&gt;
 #end
 {{/html}}
