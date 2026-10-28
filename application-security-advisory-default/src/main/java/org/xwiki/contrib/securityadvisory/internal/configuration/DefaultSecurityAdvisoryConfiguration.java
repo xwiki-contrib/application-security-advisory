@@ -115,6 +115,16 @@ public class DefaultSecurityAdvisoryConfiguration implements SecurityAdvisoryCon
     }
 
     @Override
+    public SpaceReference getPublicDataSpace()
+    {
+        String publicDataSpace =
+            this.configurationSource.getProperty(
+                SecurityAdvisoryConfigurationClassMandatoryDocumentInitializer.PUBLIC_DATA_SPACE,
+                "SecurityAdvisoryApplication.DisclosedEntries");
+        return new SpaceReference(this.entityReferenceResolver.resolve(publicDataSpace, EntityType.SPACE));
+    }
+
+    @Override
     public UserReference getAdvisoryImporterUser()
     {
         String importerUser =
