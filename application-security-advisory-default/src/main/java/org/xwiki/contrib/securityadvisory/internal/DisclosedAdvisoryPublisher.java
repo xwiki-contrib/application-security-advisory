@@ -81,14 +81,6 @@ public class DisclosedAdvisoryPublisher
 
     private static final String ADVISORY_ACCESS_EXCEPTION = "Error while trying to access the advisory [%s]";
 
-    private static final EntityReference ADVISORY_CLASS_REFERENCE =
-        SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.CLASS_REFERENCE;
-
-    private static final String FIELD_STATE = SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_STATE;
-
-    private static final String FIELD_ADVISORY_LINK =
-        SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_ADVISORY_LINK;
-
     @Inject
     private Provider<XWikiContext> contextProvider;
 
@@ -189,7 +181,7 @@ public class DisclosedAdvisoryPublisher
                     advisoryReference, publicReference));
             }
 
-            originalObject.setStringValue(FIELD_STATE,
+            originalObject.setStringValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_STATE,
                 SecurityAdvisory.State.DISCLOSED.name());
             BaseObject redirectObject = original.newXObject(REDIRECT_CLASS_REFERENCE, context);
             redirectObject.setStringValue(REDIRECT_LOCATION, this.entityReferenceSerializer.serialize(publicReference));
@@ -212,8 +204,8 @@ public class DisclosedAdvisoryPublisher
     {
         String statement = String.format("from doc.object(%s) as objAdv where objAdv.%s = :status",
             this.entityReferenceSerializer
-                .serialize(ADVISORY_CLASS_REFERENCE),
-            FIELD_STATE);
+                .serialize(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.CLASS_REFERENCE),
+            SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_STATE);
         XWikiContext context = this.contextProvider.get();
         List<DocumentReference> results = new ArrayList<>();
         try {
@@ -237,7 +229,7 @@ public class DisclosedAdvisoryPublisher
     {
         DocumentReference advisoryReference = original.getDocumentReference();
         BaseObject advisoryObject =
-            original.getXObject(ADVISORY_CLASS_REFERENCE);
+            original.getXObject(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.CLASS_REFERENCE);
         if (advisoryObject == null) {
             throw new SecurityAdvisoryException(
                 String.format("The page [%s] does not hold any advisory.", advisoryReference));
@@ -251,7 +243,7 @@ public class DisclosedAdvisoryPublisher
                 String.format("The advisory [%s] is already located in the public data space.", advisoryReference));
         }
         String state = advisoryObject.getStringValue(
-            FIELD_STATE);
+            SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_STATE);
         if (!SecurityAdvisory.State.DISCLOSABLE.name().equalsIgnoreCase(state)
             && !SecurityAdvisory.State.DISCLOSED.name().equalsIgnoreCase(state)) {
             throw new SecurityAdvisoryException(
@@ -263,10 +255,12 @@ public class DisclosedAdvisoryPublisher
     private boolean isSameAdvisory(BaseObject originalObject, XWikiDocument publicDocument)
     {
         BaseObject publicObject =
-            publicDocument.getXObject(ADVISORY_CLASS_REFERENCE);
+            publicDocument.getXObject(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.CLASS_REFERENCE);
         return publicObject != null && StringUtils.equals(
-            originalObject.getStringValue(FIELD_ADVISORY_LINK),
-            publicObject.getStringValue(FIELD_ADVISORY_LINK));
+            originalObject.getStringValue(
+                SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_ADVISORY_LINK),
+            publicObject.getStringValue(
+                SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_ADVISORY_LINK));
     }
 
     /**
@@ -282,10 +276,11 @@ public class DisclosedAdvisoryPublisher
         publicDocument.setContent(original.getContent());
         publicDocument.setEnforceRequiredRights(original.isEnforceRequiredRights());
 
-        copyObjects(original, publicDocument, ADVISORY_CLASS_REFERENCE);
+        copyObjects(original, publicDocument,
+            SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.CLASS_REFERENCE);
         copyObjects(original, publicDocument, ImpactedPackageClassMandatoryDocumentInitializer.CLASS_REFERENCE);
-        publicDocument.getXObject(ADVISORY_CLASS_REFERENCE)
-            .setStringValue(FIELD_STATE,
+        publicDocument.getXObject(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.CLASS_REFERENCE)
+            .setStringValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_STATE,
                 SecurityAdvisory.State.DISCLOSED.name());
 
         // The content and the objects keep the authors of the original page: using the current user instead would
