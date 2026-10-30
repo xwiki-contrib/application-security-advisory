@@ -125,6 +125,8 @@ SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_securityGrou
 SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_securityGroup.hint=Die Nutzer dieser Gruppe werden automatisch benachrichtigt, wenn ein Hinweis zur Veröffentlichung bereit ist.
 SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_dataSpace=Speicherort der sicherheitsrelevanten Einträge
 SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_dataSpace.hint=Die Referenz des Speicherorts für Sicherheitseinträge (Standard: SecurityAdvisoryApplication.SecurityEntries)
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_publicDataSpace=Speicherort des Bereichs für veröffentlichte Einträge
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_publicDataSpace.hint=Die Referenz des Bereichs, in dem veröffentlichte Einträge so angezeigt werden, dass jeder sie einsehen kann. Er darf sich nicht innerhalb des Bereichs für Sicherheitseinträge befinden, der zugangsbeschränkt ist (Standard: SecurityAdvisoryApplication.DisclosedEntries)
 SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_importerUser=Import-User
 SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_importerUser.hint=Der Benutzer, der als Autor für importierte Einträge verwendet wird
 ### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_githubToken=Github Token
@@ -149,6 +151,14 @@ securityadvisoryapplication.admin.migration.candidates=Hinweise, die noch das al
 securityadvisoryapplication.admin.migration.button=Hinweise zur Migration
 securityadvisoryapplication.admin.migration.finish.success=Die Sicherheitshinweise wurden erfolgreich auf das neue Datenmodell migriert.
 securityadvisoryapplication.admin.migration.finish.error=Bei der Migration einiger Sicherheitshinweise ist ein Fehler aufgetreten. Einzelheiten stehen im folgenden Protokoll.
+securityadvisoryapplication.admin.publishDisclosed.heading=Offengelegte Warnungen veröffentlichen
+securityadvisoryapplication.admin.publishDisclosed.description=Wenn eine Warnung offengelegt wird, erscheint er im Bereich „Veröffentlichte Einträge“, sodass ihn jeder einsehen kann: Die veröffentlichte Seite enthält nur die Informationen zur Warnung, ohne deren Verlauf, Kommentare oder Anhänge, und die ursprüngliche Seite leitet dorthin weiter. Warnungen, die veröffentlicht wurden, bevor es diesen Mechanismus gab, oder die bereits als veröffentlicht von GitHub importiert wurden, müssen über die Schaltfläche unten veröffentlicht werden.
+securityadvisoryapplication.admin.publishDisclosed.notPublic=Der Bereich für offengelegte Einträge {0} ist nicht für alle Nutzer sichtbar: Veröffentlichte Hinweise sind nicht allgemein zugänglich.
+securityadvisoryapplication.admin.publishDisclosed.none=Alle offengelegten Warnungen sind veröffentlicht.
+securityadvisoryapplication.admin.publishDisclosed.candidates=Offengelegte Warnungen, die noch nicht veröffentlicht wurden: {0}
+securityadvisoryapplication.admin.publishDisclosed.button=Offengelegte Warnungen veröffentlichen
+securityadvisoryapplication.admin.publishDisclosed.success=Die Warnung {0} wurde veröffentlicht.
+securityadvisoryapplication.admin.publishDisclosed.error=Die Warnung {0} konnte nicht veröffentlicht werden: {1}
 ### Missing: job.log.label.securityadvisory.datamigration=Migration log
 
 # Sheet Explanations
@@ -157,6 +167,7 @@ securityadvisoryapplication.sheet.nextstep.COMPLETED=Nach Fertigstellung des Hin
 securityadvisoryapplication.sheet.nextstep.ANNOUNCED=Dieser Hinweis wurde angekündigt. Er wird automatisch als veröffentlichungspflichtig markiert, wenn das Sperrdatum erreicht ist. Es ist möglich, dass das Sperrdatum noch nicht berechnet wurde, wenn die gepatchten Versionen noch nicht veröffentlicht wurden. 
 securityadvisoryapplication.sheet.nextstep.DISCLOSABLE=Dieser Hinweis kann nun gemäß seinem Sperrdatum veröffentlicht werden. Sie sollten ein CVE anfordern und es veröffentlichen. Sobald dies geschehen ist, müssen Sie es mit der Schaltfläche oben auf der Seite als offengelegt markieren.
 securityadvisoryapplication.sheet.nextstep.DISCLOSED=Dieser Hinweis wurde veröffentlicht und ist nun allgemein zugänglich.
+securityadvisoryapplication.sheet.disclose.forbidden=Um Warnungen offenzulegen werden sie im Bereich der offengelegten Einträge {0} veröffentlicht: du benötigst dort Bearbeitungsrechte.
 securityadvisoryapplication.sheet.severity=Schweregrad
 
 # Deprecated keys

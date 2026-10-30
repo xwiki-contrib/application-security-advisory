@@ -21,7 +21,9 @@ package org.xwiki.contrib.securityadvisory.script;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -35,8 +37,10 @@ import org.xwiki.contrib.securityadvisory.AdvisoryImporter;
 import org.xwiki.contrib.securityadvisory.ExternalUser;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoriesManager;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisory;
+import org.xwiki.contrib.securityadvisory.SecurityAdvisoryConfiguration;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryException;
 import org.xwiki.contrib.securityadvisory.VersionReleasedManager;
+import org.xwiki.contrib.securityadvisory.internal.DisclosedAdvisoryPublisher;
 import org.xwiki.contrib.securityadvisory.internal.SecurityAdvisoryDataMigrator;
 import org.xwiki.contrib.securityadvisory.internal.SecurityAdvisoryMigrationJob;
 import org.xwiki.contrib.securityadvisory.internal.SecurityAdvisoryMigrationRequest;
@@ -107,11 +111,17 @@ public class SecurityAdvisoryScriptService implements ScriptService
     private ExternalUserMappingStore externalUserMappingStore;
 
     @Inject
-    private ContextualAuthorizationManager authorizationManager;
-
-    @Inject
     @Named("document")
     private UserReferenceResolver<DocumentReference> userReferenceResolver;
+
+    @Inject
+    private DisclosedAdvisoryPublisher disclosedAdvisoryPublisher;
+
+    @Inject
+    private ContextualAuthorizationManager authorization;
+
+    @Inject
+    private SecurityAdvisoryConfiguration configuration;
 
     /**
      * Create a new unique advisory reference.
@@ -209,17 +219,26 @@ public class SecurityAdvisoryScriptService implements ScriptService
     }
 
     /**
-     * Set the state of the advisory found thanks to the given reference.
+     * Set the state of the advisory found thanks to the given reference. The current user needs edit right on the
+     * advisory, and disclosing it also requires {@link #canDisclose(DocumentReference)}, since it publishes the
+     * advisory in the public data space.
      *
      * @param advisoryReference the reference of the advisory.
      * @param state the new state to set.
-     * @throws SecurityAdvisoryException if no advisory can be found, or in case of problem to set its state
+     * @throws SecurityAdvisoryException if no advisory can be found, if the current user is not allowed to set this
+     *     state, or in case of problem to set its state
      * @see SecurityAdvisoriesManager#setStatus(SecurityAdvisory, SecurityAdvisory.State)
      * @since 2.2.0
      */
     public void setStatus(DocumentReference advisoryReference, SecurityAdvisory.State state)
         throws SecurityAdvisoryException
     {
+        if (!this.authorization.hasAccess(Right.EDIT, advisoryReference)
+            || (state == SecurityAdvisory.State.DISCLOSED && !canDisclose(advisoryReference))) {
+            throw new SecurityAdvisoryException(
+                String.format("The current user is not allowed to set the status [%s] on the advisory [%s].", state,
+                    advisoryReference));
+        }
         Optional<SecurityAdvisory> securityAdvisoryOpt = this.securityAdvisoriesManager.loadAdvisory(advisoryReference);
         if (securityAdvisoryOpt.isPresent()) {
             this.securityAdvisoriesManager.setStatus(securityAdvisoryOpt.get(), state);
@@ -243,7 +262,7 @@ public class SecurityAdvisoryScriptService implements ScriptService
         throws SecurityAdvisoryException
     {
         List<ExternalUser> result = Collections.emptyList();
-        if (this.authorizationManager.hasAccess(Right.VIEW, advisoryReference)) {
+        if (this.authorization.hasAccess(Right.VIEW, advisoryReference)) {
             Optional<SecurityAdvisory> advisoryOpt = this.securityAdvisoriesManager.loadAdvisory(advisoryReference);
             if (advisoryOpt.isPresent()) {
                 result = this.assigneeResolver.getUnmappedExternalUsers(advisoryOpt.get());
@@ -265,7 +284,7 @@ public class SecurityAdvisoryScriptService implements ScriptService
     public int countUnassignedAdvisories(String hint, String externalId) throws SecurityAdvisoryException
     {
         int result = 0;
-        if (this.authorizationManager.hasAccess(Right.ADMIN, this.contextProvider.get().getWikiReference())) {
+        if (this.authorization.hasAccess(Right.ADMIN, this.contextProvider.get().getWikiReference())) {
             result = this.assigneeResolver.countUnassignedAdvisories(new ExternalUser(hint, externalId, null));
         }
         return result;
@@ -289,7 +308,7 @@ public class SecurityAdvisoryScriptService implements ScriptService
         DocumentReference advisoryReference) throws AccessDeniedException, SecurityAdvisoryException
     {
         XWikiContext context = this.contextProvider.get();
-        this.authorizationManager.checkAccess(Right.ADMIN, context.getWikiReference());
+        this.authorization.checkAccess(Right.ADMIN, context.getWikiReference());
 
         UserReference user = this.userReferenceResolver.resolve(userReference);
         this.externalUserMappingStore.setMapping(new ExternalUser(hint, externalId, login), user);
@@ -315,7 +334,7 @@ public class SecurityAdvisoryScriptService implements ScriptService
     public void setExternalUserArchived(String hint, String externalId, String login, boolean archived)
         throws AccessDeniedException, SecurityAdvisoryException
     {
-        this.authorizationManager.checkAccess(Right.ADMIN, this.contextProvider.get().getWikiReference());
+        this.authorization.checkAccess(Right.ADMIN, this.contextProvider.get().getWikiReference());
         this.externalUserMappingStore.setArchived(new ExternalUser(hint, externalId, login), archived);
     }
 
@@ -331,7 +350,7 @@ public class SecurityAdvisoryScriptService implements ScriptService
     public JobStatus startAssigneeResolution() throws AccessDeniedException, JobException
     {
         XWikiContext context = this.contextProvider.get();
-        this.authorizationManager.checkAccess(Right.ADMIN, context.getWikiReference());
+        this.authorization.checkAccess(Right.ADMIN, context.getWikiReference());
         return this.jobManager.startResolution(context.getUserReference());
     }
 
@@ -343,5 +362,86 @@ public class SecurityAdvisoryScriptService implements ScriptService
     public JobStatus getAssigneeResolutionStatus()
     {
         return this.jobManager.getResolutionStatus();
+    }
+
+    /**
+     * Check if the current user can disclose the given advisory: it must be disclosable, and the user needs edit right
+     * both on the advisory and on the public data space where it gets published.
+     *
+     * @param advisoryReference the reference of the advisory
+     * @return {@code true} if the current user can disclose the advisory
+     * @throws SecurityAdvisoryException in case of problem to load the advisory
+     * @since 2.3.0
+     */
+    public boolean canDisclose(DocumentReference advisoryReference) throws SecurityAdvisoryException
+    {
+        Optional<SecurityAdvisory> securityAdvisoryOpt = this.securityAdvisoriesManager.loadAdvisory(advisoryReference);
+        return securityAdvisoryOpt.isPresent()
+            && securityAdvisoryOpt.get().getState() == SecurityAdvisory.State.DISCLOSABLE
+            && this.disclosedAdvisoryPublisher.canPublish(advisoryReference);
+    }
+
+    /**
+     * @return the space where disclosed advisories are published
+     * @since 2.3.0
+     */
+    public SpaceReference getPublicDataSpace()
+    {
+        return this.configuration.getPublicDataSpace();
+    }
+
+    /**
+     * @param advisoryReference the reference of an advisory located in the security data space
+     * @return the reference of the page where the advisory is published once disclosed
+     * @since 2.3.0
+     */
+    public DocumentReference getPublicReference(DocumentReference advisoryReference)
+    {
+        return this.disclosedAdvisoryPublisher.getPublicReference(advisoryReference);
+    }
+
+    /**
+     * List the advisories that are disclosed but not published in the public data space yet, e.g. because they were
+     * disclosed before the public data space existed. Only wiki administrators can list them.
+     *
+     * @return the references of the disclosed advisories to publish, or an empty list if the current user is not a
+     *     wiki administrator
+     * @throws SecurityAdvisoryException in case of problem to retrieve the advisories
+     * @since 2.3.0
+     */
+    public List<DocumentReference> getUnpublishedDisclosedAdvisories() throws SecurityAdvisoryException
+    {
+        if (!this.authorization.hasAccess(Right.ADMIN)) {
+            return List.of();
+        }
+        return this.disclosedAdvisoryPublisher.getUnpublishedDisclosedAdvisories();
+    }
+
+    /**
+     * Publish in the public data space all the advisories returned by {@link #getUnpublishedDisclosedAdvisories()}.
+     * Only wiki administrators can perform this operation. A failure to publish an advisory doesn't stop the
+     * publication of the others.
+     *
+     * @return for each advisory to publish, {@code null} if it has been published, or the reason why it couldn't be
+     * @throws SecurityAdvisoryException if the current user is not a wiki administrator, or in case of problem to
+     *     retrieve the advisories
+     * @since 2.3.0
+     */
+    public Map<DocumentReference, String> publishDisclosedAdvisories() throws SecurityAdvisoryException
+    {
+        if (!this.authorization.hasAccess(Right.ADMIN)) {
+            throw new SecurityAdvisoryException("Only wiki administrators can publish the disclosed advisories.");
+        }
+        Map<DocumentReference, String> results = new LinkedHashMap<>();
+        for (DocumentReference advisoryReference : this.disclosedAdvisoryPublisher
+            .getUnpublishedDisclosedAdvisories()) {
+            try {
+                this.disclosedAdvisoryPublisher.publish(advisoryReference);
+                results.put(advisoryReference, null);
+            } catch (SecurityAdvisoryException e) {
+                results.put(advisoryReference, e.getMessage());
+            }
+        }
+        return results;
     }
 }

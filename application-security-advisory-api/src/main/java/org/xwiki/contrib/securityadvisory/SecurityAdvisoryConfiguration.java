@@ -59,6 +59,19 @@ public interface SecurityAdvisoryConfiguration
     SpaceReference getSecurityDataSpace();
 
     /**
+     * The space where disclosed advisories are published so that anyone can view them. It must not be located inside
+     * {@link #getSecurityDataSpace()}, otherwise it would inherit the restricted rights of the security data space.
+     *
+     * @return the space where disclosed advisories are published, by default a {@code DisclosedEntries} space
+     *     next to {@link #getSecurityDataSpace()}
+     * @since 2.3.0
+     */
+    default SpaceReference getPublicDataSpace()
+    {
+        return new SpaceReference("DisclosedEntries", getSecurityDataSpace().getParent());
+    }
+
+    /**
      * @return the reference of the user to use for saving imported data.
      * @since 2.0
      */

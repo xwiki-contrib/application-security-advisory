@@ -123,6 +123,17 @@ class CreatorAssigneeListenerTest
     }
 
     @Test
+    void doNotAssignPublicationOfDisclosedAdvisory()
+    {
+        when(this.configuration.getPublicDataSpace())
+            .thenReturn(this.document.getDocumentReference().getLastSpaceReference());
+
+        this.listener.onEvent(new DocumentCreatingEvent(), this.document, null);
+
+        assertEquals("", getAssignee());
+    }
+
+    @Test
     void doNotAssignImporterUser()
     {
         when(this.configuration.getAdvisoryImporterUser()).thenReturn(this.creator);

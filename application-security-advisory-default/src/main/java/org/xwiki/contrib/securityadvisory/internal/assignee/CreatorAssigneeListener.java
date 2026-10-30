@@ -19,6 +19,8 @@
  */
 package org.xwiki.contrib.securityadvisory.internal.assignee;
 
+import java.util.Objects;
+
 import org.apache.commons.lang3.StringUtils;
 import org.xwiki.bridge.event.DocumentCreatingEvent;
 import org.xwiki.component.annotation.Component;
@@ -37,7 +39,8 @@ import jakarta.inject.Singleton;
 
 /**
  * Listener assigning an advisory created by hand to its creator. Imported advisories are not concerned: their
- * assignee comes from the mapping of their external users, and their creator is the technical importer user.
+ * assignee comes from the mapping of their external users, and their creator is the technical importer user. Neither
+ * are the publications of disclosed advisories in the public data space, created by the user disclosing them.
  *
  * @version $Id$
  * @since 2.2.2
@@ -85,7 +88,11 @@ public class CreatorAssigneeListener extends AbstractLocalEventListener
         boolean isImported =
             !document.getXObjects(ExternalUserClassMandatoryDocumentInitializer.CLASS_REFERENCE).isEmpty()
                 || creator.equals(this.configuration.getAdvisoryImporterUser());
-        return !isImported && StringUtils.isBlank(advisoryObject.getLargeStringValue(
+        // A page of the public data space is the publication of a disclosed advisory, created by the user disclosing
+        // it, who is not in charge of the advisory.
+        boolean isPublication = Objects.equals(document.getDocumentReference().getLastSpaceReference(),
+            this.configuration.getPublicDataSpace());
+        return !isImported && !isPublication && StringUtils.isBlank(advisoryObject.getLargeStringValue(
             SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_ASSIGNEE));
     }
 }

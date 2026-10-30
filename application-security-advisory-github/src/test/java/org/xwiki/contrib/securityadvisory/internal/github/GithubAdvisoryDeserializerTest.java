@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -33,6 +34,7 @@ import org.xwiki.contrib.securityadvisory.ExternalUser;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisory;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryConfiguration;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryException;
+import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.SpaceReference;
 import org.xwiki.test.junit5.mockito.ComponentTest;
 import org.xwiki.test.junit5.mockito.InjectMockComponents;
@@ -50,10 +52,16 @@ class GithubAdvisoryDeserializerTest
     @MockComponent
     private SecurityAdvisoryConfiguration configuration;
 
+    @BeforeEach
+    void setUp()
+    {
+        when(this.configuration.getSecurityDataSpace()).thenReturn(new SpaceReference("xwiki", "Security", "Data"));
+        when(this.configuration.getPublicDataSpace()).thenReturn(new SpaceReference("xwiki", "Security", "Public"));
+    }
+
     @Test
     void deserializeTest() throws IOException, SecurityAdvisoryException
     {
-        when(configuration.getSecurityDataSpace()).thenReturn(new SpaceReference("xwiki", "Security", "Data"));
         String testJson = IOUtils.resourceToString("examples.json", Charset.defaultCharset(),
             GithubAdvisoryDeserializerTest.class.getClassLoader());
         List<SecurityAdvisory> advisoryList = new ArrayList<>();
@@ -101,16 +109,12 @@ class GithubAdvisoryDeserializerTest
     })
     void testRangeConversion(String githubRange, String expectedMavenRange) throws SecurityAdvisoryException
     {
-        when(configuration.getSecurityDataSpace()).thenReturn(new SpaceReference("xwiki", "Security", "Data"));
-
         assertRangeConversion(githubRange, List.of(expectedMavenRange));
     }
 
     @Test
     void testMultipleRangesConversion() throws SecurityAdvisoryException
     {
-        when(configuration.getSecurityDataSpace()).thenReturn(new SpaceReference("xwiki", "Security", "Data"));
-
         // Invalid but used in practice.
         assertRangeConversion(">= 11.3.7, >= 12.0RC1, >= 11.10.3",
             List.of("[11.3.7,)", "[12.0RC1,)", "[11.10.3,)"));
@@ -125,14 +129,27 @@ class GithubAdvisoryDeserializerTest
     void patchedVersions(String githubPatchedVersions, String expectedPatchedVersions)
         throws SecurityAdvisoryException
     {
-        when(configuration.getSecurityDataSpace()).thenReturn(new SpaceReference("xwiki", "Security", "Data"));
-
         SecurityAdvisory advisory = deserialize("<= 1.0.0", githubPatchedVersions);
 
         List<String> expected =
             expectedPatchedVersions.isEmpty() ? List.of() : List.of(expectedPatchedVersions.split("\\|"));
         assertEquals(expected, advisory.getVulnerablePackages().get(0).patchedVersions());
         assertEquals(List.of("(,1.0.0]"), advisory.getVulnerablePackages().get(0).affectedVersionsRanges());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "published, Public, DISCLOSED",
+        "draft, Data, DRAFT"
+    })
+    void newAdvisoryLocationDependsOnState(String githubState, String expectedSpace, String expectedState)
+        throws SecurityAdvisoryException
+    {
+        SecurityAdvisory advisory = deserialize(githubState, "<= 1.0.0", "\"2.0.0\"");
+
+        assertEquals(new DocumentReference("xwiki", List.of("Security", expectedSpace), "GHSA-test"),
+            advisory.getHolderReference());
+        assertEquals(SecurityAdvisory.State.valueOf(expectedState), advisory.getState());
     }
 
     private void assertRangeConversion(String githubRange, List<String> expectedMavenRanges)
@@ -146,12 +163,18 @@ class GithubAdvisoryDeserializerTest
     private SecurityAdvisory deserialize(String githubRange, String githubPatchedVersions)
         throws SecurityAdvisoryException
     {
+        return deserialize("published", githubRange, githubPatchedVersions);
+    }
+
+    private SecurityAdvisory deserialize(String githubState, String githubRange, String githubPatchedVersions)
+        throws SecurityAdvisoryException
+    {
         String testJson = "[" +
             "  {" +
             "    \"ghsa_id\": \"GHSA-test\"," +
             "    \"html_url\": \"https://github.com/xwiki/xwiki-platform/GHSA-test\"," +
             "    \"updated_at\": \"2025-06-12T07:31:10Z\"," +
-            "    \"state\": \"published\"," +
+            "    \"state\": \"" + githubState + "\"," +
             "    \"vulnerabilities\": [" +
             "      {" +
             "        \"package\": {\"ecosystem\": \"maven\", \"name\": \"group:artifact\"}," +
