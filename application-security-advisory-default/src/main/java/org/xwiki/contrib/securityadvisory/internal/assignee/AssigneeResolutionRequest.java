@@ -28,7 +28,7 @@ import org.xwiki.model.reference.DocumentReference;
  * The request used to configure the {@link AssigneeResolutionJob}.
  *
  * @version $Id$
- * @since 2.2.2
+ * @since 2.3.0
  */
 public class AssigneeResolutionRequest extends AbstractRequest
 {

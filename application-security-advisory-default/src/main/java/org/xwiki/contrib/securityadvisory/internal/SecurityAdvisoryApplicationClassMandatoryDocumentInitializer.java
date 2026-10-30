@@ -101,7 +101,7 @@ public class SecurityAdvisoryApplicationClassMandatoryDocumentInitializer extend
     /**
      * Field containing the reference of the user in charge of the advisory.
      *
-     * @since 2.2.2
+     * @since 2.3.0
      */
     public static final String FIELD_ASSIGNEE = "assignee";
 

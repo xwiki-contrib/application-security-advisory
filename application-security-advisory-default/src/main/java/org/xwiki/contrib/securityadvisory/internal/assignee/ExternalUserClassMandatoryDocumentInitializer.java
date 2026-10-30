@@ -35,7 +35,7 @@ import jakarta.inject.Singleton;
  * advisory was imported from. The objects are ordered by priority for being the assignee of the advisory.
  *
  * @version $Id$
- * @since 2.2.2
+ * @since 2.3.0
  */
 @Component
 @Singleton

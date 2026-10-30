@@ -36,7 +36,7 @@ import jakarta.inject.Singleton;
  * Starts the {@link AssigneeResolutionJob} and gives access to its status.
  *
  * @version $Id$
- * @since 2.2.2
+ * @since 2.3.0
  */
 @Component(roles = AssigneeResolutionJobManager.class)
 @Singleton

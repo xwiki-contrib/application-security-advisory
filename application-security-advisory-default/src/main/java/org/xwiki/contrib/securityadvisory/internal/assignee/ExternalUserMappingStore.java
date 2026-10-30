@@ -54,7 +54,7 @@ import jakarta.inject.Singleton;
  * into account if the last author of its page is an administrator.
  *
  * @version $Id$
- * @since 2.2.2
+ * @since 2.3.0
  */
 @Component(roles = ExternalUserMappingStore.class)
 @Singleton

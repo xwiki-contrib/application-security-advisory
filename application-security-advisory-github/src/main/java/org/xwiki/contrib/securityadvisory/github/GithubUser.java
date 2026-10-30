@@ -26,7 +26,7 @@ package org.xwiki.contrib.securityadvisory.github;
  * @param id the numeric identifier of the user, which never changes
  *
  * @version $Id$
- * @since 2.2.2
+ * @since 2.3.0
  */
 public record GithubUser(String login, long id)
 {

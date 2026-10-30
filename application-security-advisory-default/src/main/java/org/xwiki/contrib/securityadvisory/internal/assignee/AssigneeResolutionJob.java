@@ -39,7 +39,7 @@ import jakarta.inject.Named;
  * be run after a mapping is created, to apply it on the advisories that were imported before.
  *
  * @version $Id$
- * @since 2.2.2
+ * @since 2.3.0
  */
 @Component
 @Named(AssigneeResolutionJob.JOBTYPE)

@@ -35,7 +35,7 @@ import jakarta.inject.Singleton;
  * charge of embargoed advisories. The rights are only set when the space has none, so that they can be customized.
  *
  * @version $Id$
- * @since 2.2.2
+ * @since 2.3.0
  */
 @Component
 @Singleton

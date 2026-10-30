@@ -40,7 +40,7 @@ import jakarta.inject.Singleton;
  * document holding the xproperty, as the users xproperty displayer does.
  *
  * @version $Id$
- * @since 2.2.2
+ * @since 2.3.0
  */
 @Component(roles = UserPropertyConverter.class)
 @Singleton

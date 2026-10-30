@@ -38,9 +38,9 @@ import java.util.List;
  * @param publishedAt see linked doc.
  * @param vulnerabilities see linked doc.
  * @param cvssSeverities see linked doc.
- * @param author see linked doc (since 2.2.2).
- * @param publisher see linked doc (since 2.2.2).
- * @param collaboratingUsers see linked doc (since 2.2.2).
+ * @param author see linked doc (since 2.3.0).
+ * @param publisher see linked doc (since 2.3.0).
+ * @param collaboratingUsers see linked doc (since 2.3.0).
  *
  * @version $Id$
  * @since 2.0

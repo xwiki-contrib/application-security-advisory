@@ -30,7 +30,7 @@ package org.xwiki.contrib.securityadvisory;
  * @param login the login of the user in the external system, only used for display since it can change
  *
  * @version $Id$
- * @since 2.2.2
+ * @since 2.3.0
  */
 public record ExternalUser(String hint, String id, String login)
 {

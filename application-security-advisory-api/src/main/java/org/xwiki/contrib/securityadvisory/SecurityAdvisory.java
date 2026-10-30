@@ -346,7 +346,7 @@ public class SecurityAdvisory
 
     /**
      * @return the user in charge of the advisory, or {@code null} if nobody is assigned yet
-     * @since 2.2.2
+     * @since 2.3.0
      */
     public UserReference getAssignee()
     {
@@ -356,7 +356,7 @@ public class SecurityAdvisory
     /**
      * @param assignee see {@link #getAssignee()}
      * @return the current instance
-     * @since 2.2.2
+     * @since 2.3.0
      */
     public SecurityAdvisory setAssignee(UserReference assignee)
     {
@@ -369,7 +369,7 @@ public class SecurityAdvisory
      * priority for being the assignee: the first one mapped to an XWiki user becomes the assignee.
      *
      * @return the external users involved in the advisory, by order of priority
-     * @since 2.2.2
+     * @since 2.3.0
      */
     public List<ExternalUser> getExternalUsers()
     {
@@ -379,7 +379,7 @@ public class SecurityAdvisory
     /**
      * @param externalUsers see {@link #getExternalUsers()}
      * @return the current instance
-     * @since 2.2.2
+     * @since 2.3.0
      */
     public SecurityAdvisory setExternalUsers(List<ExternalUser> externalUsers)
     {

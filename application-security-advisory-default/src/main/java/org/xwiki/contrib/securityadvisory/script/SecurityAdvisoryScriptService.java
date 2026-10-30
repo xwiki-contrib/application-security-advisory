@@ -256,7 +256,7 @@ public class SecurityAdvisoryScriptService implements ScriptService
      * @return the external users of the advisory without mapping, by order of priority, or an empty list if the
      *     advisory already has an assignee or if the current user cannot view it
      * @throws SecurityAdvisoryException in case of problem to load the advisory or to read the mapping
-     * @since 2.2.2
+     * @since 2.3.0
      */
     public List<ExternalUser> getUnmappedExternalUsers(DocumentReference advisoryReference)
         throws SecurityAdvisoryException
@@ -279,7 +279,7 @@ public class SecurityAdvisoryScriptService implements ScriptService
      * @return the number of advisories without assignee the external user is involved in, or {@code 0} if the
      *     current user is not an administrator
      * @throws SecurityAdvisoryException in case of problem to query or load the advisories
-     * @since 2.2.2
+     * @since 2.3.0
      */
     public int countUnassignedAdvisories(String hint, String externalId) throws SecurityAdvisoryException
     {
@@ -302,7 +302,7 @@ public class SecurityAdvisoryScriptService implements ScriptService
      * @param advisoryReference the reference of an advisory to assign right away, or {@code null}
      * @throws AccessDeniedException if the current user is not an administrator
      * @throws SecurityAdvisoryException in case of problem to save the mapping or the advisory
-     * @since 2.2.2
+     * @since 2.3.0
      */
     public void linkExternalUser(String hint, String externalId, String login, DocumentReference userReference,
         DocumentReference advisoryReference) throws AccessDeniedException, SecurityAdvisoryException
@@ -329,7 +329,7 @@ public class SecurityAdvisoryScriptService implements ScriptService
      * @param archived {@code true} to archive the external user, {@code false} to unarchive it
      * @throws AccessDeniedException if the current user is not an administrator
      * @throws SecurityAdvisoryException in case of problem to save the external user
-     * @since 2.2.2
+     * @since 2.3.0
      */
     public void setExternalUserArchived(String hint, String externalId, String login, boolean archived)
         throws AccessDeniedException, SecurityAdvisoryException
@@ -345,7 +345,7 @@ public class SecurityAdvisoryScriptService implements ScriptService
      * @return the status of the started job
      * @throws AccessDeniedException if the current user is not an administrator
      * @throws JobException in case of problem to start the job
-     * @since 2.2.2
+     * @since 2.3.0
      */
     public JobStatus startAssigneeResolution() throws AccessDeniedException, JobException
     {
@@ -357,7 +357,7 @@ public class SecurityAdvisoryScriptService implements ScriptService
     /**
      * @return the status of the currently running or last executed assignee resolution job, or {@code null} if it has
      *     never been run
-     * @since 2.2.2
+     * @since 2.3.0
      */
     public JobStatus getAssigneeResolutionStatus()
     {

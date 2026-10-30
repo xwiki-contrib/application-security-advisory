@@ -44,7 +44,7 @@ import jakarta.inject.Singleton;
  * the way the mapping is saved (from an advisory, or from the live data of the administration).
  *
  * @version $Id$
- * @since 2.2.2
+ * @since 2.3.0
  */
 @Component
 @Singleton

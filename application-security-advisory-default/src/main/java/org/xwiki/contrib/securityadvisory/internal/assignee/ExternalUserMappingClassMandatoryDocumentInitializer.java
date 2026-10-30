@@ -36,7 +36,7 @@ import jakarta.inject.Singleton;
  * {@link ExternalUserMappingStore}.
  *
  * @version $Id$
- * @since 2.2.2
+ * @since 2.3.0
  */
 @Component
 @Singleton

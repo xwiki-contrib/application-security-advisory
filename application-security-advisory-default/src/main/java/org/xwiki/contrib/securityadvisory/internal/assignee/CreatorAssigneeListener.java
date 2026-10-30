@@ -43,7 +43,7 @@ import jakarta.inject.Singleton;
  * are the publications of disclosed advisories in the public data space, created by the user disclosing them.
  *
  * @version $Id$
- * @since 2.2.2
+ * @since 2.3.0
  */
 @Component
 @Singleton

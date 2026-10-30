@@ -56,7 +56,7 @@ import jakarta.inject.Singleton;
  * the external users preventing advisories from being assigned because they have no mapping.
  *
  * @version $Id$
- * @since 2.2.2
+ * @since 2.3.0
  */
 @Component(roles = AssigneeResolver.class)
 @Singleton
