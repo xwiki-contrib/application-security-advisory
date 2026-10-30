@@ -37,7 +37,37 @@
   <syntaxId>xwiki/2.1</syntaxId>
   <hidden>true</hidden>
   <content>{{velocity}}
-#if($xwiki.hasAdminRights() &amp;&amp; "$!request.get('githubTokenAction')" != '')
+#if("$!request.get('externalUserAction')" != '')
+## Map or ignore an external user, from the advisory sheet.
+#set ($externalUserAction = $request.get('externalUserAction'))
+#set ($externalHint = $request.get('externalHint'))
+#set ($externalId = $request.get('externalId'))
+#set ($externalLogin = $request.get('externalLogin'))
+#if (!$services.security.authorization.hasAccess('admin', $xcontext.wikiReference))
+  #set ($discard = $response.sendError(403, 'Only administrators can map external users.'))
+#elseif ($request.method != 'POST' || !$services.csrf.isTokenValid($request.get('form_token')))
+  #set ($discard = $response.sendError(401, 'CSRF token verification failed.'))
+#elseif ("$!externalHint" == '' || "$!externalId" == '')
+  #set ($discard = $response.sendError(400, 'Missing arguments.'))
+#elseif ($externalUserAction == 'archive')
+  #set ($discard = $services.securityadvisory.setExternalUserArchived($externalHint, $externalId, $externalLogin, true))
+  $response.sendRedirect($request.get('xredirect'))
+#elseif ($externalUserAction != 'link' || "$!request.get('externalUser')" == '')
+  #set ($discard = $response.sendError(400, 'Missing arguments.'))
+#else
+  #set ($userReference = $services.model.resolveDocument($request.get('externalUser')))
+  #if (!$xwiki.exists($userReference))
+    #set ($discard = $response.sendError(400, 'Unknown user.'))
+  #else
+    #set ($advisoryReference = $NULL)
+    #if ("$!request.get('advisoryReference')" != '')
+      #set ($advisoryReference = $services.model.resolveDocument($request.get('advisoryReference')))
+    #end
+    #set ($discard = $services.securityadvisory.linkExternalUser($externalHint, $externalId, $externalLogin, $userReference, $advisoryReference))
+    $response.sendRedirect($request.get('xredirect'))
+  #end
+#end
+#elseif($xwiki.hasAdminRights() &amp;&amp; "$!request.get('githubTokenAction')" != '')
 #set($githubTokenClass = 'SecurityAdvisoryApplication.Code.GithubTokenClass')
 #if ($services.csrf.isTokenValid($request.get('form_token')))
   #set($redirectURL = $request.get('xredirect'))
@@ -461,6 +491,61 @@
 #if("$!migrationStatus" != '')
 #template("job_macros.vm")
 #displayJobStatus($migrationStatus 'securityadvisoryapplication.admin.migration' '' true)
+#end
+{{/html}}
+)))
+
+----
+
+(% class="securityadvisory-external-users" %)(((
+(% id="h-securityadvisory-external-users" %)
+== {{translation key="securityadvisoryapplication.admin.externalUsers.heading"/}} ==
+
+(%%){{translation key="securityadvisoryapplication.admin.externalUsers.description"/}}
+
+#if("$!request.get('securityAdvisoryResolveAssignees')" == '1' &amp;&amp; $services.csrf.isTokenValid($request.get('form_token')))
+  #set($discard = $services.securityadvisory.startAssigneeResolution())
+#end
+#set($resolutionStatus = $services.securityadvisory.getAssigneeResolutionStatus())
+#set($resolutionState = "$!resolutionStatus.state")
+## The external user pages are hidden: the default "hidden" query filter must not be used. The login is displayed as
+## HTML because the results page renders it as a link to the GitHub profile.
+#set ($externalUsersSourceParameters = $escapetool.url({
+  'className': 'SecurityAdvisoryApplication.Code.ExternalUserMappingClass',
+  'translationPrefix': 'securityadvisoryapplication.externalUsers.livetable.',
+  'resultPage': 'SecurityAdvisoryApplication.Code.ExternalUsersLiveTableResults',
+  'queryFilters': 'currentlanguage'
+}))
+#set ($externalUsersLiveDataConfig = {
+  'meta': {
+    'propertyDescriptors': [
+      {'id': 'login', 'editable': false, 'displayer': 'html'},
+      {'id': 'hint', 'editable': false},
+      {'id': 'unassignedAdvisories', 'sortable': false, 'filterable': false, 'editable': false}
+    ]
+  }
+})
+
+{{liveData
+  id="securityadvisory-external-users"
+  properties="login,hint,user,archived,unassignedAdvisories"
+  source="liveTable"
+  sourceParameters="$externalUsersSourceParameters"
+  filters="archived=0"
+  sort="login:asc"
+  limit="10"
+}}$jsontool.serialize($externalUsersLiveDataConfig){{/liveData}}
+
+{{html clean="false"}}
+&lt;form action="$escapetool.xml($xwiki.relativeRequestURL)" method="post" class="xform"&gt;
+  &lt;input type="hidden" name="form_token" value="$!{services.csrf.getToken()}"/&gt;
+  &lt;input type="hidden" name="securityAdvisoryResolveAssignees" value="1"/&gt;
+  &lt;p&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.admin.externalUsers.resolve.description'))&lt;/p&gt;
+  &lt;p&gt;&lt;span class="buttonwrapper"&gt;&lt;button type="submit" class="btn btn-default"#if($resolutionState == 'RUNNING' || $resolutionState == 'WAITING') disabled="disabled"#end&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.admin.externalUsers.resolve.button'))&lt;/button&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;/form&gt;
+#if("$!resolutionStatus" != '')
+#template("job_macros.vm")
+#displayJobStatus($resolutionStatus 'securityadvisoryapplication.admin.externalUsers.resolve' '' true)
 #end
 {{/html}}
 )))

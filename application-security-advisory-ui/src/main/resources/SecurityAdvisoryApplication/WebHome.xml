@@ -94,7 +94,7 @@
 
 {{liveData
   id="securityadvisoryapplication"
-  properties="doc.date,status,product,doc.title,cveId,cvssScore,patchedVersions,doc.author,embargoDate,_actions"
+  properties="doc.date,status,product,doc.title,cveId,cvssScore,patchedVersions,assignee,embargoDate,_actions"
   source="liveTable"
   sourceParameters="$sourceParameters"
   sort="status:asc"

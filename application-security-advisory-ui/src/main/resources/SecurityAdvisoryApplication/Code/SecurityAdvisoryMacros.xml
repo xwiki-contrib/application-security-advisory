@@ -37,6 +37,11 @@
   <syntaxId>xwiki/2.1</syntaxId>
   <hidden>true</hidden>
   <content>{{velocity output="false"}}
+## Display a user of an external system: a GitHub user is displayed as a link to their GitHub profile.
+#macro (displayExternalUser $externalUser)
+#set ($escapedLogin = $escapetool.xml($externalUser.login()))
+#if ($externalUser.hint() == 'github')&lt;a href="https://github.com/$escapedLogin"&gt;@$escapedLogin&lt;/a&gt;#{else}$escapedLogin ($escapetool.xml($externalUser.hint()))#end
+#end
 #macro (displayVersions $impactedPackageObject)
   &lt;ul class="version-list"&gt;
   ## Read the values through the script API object: getting the underlying XWiki object requires programming rights.

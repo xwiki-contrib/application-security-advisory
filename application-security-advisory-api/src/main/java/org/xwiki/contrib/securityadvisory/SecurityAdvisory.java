@@ -87,6 +87,8 @@ public class SecurityAdvisory
     private String severity;
     private double cvssScore = -1;
     private String advisoryLink;
+    private UserReference assignee;
+    private List<ExternalUser> externalUsers = new ArrayList<>();
 
     /**
      * Default constructor.
@@ -339,6 +341,49 @@ public class SecurityAdvisory
         List<ImpactedPackage> vulnerablePackages)
     {
         this.vulnerablePackages = vulnerablePackages;
+        return this;
+    }
+
+    /**
+     * @return the user in charge of the advisory, or {@code null} if nobody is assigned yet
+     * @since 2.3.0
+     */
+    public UserReference getAssignee()
+    {
+        return assignee;
+    }
+
+    /**
+     * @param assignee see {@link #getAssignee()}
+     * @return the current instance
+     * @since 2.3.0
+     */
+    public SecurityAdvisory setAssignee(UserReference assignee)
+    {
+        this.assignee = assignee;
+        return this;
+    }
+
+    /**
+     * The users of the external system the advisory was imported from that are involved in the advisory, ordered by
+     * priority for being the assignee: the first one mapped to an XWiki user becomes the assignee.
+     *
+     * @return the external users involved in the advisory, by order of priority
+     * @since 2.3.0
+     */
+    public List<ExternalUser> getExternalUsers()
+    {
+        return externalUsers;
+    }
+
+    /**
+     * @param externalUsers see {@link #getExternalUsers()}
+     * @return the current instance
+     * @since 2.3.0
+     */
+    public SecurityAdvisory setExternalUsers(List<ExternalUser> externalUsers)
+    {
+        this.externalUsers = externalUsers;
         return this;
     }
 }

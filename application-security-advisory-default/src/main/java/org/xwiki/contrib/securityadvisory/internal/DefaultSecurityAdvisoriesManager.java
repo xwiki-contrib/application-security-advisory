@@ -22,6 +22,7 @@ package org.xwiki.contrib.securityadvisory.internal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -36,6 +37,7 @@ import org.metaeffekt.core.security.cvss.CvssVector;
 import org.slf4j.Logger;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.contrib.rendering.markdown.commonmark12.internal.CommonMark12SyntaxProvider;
+import org.xwiki.contrib.securityadvisory.ExternalUser;
 import org.xwiki.contrib.securityadvisory.ImpactedPackage;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoriesManager;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisory;
@@ -43,6 +45,9 @@ import org.xwiki.contrib.securityadvisory.SecurityAdvisoryException;
 import org.xwiki.contrib.securityadvisory.VersionReleasedManager;
 import org.xwiki.contrib.securityadvisory.event.AdvisoryStateChangedEvent;
 import org.xwiki.contrib.securityadvisory.event.EmbargoDateComputedEvent;
+import org.xwiki.contrib.securityadvisory.internal.assignee.ExternalUserClassMandatoryDocumentInitializer;
+import org.xwiki.contrib.securityadvisory.internal.assignee.ExternalUserMappingStore;
+import org.xwiki.contrib.securityadvisory.internal.assignee.UserPropertyConverter;
 import org.xwiki.model.document.DocumentAuthors;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.DocumentReferenceResolver;
@@ -51,6 +56,7 @@ import org.xwiki.observation.ObservationManager;
 import org.xwiki.query.Query;
 import org.xwiki.query.QueryException;
 import org.xwiki.query.QueryManager;
+import org.xwiki.user.UserReference;
 
 import com.xpn.xwiki.XWikiContext;
 import com.xpn.xwiki.XWikiException;
@@ -92,6 +98,12 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
 
     @Inject
     private ObservationManager observationManager;
+
+    @Inject
+    private ExternalUserMappingStore externalUserMappingStore;
+
+    @Inject
+    private UserPropertyConverter userPropertyConverter;
 
     @Inject
     private DisclosedAdvisoryPublisher disclosedAdvisoryPublisher;
@@ -157,7 +169,12 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
                     .setSeverity(xObject.getStringValue(
                         SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_CVSS))
                     .setContent(document.getContent())
-                    .setAuthor(document.getAuthors().getEffectiveMetadataAuthor());
+                    .setAuthor(document.getAuthors().getEffectiveMetadataAuthor())
+                    .setAssignee(this.userPropertyConverter.resolve(
+                        xObject.getLargeStringValue(
+                            SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_ASSIGNEE),
+                        documentReference).orElse(null))
+                    .setExternalUsers(readExternalUsers(document));
                 setImpactedPackages(document, advisory);
                 result = Optional.of(advisory);
             }
@@ -420,11 +437,77 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
             setObjectValues(securityAdvisory, object);
 
             writeVulnerablePackages(document, securityAdvisory.getVulnerablePackages());
+            writeExternalUsers(document, securityAdvisory.getExternalUsers());
+            // Make the external users known, so that administrators can map them before an advisory needs them.
+            for (ExternalUser externalUser : securityAdvisory.getExternalUsers()) {
+                this.externalUserMappingStore.register(externalUser);
+            }
+            writeAssignee(document, object, securityAdvisory);
             context.getWiki().saveDocument(document, "Import data", context);
         } catch (XWikiException e) {
             throw new SecurityAdvisoryException(
                 String.format(ADVISORY_ACCESS_EXCEPTION,
                     securityAdvisory.getHolderReference()), e);
+        }
+    }
+
+    /**
+     * Read the external users of the advisory, ordered by priority, i.e. by xobject number.
+     *
+     * @param document the document holding the advisory
+     * @return the external users of the advisory
+     */
+    private List<ExternalUser> readExternalUsers(XWikiDocument document)
+    {
+        return document.getXObjects(ExternalUserClassMandatoryDocumentInitializer.CLASS_REFERENCE).stream()
+            .filter(Objects::nonNull)
+            .map(externalUserObject -> new ExternalUser(
+                externalUserObject.getStringValue(ExternalUserClassMandatoryDocumentInitializer.HINT),
+                externalUserObject.getStringValue(ExternalUserClassMandatoryDocumentInitializer.EXTERNAL_ID),
+                externalUserObject.getStringValue(ExternalUserClassMandatoryDocumentInitializer.LOGIN)))
+            .toList();
+    }
+
+    private void writeExternalUsers(XWikiDocument document, List<ExternalUser> externalUsers) throws XWikiException
+    {
+        if (!externalUsers.equals(readExternalUsers(document))) {
+            document.removeXObjects(ExternalUserClassMandatoryDocumentInitializer.CLASS_REFERENCE);
+            XWikiContext context = this.contextProvider.get();
+            for (ExternalUser externalUser : externalUsers) {
+                BaseObject externalUserObject =
+                    document.newXObject(ExternalUserClassMandatoryDocumentInitializer.CLASS_REFERENCE, context);
+                externalUserObject.setStringValue(ExternalUserClassMandatoryDocumentInitializer.HINT,
+                    externalUser.hint());
+                externalUserObject.setStringValue(ExternalUserClassMandatoryDocumentInitializer.EXTERNAL_ID,
+                    externalUser.id());
+                externalUserObject.setStringValue(ExternalUserClassMandatoryDocumentInitializer.LOGIN,
+                    externalUser.login());
+            }
+        }
+    }
+
+    /**
+     * Set the assignee of the advisory only if it doesn't have one yet: the assignee might have been changed by hand
+     * since the previous import, and an import must not revert that change. The assignee is the one of the given
+     * advisory if any, or else the XWiki user mapped to its first external user having a mapping.
+     */
+    private void writeAssignee(XWikiDocument document, BaseObject object, SecurityAdvisory securityAdvisory)
+        throws SecurityAdvisoryException
+    {
+        if (StringUtils.isBlank(
+            object.getLargeStringValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_ASSIGNEE)))
+        {
+            UserReference assignee = securityAdvisory.getAssignee();
+            if (assignee == null) {
+                assignee =
+                    this.externalUserMappingStore.resolveAssignee(securityAdvisory.getExternalUsers()).orElse(null);
+            }
+            String serializedAssignee = (assignee != null)
+                ? this.userPropertyConverter.serialize(assignee, document.getDocumentReference()) : null;
+            if (serializedAssignee != null) {
+                object.setLargeStringValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_ASSIGNEE,
+                    serializedAssignee);
+            }
         }
     }
 

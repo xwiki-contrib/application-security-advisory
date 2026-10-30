@@ -23,15 +23,21 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.xwiki.contrib.securityadvisory.ExternalUser;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisory;
 import org.xwiki.contrib.securityadvisory.event.AdvisoryStateChangedEvent;
+import org.xwiki.contrib.securityadvisory.internal.assignee.ExternalUserMappingStore;
+import org.xwiki.contrib.securityadvisory.internal.assignee.UserPropertyConverter;
 import org.xwiki.model.reference.DocumentReference;
+import org.xwiki.model.reference.EntityReference;
 import org.xwiki.observation.ObservationManager;
 import org.xwiki.query.Query;
 import org.xwiki.query.QueryManager;
 import org.xwiki.test.junit5.mockito.InjectMockComponents;
 import org.xwiki.test.junit5.mockito.MockComponent;
+import org.xwiki.user.UserReference;
 
 import com.xpn.xwiki.XWikiContext;
 import com.xpn.xwiki.doc.XWikiDocument;
@@ -67,6 +73,9 @@ class DefaultSecurityAdvisoriesManagerTest
     private static final DocumentReference PUBLIC_REFERENCE =
         new DocumentReference("xwiki", List.of("SecurityAdvisoryApplication", "DisclosedEntries"), "GHSA-test");
 
+    private static final List<ExternalUser> EXTERNAL_USERS =
+        List.of(new ExternalUser("github", "42", "reporter"), new ExternalUser("github", "1478232", "surli"));
+
     private static final String ADVISORY_LINK = "https://github.com/xwiki/xwiki-platform/security/advisories/GHSA-test";
 
     @InjectMockComponents
@@ -79,10 +88,89 @@ class DefaultSecurityAdvisoriesManagerTest
     private QueryManager queryManager;
 
     @MockComponent
+    private ExternalUserMappingStore externalUserMappingStore;
+
+    @MockComponent
+    private UserPropertyConverter userPropertyConverter;
+
+    @MockComponent
     private ObservationManager observationManager;
 
     @InjectMockitoOldcore
     private MockitoOldcore oldcore;
+
+    private UserReference mappedUser;
+
+    @BeforeEach
+    void setUp() throws Exception
+    {
+        this.mappedUser = mock(UserReference.class);
+        when(this.externalUserMappingStore.resolveAssignee(EXTERNAL_USERS)).thenReturn(Optional.of(this.mappedUser));
+        when(this.userPropertyConverter.serialize(eq(this.mappedUser), any(EntityReference.class)))
+            .thenReturn("XWiki.surli");
+        when(this.userPropertyConverter.resolve(eq("XWiki.surli"), any(EntityReference.class)))
+            .thenReturn(Optional.of(this.mappedUser));
+        when(this.userPropertyConverter.resolve(eq(""), any(EntityReference.class))).thenReturn(Optional.empty());
+    }
+
+    private SecurityAdvisory importedAdvisory()
+    {
+        return new SecurityAdvisory(ADVISORY_REFERENCE)
+            .setState(SecurityAdvisory.State.DRAFT)
+            .setTitle("Title")
+            .setContent("Content")
+            .setAdvisoryLink(ADVISORY_LINK)
+            .setProduct("xwiki-platform")
+            .setSeverity("CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:N/SC:N/SI:N/SA:N")
+            .setCveId("CVE-2026-0001")
+            .setExternalUsers(EXTERNAL_USERS);
+    }
+
+    private BaseObject getAdvisoryObject() throws Exception
+    {
+        XWikiDocument document =
+            this.oldcore.getSpyXWiki().getDocument(ADVISORY_REFERENCE, this.oldcore.getXWikiContext());
+        return document.getXObject(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.CLASS_REFERENCE);
+    }
+
+    @Test
+    void writeAndLoadAssigneeFromExternalUsers() throws Exception
+    {
+        this.manager.writeAdvisory(importedAdvisory());
+
+        assertEquals("XWiki.surli", getAdvisoryObject().getLargeStringValue(
+            SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_ASSIGNEE));
+
+        // The external users are registered, so that administrators can map them.
+        for (ExternalUser externalUser : EXTERNAL_USERS) {
+            verify(this.externalUserMappingStore).register(externalUser);
+        }
+
+        SecurityAdvisory loadedAdvisory = this.manager.loadAdvisory(ADVISORY_REFERENCE).orElseThrow();
+        assertEquals(this.mappedUser, loadedAdvisory.getAssignee());
+        assertEquals(EXTERNAL_USERS, loadedAdvisory.getExternalUsers());
+    }
+
+    @Test
+    void writeAdvisoryKeepsExistingAssignee() throws Exception
+    {
+        this.manager.writeAdvisory(importedAdvisory().setExternalUsers(List.of()));
+        BaseObject advisoryObject = getAdvisoryObject();
+        assertEquals("", advisoryObject.getLargeStringValue(
+            SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_ASSIGNEE));
+
+        // The advisory is assigned by hand, then imported again: the import must not revert the assignee.
+        XWikiDocument document = advisoryObject.getOwnerDocument();
+        advisoryObject.setLargeStringValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_ASSIGNEE,
+            "XWiki.someone");
+        this.oldcore.getSpyXWiki().saveDocument(document, this.oldcore.getXWikiContext());
+
+        this.manager.writeAdvisory(importedAdvisory());
+
+        assertEquals("XWiki.someone", getAdvisoryObject().getLargeStringValue(
+            SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_ASSIGNEE));
+        verify(this.externalUserMappingStore, never()).resolveAssignee(EXTERNAL_USERS);
+    }
 
     private XWikiDocument createAdvisory(DocumentReference reference, String state) throws Exception
     {

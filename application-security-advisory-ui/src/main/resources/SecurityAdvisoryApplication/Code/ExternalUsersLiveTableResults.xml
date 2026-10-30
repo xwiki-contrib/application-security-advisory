@@ -1,0 +1,63 @@
+<?xml version="1.1" encoding="UTF-8"?>
+
+<!--
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+-->
+
+<xwikidoc version="1.5" reference="SecurityAdvisoryApplication.Code.ExternalUsersLiveTableResults" locale="">
+  <web>SecurityAdvisoryApplication.Code</web>
+  <name>ExternalUsersLiveTableResults</name>
+  <language/>
+  <defaultLanguage/>
+  <translation>0</translation>
+  <creator>xwiki:XWiki.Admin</creator>
+  <parent>SecurityAdvisoryApplication.Code.WebHome</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <version>1.1</version>
+  <title>ExternalUsersLiveTableResults</title>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>true</hidden>
+  <content>{{include reference="XWiki.LiveTableResultsMacros" /}}
+
+{{velocity wiki="false"}}
+## Same results as XWiki.LiveTableResults for the external users and their mapping, except that:
+## * the login of a GitHub user is displayed as a link to their GitHub profile
+## * the number of advisories without assignee each external user is involved in is computed
+#if ($xcontext.action == 'get' and "$!request.outputSyntax" == 'plain')
+  #set ($map = {})
+  #gridresultwithfilter_buildJSON("$!request.classname" $request.collist.split(',') '' '' {} $map)
+  #foreach ($row in $map.rows)
+    #set ($externalUserObject = $xwiki.getDocument($row.doc_fullName).getObject($request.classname))
+    #set ($hint = "$!externalUserObject.getValue('hint')")
+    #set ($escapedLogin = $escapetool.xml($externalUserObject.getValue('login')))
+    #if ($hint == 'github')
+      #set ($discard = $row.put('login', "&lt;a href=""https://github.com/$escapedLogin""&gt;@$escapedLogin&lt;/a&gt;"))
+    #else
+      #set ($discard = $row.put('login', $escapedLogin))
+    #end
+    #set ($count = $services.securityadvisory.countUnassignedAdvisories($hint, $externalUserObject.getValue('externalId')))
+    #set ($discard = $row.put('unassignedAdvisories', "$!count"))
+  #end
+  #jsonResponse($map)
+#end
+{{/velocity}}</content>
+</xwikidoc>

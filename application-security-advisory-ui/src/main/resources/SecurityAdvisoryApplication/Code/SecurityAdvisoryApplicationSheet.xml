@@ -58,6 +58,48 @@
 #set ($discard = $doc.use($object))
 #set ($editing = $xcontext.action == 'edit')
 #set ($discard = $xwiki.jsx.use('SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationSheet'))
+## Warn when the advisory cannot be assigned because the external users involved in it are not mapped to XWiki users,
+## and let administrators create the missing mapping. The mapping is saved by the configuration page.
+#macro (displayUnmappedExternalUsers)
+  #set ($unmappedExternalUsers = $services.securityadvisory.getUnmappedExternalUsers($doc.documentReference))
+  #if ($unmappedExternalUsers &amp;&amp; !$unmappedExternalUsers.isEmpty())
+    #set ($isAdmin = $services.security.authorization.hasAccess('admin', $xcontext.wikiReference))
+    #if ($isAdmin)
+      #set ($linkURL = $xwiki.getURL('SecurityAdvisoryApplication.Code.Configuration', 'get'))
+    #end
+    &lt;div class="box warningmessage securityadvisory-unmapped-users"&gt;
+      &lt;p&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.sheet.unmappedUsers.description'))&lt;/p&gt;
+      #foreach ($externalUser in $unmappedExternalUsers)
+        #set ($externalUserLabel = "#displayExternalUser($externalUser)")
+        #if ($isAdmin)
+          #set ($inputId = "securityadvisory-externalUser-$foreach.count")
+          &lt;form action="$escapetool.xml($linkURL)" method="post" class="xform"&gt;
+            &lt;input type="hidden" name="form_token" value="$!escapetool.xml($services.csrf.token)" /&gt;
+            &lt;input type="hidden" name="externalHint" value="$escapetool.xml($externalUser.hint())" /&gt;
+            &lt;input type="hidden" name="externalId" value="$escapetool.xml($externalUser.id())" /&gt;
+            &lt;input type="hidden" name="externalLogin" value="$escapetool.xml($externalUser.login())" /&gt;
+            &lt;input type="hidden" name="advisoryReference" value="$escapetool.xml($services.model.serialize($doc.documentReference, 'default'))" /&gt;
+            &lt;input type="hidden" name="xredirect" value="$escapetool.xml($doc.getURL())" /&gt;
+            &lt;dl&gt;
+              &lt;dt&gt;&lt;label for="$inputId"&gt;$externalUserLabel&lt;/label&gt;&lt;/dt&gt;
+              &lt;dd&gt;#userPicker(false {'id': $inputId, 'name': 'externalUser', 'required': 'required'})&lt;/dd&gt;
+            &lt;/dl&gt;
+            &lt;p&gt;
+              &lt;button type="submit" name="externalUserAction" value="link" class="btn btn-primary"&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.sheet.unmappedUsers.link'))&lt;/button&gt;
+              ## Ignoring doesn't need a user: skip the validation of the user picker.
+              &lt;button type="submit" name="externalUserAction" value="archive" formnovalidate="formnovalidate" class="btn btn-default" title="$escapetool.xml($services.localization.render('securityadvisoryapplication.sheet.unmappedUsers.ignore.hint'))"&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.sheet.unmappedUsers.ignore'))&lt;/button&gt;
+            &lt;/p&gt;
+          &lt;/form&gt;
+        #else
+          &lt;p&gt;$externalUserLabel&lt;/p&gt;
+        #end
+      #end
+      #if (!$isAdmin)
+        &lt;p&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.sheet.unmappedUsers.askAdmin'))&lt;/p&gt;
+      #end
+    &lt;/div&gt;
+  #end
+#end
 #if ($hasEdit &amp;&amp; $request.method == 'POST' &amp;&amp; "$!request.get('status')" != "")
   #if ($services.csrf.isTokenValid($request.get('form_token')))
    ## Disclosing an advisory publishes it in the disclosed entries space, which requires edit right on that space.
@@ -77,12 +119,19 @@
    #set ($discard = $response.sendError(401, 'Wrong CSRF token'))
   #end
 #end
-{{html wiki="true" clean="false"}}
 #if (!$editing)
+{{html wiki="true" clean="false"}}
 &lt;div class="box infomessage"&gt;
 $services.localization.render("securityadvisoryapplication.sheet.nextstep.${object.getValue('status')}")
 &lt;/div&gt;
+{{/html}}
+
+## Not parsed as wiki syntax: it would turn the URLs of the links to the external users profiles into links of their own.
+{{html clean="false"}}
+#displayUnmappedExternalUsers()
+{{/html}}
 #end
+{{html wiki="true" clean="false"}}
 &lt;div class="xform"&gt;
   &lt;dl&gt;
     &lt;dt #if (!$editing &amp;&amp; $hasEdit)
@@ -97,6 +146,18 @@ $services.localization.render("securityadvisoryapplication.sheet.nextstep.${obje
       &lt;/span&gt;
     &lt;/dt&gt;
     &lt;dd&gt;$doc.display('title1')&lt;/dd&gt;
+    &lt;dt #if (!$editing &amp;&amp; $hasEdit)
+        class="editableProperty"
+        data-property="$escapetool.xml($services.model.serialize($object.getPropertyReference('assignee')))"
+        data-property-type="object"#end&gt;
+      &lt;label#if ($editing) for="SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_0_assignee"#end&gt;
+        $escapetool.xml($doc.displayPrettyName('assignee', false, false))
+      &lt;/label&gt;
+      &lt;span class="xHint"&gt;
+        $escapetool.xml($services.localization.render('SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_assignee_hint'))
+      &lt;/span&gt;
+    &lt;/dt&gt;
+    &lt;dd&gt;$doc.display('assignee')&lt;/dd&gt;
     &lt;dt #if (!$editing &amp;&amp; $hasEdit)
       class="editableProperty"
       data-property="$escapetool.xml($services.model.serialize($object.getPropertyReference('preventOverride')))"
