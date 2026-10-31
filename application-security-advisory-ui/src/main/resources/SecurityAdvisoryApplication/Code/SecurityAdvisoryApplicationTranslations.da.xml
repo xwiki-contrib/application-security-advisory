@@ -1,0 +1,176 @@
+<?xml version="1.1" encoding="UTF-8"?>
+
+<!--
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+-->
+
+<xwikidoc version="1.7" reference="SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationTranslations" locale="da">
+  <web>SecurityAdvisoryApplication.Code</web>
+  <name>SecurityAdvisoryApplicationTranslations</name>
+  <language>da</language>
+  <defaultLanguage>en</defaultLanguage>
+  <translation>1</translation>
+  <creator>xwiki:XWiki.Admin</creator>
+  <parent>SecurityAdvisoryApplicationClass</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <version>1.1</version>
+  <title/>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>plain/1.0</syntaxId>
+  <hidden>true</hidden>
+  <content># Class fields
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_status=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_status_draft=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_status_completed=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_status_announced=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_status_disclosed=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_title1=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_title_hint=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_product=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_product_hint=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_advisoryLink=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_advisoryLink_hint=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_computeEmbargo=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_computeEmbargo_hint=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_embargoDate=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_embargoDate_hint=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvss=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvss_hint=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvssScore=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvssScore_hint=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_description=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_description_hint=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_preventOverride=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_preventOverride_hint=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_ecosystem=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_ecosystem_hint=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_packageId=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_packageId_hint=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_vulnerableVersionRange=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_vulnerableVersionRange_hint=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_patchedVersions=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_patchedVersions_hint=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_releasedVersions=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_releasedVersions_hint=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_latestReleasedDate=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_latestReleasedDate_hint=
+
+# Sheet keys
+### Missing: securityadvisoryapplication.sheet.description=
+### Missing: securityadvisoryapplication.sheet.noObject=
+### Missing: securityadvisoryapplication.sheet.noFields=
+
+# Live table generic keys
+### Missing: securityadvisoryapplication.livetable.doc.title=
+### Missing: securityadvisoryapplication.livetable.doc.name=
+### Missing: securityadvisoryapplication.livetable.doc.space=
+### Missing: securityadvisoryapplication.livetable.doc.fullname=
+### Missing: securityadvisoryapplication.livetable.doc.location=
+### Missing: securityadvisoryapplication.livetable.doc.author=
+### Missing: securityadvisoryapplication.livetable.doc.creator=
+### Missing: securityadvisoryapplication.livetable.doc.date=
+### Missing: securityadvisoryapplication.livetable.doc.creationDate=
+### Missing: securityadvisoryapplication.livetable._avatar=
+### Missing: securityadvisoryapplication.livetable._images=
+### Missing: securityadvisoryapplication.livetable._attachments=
+### Missing: securityadvisoryapplication.livetable._actions=
+### Missing: securityadvisoryapplication.livetable._actions.edit=
+### Missing: securityadvisoryapplication.livetable._actions.delete=
+### Missing: securityadvisoryapplication.livetable.emptyvalue=
+
+# Live table specific keys
+### Missing: securityadvisoryapplication.livetable.status=
+### Missing: securityadvisoryapplication.livetable.title1=
+### Missing: securityadvisoryapplication.livetable.product=
+### Missing: securityadvisoryapplication.livetable.mavenModules=
+### Missing: securityadvisoryapplication.livetable.affectedVersions=
+### Missing: securityadvisoryapplication.livetable.patchedVersions=
+### Missing: securityadvisoryapplication.livetable.advisoryLink=
+### Missing: securityadvisoryapplication.livetable.jiraTickets=
+### Missing: securityadvisoryapplication.livetable.computeEmbargo=
+### Missing: securityadvisoryapplication.livetable.embargoDate=
+### Missing: securityadvisoryapplication.livetable.cvss=
+### Missing: securityadvisoryapplication.livetable.cvssScore=
+### Missing: securityadvisoryapplication.livetable.cveId=
+### Missing: securityadvisoryapplication.livetable.description=
+
+# Other keys
+### Missing: securityadvisoryapplication.entry.name=
+### Missing: securityadvisoryapplication.home.right.warning=
+
+# Configuration
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_embargoDurationUnit=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_embargoDurationUnit.hint=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_defaultEmbargoDuration=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_defaultEmbargoDuration.hint=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_securityGroup=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_securityGroup.hint=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_dataSpace=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_dataSpace.hint=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_publicDataSpace=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_publicDataSpace.hint=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_importerUser=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_importerUser.hint=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_githubToken=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_githubToken.hint=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_githubRepositoriesSlug=
+### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_githubRepositoriesSlug.hint=
+
+# Administration - GitHub token management
+### Missing: securityadvisoryapplication.admin.githubTokens.heading=
+### Missing: securityadvisoryapplication.admin.githubTokens.description=
+### Missing: securityadvisoryapplication.admin.githubTokens.column.orga=
+### Missing: securityadvisoryapplication.admin.githubTokens.column.token=
+### Missing: securityadvisoryapplication.admin.githubTokens.empty=
+### Missing: securityadvisoryapplication.admin.githubTokens.add=
+### Missing: securityadvisoryapplication.admin.githubTokens.remove=
+
+# Administration - configuration and data migration
+### Missing: securityadvisoryapplication.admin.settings.heading=
+### Missing: securityadvisoryapplication.admin.migration.heading=
+### Missing: securityadvisoryapplication.admin.migration.description=
+### Missing: securityadvisoryapplication.admin.migration.candidates=
+### Missing: securityadvisoryapplication.admin.migration.button=
+### Missing: securityadvisoryapplication.admin.migration.finish.success=
+### Missing: securityadvisoryapplication.admin.migration.finish.error=
+### Missing: securityadvisoryapplication.admin.publishDisclosed.heading=
+### Missing: securityadvisoryapplication.admin.publishDisclosed.description=
+### Missing: securityadvisoryapplication.admin.publishDisclosed.notPublic=
+### Missing: securityadvisoryapplication.admin.publishDisclosed.none=
+### Missing: securityadvisoryapplication.admin.publishDisclosed.candidates=
+### Missing: securityadvisoryapplication.admin.publishDisclosed.button=
+### Missing: securityadvisoryapplication.admin.publishDisclosed.success=
+### Missing: securityadvisoryapplication.admin.publishDisclosed.error=
+### Missing: job.log.label.securityadvisory.datamigration=
+
+# Sheet Explanations
+### Missing: securityadvisoryapplication.sheet.nextstep.DRAFT=
+### Missing: securityadvisoryapplication.sheet.nextstep.COMPLETED=
+### Missing: securityadvisoryapplication.sheet.nextstep.ANNOUNCED=
+### Missing: securityadvisoryapplication.sheet.nextstep.DISCLOSABLE=
+### Missing: securityadvisoryapplication.sheet.nextstep.DISCLOSED=
+### Missing: securityadvisoryapplication.sheet.disclose.forbidden=
+### Missing: securityadvisoryapplication.sheet.severity=
+
+# Deprecated keys
+### Missing: securityadvisoryapplication.dataSpace.title=
+</content>
+</xwikidoc>
