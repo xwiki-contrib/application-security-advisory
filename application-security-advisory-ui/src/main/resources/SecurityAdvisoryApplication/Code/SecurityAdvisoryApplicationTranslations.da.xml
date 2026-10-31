@@ -1,0 +1,176 @@
+<?xml version="1.1" encoding="UTF-8"?>
+
+<!--
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+-->
+
+<xwikidoc version="1.7" reference="SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationTranslations" locale="da">
+  <web>SecurityAdvisoryApplication.Code</web>
+  <name>SecurityAdvisoryApplicationTranslations</name>
+  <language>da</language>
+  <defaultLanguage>en</defaultLanguage>
+  <translation>1</translation>
+  <creator>xwiki:XWiki.Admin</creator>
+  <parent>SecurityAdvisoryApplicationClass</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <version>1.1</version>
+  <title/>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>plain/1.0</syntaxId>
+  <hidden>true</hidden>
+  <content># Class fields
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_status=status
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_status_draft=Kladde
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_status_completed=Færdig
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_status_announced=Annonceret
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_status_disclosed=Offentliggjort
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_title1=Titel
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_title_hint=Sikkerhedsmeddelelsens titel
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_product=produkt
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_product_hint=Berørt produkt (fx xwiki-platform, xwiki-rendering, application-change-request osv.)
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_advisoryLink=Link til sikkerhedsmeddelelse
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_advisoryLink_hint=Link til den GitHub-sikkerhedsmeddelelse, der er oprettet
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_computeEmbargo=beregn embargo
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_computeEmbargo_hint=Angiv, om embargodatoen skal beregnes automatisk ud fra versionerne.
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_embargoDate=Embargodato
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_embargoDate_hint=Angiv en bestemt embargodato: Den bruges kun, hvis feltet til beregning af embargodatoen ikke er markeret.
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvss=CVSS-vektor
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvss_hint=Den fulde vektor for en CVSS-vurdering (fx CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:N/SC:N/SI:N/SA:N)
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvssScore=CVSS-score
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_cvssScore_hint=Den score, der svarer til CVSS-vektoren.
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_description=Beskrivelse
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_description_hint=Sikkerhedsmeddelelsens fulde indhold.
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_preventOverride=Forhindr overskrivning
+SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass_preventOverride_hint=Markér for at forhindre, at data overskrives ved import fra GitHub.
+SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_ecosystem=Økosystem
+SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_ecosystem_hint=Pakkens økosystem for den sårbare pakke (fx Maven eller NPM)
+SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_packageId=Pakke-id
+SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_packageId_hint=Den sårbare pakkes id
+SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_vulnerableVersionRange=Interval for sårbare versioner
+SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_vulnerableVersionRange_hint=Det interval af versioner af pakken, som sårbarheden berører
+SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_patchedVersions=Rettede versioner
+SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_patchedVersions_hint=Liste over versioner af pakken, der er rettet
+SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_releasedVersions=Rettede versioner, der er udgivet
+SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_releasedVersions_hint=Liste over rettede versioner, som der er fundet en udgivelse af
+SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_latestReleasedDate=Dato for seneste udgivne version
+SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass_latestReleasedDate_hint=Beregnet dato for den seneste udgivelse, der er fundet
+
+# Sheet keys
+securityadvisoryapplication.sheet.description=Denne side styrer, hvordan siderne i Security Advisory Application vises i både visnings- og redigeringstilstand.
+securityadvisoryapplication.sheet.noObject=Den aktuelle side har ikke det forventede Security Advisory Application-objekt.
+securityadvisoryapplication.sheet.noFields=Programmet Security Advisory Application har ingen felter at vise.
+
+# Live table generic keys
+securityadvisoryapplication.livetable.doc.title=Sidetitel
+securityadvisoryapplication.livetable.doc.name=Sidenavn
+securityadvisoryapplication.livetable.doc.space=Område
+securityadvisoryapplication.livetable.doc.fullname=Sidens fulde navn
+securityadvisoryapplication.livetable.doc.location=Placering
+securityadvisoryapplication.livetable.doc.author=Seneste forfatter
+securityadvisoryapplication.livetable.doc.creator=Opretter
+securityadvisoryapplication.livetable.doc.date=Dato
+securityadvisoryapplication.livetable.doc.creationDate=Oprettelsesdato
+securityadvisoryapplication.livetable._avatar=Avatar
+securityadvisoryapplication.livetable._images=Billeder
+securityadvisoryapplication.livetable._attachments=Bilag
+securityadvisoryapplication.livetable._actions=Handlinger
+securityadvisoryapplication.livetable._actions.edit=Rediger
+securityadvisoryapplication.livetable._actions.delete=Slet
+securityadvisoryapplication.livetable.emptyvalue=-
+
+# Live table specific keys
+securityadvisoryapplication.livetable.status=status
+securityadvisoryapplication.livetable.title1=Titel
+securityadvisoryapplication.livetable.product=produkt
+securityadvisoryapplication.livetable.mavenModules=Maven-moduler
+securityadvisoryapplication.livetable.affectedVersions=Berørte versioner
+securityadvisoryapplication.livetable.patchedVersions=Rettede versioner
+securityadvisoryapplication.livetable.advisoryLink=Link til sikkerhedsmeddelelse
+securityadvisoryapplication.livetable.jiraTickets=Jira-sager
+securityadvisoryapplication.livetable.computeEmbargo=beregn embargo
+securityadvisoryapplication.livetable.embargoDate=Embargodato
+securityadvisoryapplication.livetable.cvss=CVSS
+securityadvisoryapplication.livetable.cvssScore=CVSS-score
+securityadvisoryapplication.livetable.cveId=CVE
+securityadvisoryapplication.livetable.description=Beskrivelse
+
+# Other keys
+securityadvisoryapplication.entry.name=Security Advisory Application
+securityadvisoryapplication.home.right.warning={0}Området med sikkerhedsposter{1} er i øjeblikket åbent for alle brugere: Du bør begrænse adgangen til det.
+
+# Configuration
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_embargoDurationUnit=Enhed for den varighed, der bruges til at beregne embargoen
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_embargoDurationUnit.hint=Enheden bygger på ChronoUnit-værdier (fx minutes, hours, days, weeks, months osv.)
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_defaultEmbargoDuration=Varighedens værdi til beregning af embargoen
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_defaultEmbargoDuration.hint=Værdien lægges sammen med sin enhed til datoen for den seneste rettede udgivelse for at bestemme, hvornår sikkerhedsmeddelelsen offentliggøres
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_securityGroup=Den gruppe brugere, der skal have notifikationer om sikkerhedsmeddelelser
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_securityGroup.hint=Gruppens brugere får automatisk notifikationer, når en sikkerhedsmeddelelse er klar til at blive offentliggjort.
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_dataSpace=Placering af området med sikkerhedsposter
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_dataSpace.hint=Referencen til det område, hvor sikkerhedsposter gemmes (standard: SecurityAdvisoryApplication.SecurityEntries)
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_publicDataSpace=Placering af området med offentliggjorte poster
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_publicDataSpace.hint=Referencen til det område, hvor offentliggjorte poster udgives, så alle kan se dem. Det må ikke ligge i området med sikkerhedsposter, som har begrænset adgang (standard: SecurityAdvisoryApplication.DisclosedEntries)
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_importerUser=Bruger til import
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_importerUser.hint=Den bruger, der bruges som forfatter til importerede poster
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_githubToken=GitHub-token
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_githubToken.hint=Det GitHub-token, der skal bruges til at importere sikkerhedsmeddelelser
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_githubRepositoriesSlug=GitHub-repositories
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_githubRepositoriesSlug.hint=Listen over GitHub-repositories, der bruges ved automatisk import. Værdien kan være et repository i formen orga/repo (fx xwiki/xwiki-platform) eller en organisation (fx xwiki).
+
+# Administration - GitHub token management
+securityadvisoryapplication.admin.githubTokens.heading=GitHub-tokens
+securityadvisoryapplication.admin.githubTokens.description=Administrer de GitHub-godkendelsestokens, der bruges til at importere sikkerhedsmeddelelser fra forskellige organisationer.
+securityadvisoryapplication.admin.githubTokens.column.orga=Organisation
+securityadvisoryapplication.admin.githubTokens.column.token=Token
+securityadvisoryapplication.admin.githubTokens.empty=Der er ikke konfigureret nogen GitHub-tokens.
+securityadvisoryapplication.admin.githubTokens.add=Tilføj GitHub-token
+securityadvisoryapplication.admin.githubTokens.remove=Fjern
+
+# Administration - configuration and data migration
+securityadvisoryapplication.admin.settings.heading=Konfiguration
+securityadvisoryapplication.admin.migration.heading=Overflytning af data
+securityadvisoryapplication.admin.migration.description=Flyt eksisterende sikkerhedsmeddelelser over til den nye datamodel: De berørte pakker flyttes til særskilte objekter, og CVE-id'et overflyttes. Overflytningen kører som et baggrundsjob og kan uden problemer køres flere gange.
+securityadvisoryapplication.admin.migration.candidates=Sikkerhedsmeddelelser, der stadig bruger den gamle datamodel: {0}
+securityadvisoryapplication.admin.migration.button=Flyt sikkerhedsmeddelelser
+securityadvisoryapplication.admin.migration.finish.success=Sikkerhedsmeddelelserne er flyttet over til den nye datamodel.
+securityadvisoryapplication.admin.migration.finish.error=Der opstod en fejl under overflytningen af nogle sikkerhedsmeddelelser. Se loggen nedenfor for detaljer.
+securityadvisoryapplication.admin.publishDisclosed.heading=Udgiv offentliggjorte sikkerhedsmeddelelser
+securityadvisoryapplication.admin.publishDisclosed.description=Når en sikkerhedsmeddelelse offentliggøres, udgives den i området med offentliggjorte poster, så alle kan se den: Den udgivne side indeholder kun sikkerhedsmeddelelsens oplysninger uden historik, kommentarer eller bilag, og den oprindelige side omdirigerer til den. Sikkerhedsmeddelelser, der blev offentliggjort, før denne ordning fandtes, eller som er importeret fra GitHub som allerede udgivet, skal udgives med knappen nedenfor.
+securityadvisoryapplication.admin.publishDisclosed.notPublic=Området med offentliggjorte poster {0} kan ikke ses af alle brugere: Udgivne sikkerhedsmeddelelser bliver ikke offentlige.
+securityadvisoryapplication.admin.publishDisclosed.none=Alle offentliggjorte sikkerhedsmeddelelser er udgivet.
+securityadvisoryapplication.admin.publishDisclosed.candidates=Offentliggjorte sikkerhedsmeddelelser, der ikke er udgivet endnu: {0}
+securityadvisoryapplication.admin.publishDisclosed.button=Udgiv offentliggjorte sikkerhedsmeddelelser
+securityadvisoryapplication.admin.publishDisclosed.success=Sikkerhedsmeddelelsen {0} er udgivet.
+securityadvisoryapplication.admin.publishDisclosed.error=Sikkerhedsmeddelelsen {0} kunne ikke udgives: {1}
+job.log.label.securityadvisory.datamigration=Log over overflytning
+
+# Sheet Explanations
+securityadvisoryapplication.sheet.nextstep.DRAFT=Du redigerer en kladde til sikkerhedsmeddelelsen. Når den er færdig, kan du markere den som færdig med knappen øverst på siden.
+securityadvisoryapplication.sheet.nextstep.COMPLETED=Nu hvor sikkerhedsmeddelelsen er færdig, bør du annoncere den i de kanaler, som sikkerhedspolitikken angiver. Når den er annonceret, kan du skifte dens status med knappen øverst på siden.
+securityadvisoryapplication.sheet.nextstep.ANNOUNCED=Sikkerhedsmeddelelsen er annonceret. Den bliver automatisk markeret som klar til offentliggørelse, når embargodatoen er nået. Embargodatoen er måske ikke beregnet endnu, hvis de rettede versioner ikke er udgivet endnu. 
+securityadvisoryapplication.sheet.nextstep.DISCLOSABLE=Sikkerhedsmeddelelsen kan nu offentliggøres i henhold til embargodatoen. Du bør anmode om et CVE-nummer og offentliggøre det. Derefter skal du markere den som offentliggjort med knappen øverst på siden.
+securityadvisoryapplication.sheet.nextstep.DISCLOSED=Sikkerhedsmeddelelsen er offentliggjort og er nu offentlig.
+securityadvisoryapplication.sheet.disclose.forbidden=Når sikkerhedsmeddelelsen offentliggøres, udgives den i området med offentliggjorte poster {0}: Du skal have redigeringsrettighed til det område for at offentliggøre den.
+securityadvisoryapplication.sheet.severity=Alvorlighed
+
+# Deprecated keys
+securityadvisoryapplication.dataSpace.title=Data
+</content>
+</xwikidoc>
