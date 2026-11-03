@@ -127,9 +127,9 @@ SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_securityGrou
 ### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_dataSpace.hint=The reference of the space where to store security entries (default: SecurityAdvisoryApplication.SecurityEntries)
 SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_publicDataSpace=Emplacement des items divulgués
 SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_publicDataSpace.hint=La référence de l'espace dans lequel les entrées divulguées sont publiées afin que n'importe qui puisse les voir. Il ne doit pas être situé à l'intérieur de l'espace des entrées de sécurité, qui est restreint (par défaut : SecurityAdvisoryApplication.DisclosedEntries)
-SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_importerUser=Utilisateur d'import
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_importerUser=Compte utilisé pour l'import
 ### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_importerUser.hint=The user used as author for imported entries
-### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_githubToken=Github Token
+SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_githubToken=Token Github
 ### Missing: SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_githubToken.hint=The Github token to use for importing security advisories
 SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_githubRepositoriesSlug=Dépôts Github
 SecurityAdvisoryApplication.Code.SecurityAdvisoryConfigurationClass_githubRepositoriesSlug.hint=La liste des dépôts Github à utiliser dans l'importation automatique. La valeur peut être un slug de dépôt de type orga / repo (par exemple xwiki/xwiki-platform) ou une organisation (par ex. xwiki).
