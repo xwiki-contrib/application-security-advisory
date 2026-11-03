@@ -30,7 +30,10 @@ import org.xwiki.contrib.securityadvisory.test.po.SecurityAdvisoryEditPage;
 import org.xwiki.contrib.securityadvisory.test.po.SecurityAdvisoryHomePage;
 import org.xwiki.contrib.securityadvisory.test.po.SecurityAdvisorySchedulerJobs;
 import org.xwiki.contrib.securityadvisory.test.po.SecurityAdvisoryViewPage;
+import org.xwiki.livedata.test.po.LiveDataElement;
+import org.xwiki.livedata.test.po.TableLayoutElement;
 import org.xwiki.model.reference.DocumentReference;
+import org.xwiki.model.reference.SpaceReference;
 import org.xwiki.rest.model.jaxb.Object;
 import org.xwiki.test.docker.junit5.TestReference;
 import org.xwiki.test.docker.junit5.UITest;
@@ -42,12 +45,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.xwiki.contrib.securityadvisory.SecurityAdvisory.State.ANNOUNCED;
 import static org.xwiki.contrib.securityadvisory.SecurityAdvisory.State.COMPLETED;
 import static org.xwiki.contrib.securityadvisory.SecurityAdvisory.State.DISCLOSABLE;
+import static org.xwiki.contrib.securityadvisory.SecurityAdvisory.State.DISCLOSED;
 import static org.xwiki.contrib.securityadvisory.SecurityAdvisory.State.DRAFT;
 import static org.xwiki.test.ui.TestUtils.RestTestUtils.property;
 
 /**
  * Functional tests of the lifecycle of an advisory: creation, announce, release of its patched versions, computation of
- * its embargo date and switch to disclosable once that date is reached.
+ * its embargo date, switch to disclosable once that date is reached, and disclosure.
  *
  * @version $Id$
  */
@@ -100,6 +104,12 @@ class SecurityAdvisoryIT
 
     private static final LocalDate LAST_RELEASE_DATE = LocalDate.of(2020, 3, 15);
 
+    private static final String ADVISORY_TITLE = "Remote code execution in the test module";
+
+    private static final String RECENT_ADVISORY_TITLE = "Recently patched advisory";
+
+    private static final String TITLE_COLUMN = "Page Title";
+
     /**
      * The advisory created by the first test and followed by the next ones.
      */
@@ -112,10 +122,10 @@ class SecurityAdvisoryIT
         setup.loginAsSuperAdmin();
 
         SecurityAdvisoryEditPage editPage = SecurityAdvisoryHomePage.gotoPage().clickAddAdvisory();
-        editPage.setTitle("Remote code execution in the test module");
+        editPage.setTitle(ADVISORY_TITLE);
         editPage.setComputeEmbargoDate(true);
         SecurityAdvisoryViewPage advisoryPage = editPage.save();
-        assertEquals("Remote code execution in the test module", advisoryPage.getDocumentTitle());
+        assertEquals(ADVISORY_TITLE, advisoryPage.getDocumentTitle());
         assertEquals(DRAFT, advisoryPage.getStatus());
         advisoryReference = advisoryPage.getAdvisoryReference();
 
@@ -171,7 +181,7 @@ class SecurityAdvisoryIT
         LocalDate recentReleaseDate = LocalDate.now();
         DocumentReference recentAdvisoryReference =
             new DocumentReference("RecentAdvisory", testReference.getLastSpaceReference());
-        setup.rest().savePage(recentAdvisoryReference, "", "Recently patched advisory");
+        setup.rest().savePage(recentAdvisoryReference, "", RECENT_ADVISORY_TITLE);
         Object recentAdvisory = setup.rest().object(recentAdvisoryReference, SecurityAdvisoryViewPage.ADVISORY_CLASS);
         recentAdvisory.withProperties(property("status", ANNOUNCED.name()), property("computeEmbargo", 1));
         setup.rest().add(recentAdvisory);
@@ -188,6 +198,30 @@ class SecurityAdvisoryIT
         assertEquals(Optional.of(recentReleaseDate.plusDays(EMBARGO_DAYS)), advisoryPage.getEmbargoDate());
         assertEquals(ANNOUNCED, advisoryPage.getStatus());
         assertFalse(advisoryPage.canMarkDisclosed());
+    }
+
+    @Test
+    @Order(4)
+    void discloseAdvisory()
+    {
+        SecurityAdvisoryViewPage advisoryPage = SecurityAdvisoryViewPage.gotoPage(advisoryReference).markDisclosed();
+        assertEquals(ADVISORY_TITLE, advisoryPage.getDocumentTitle());
+        assertEquals(DISCLOSED, advisoryPage.getStatus());
+        assertEquals(new SpaceReference("xwiki", "SecurityAdvisoryApplication", "DisclosedEntries"),
+            advisoryPage.getAdvisoryReference().getLastSpaceReference());
+
+        // The home page lists only the disclosed advisories by default, and not the recent one, which is announced.
+        LiveDataElement advisories = SecurityAdvisoryHomePage.gotoPage().getAdvisories();
+        TableLayoutElement tableLayout = advisories.getTableLayout();
+        assertEquals(1, tableLayout.countRows());
+        tableLayout.assertRow(TITLE_COLUMN, ADVISORY_TITLE);
+
+        // Without the status filter, the other advisories are listed too, while the page holding the advisory before
+        // its disclosure, which now redirects to the published page, is not.
+        advisories.clearAllFilters();
+        tableLayout.waitUntilRowCountEqualsTo(2);
+        tableLayout.assertRow(TITLE_COLUMN, ADVISORY_TITLE);
+        tableLayout.assertRow(TITLE_COLUMN, RECENT_ADVISORY_TITLE);
     }
 
     private static void addImpactedPackage(TestUtils setup, DocumentReference advisory, String... patchedVersions)

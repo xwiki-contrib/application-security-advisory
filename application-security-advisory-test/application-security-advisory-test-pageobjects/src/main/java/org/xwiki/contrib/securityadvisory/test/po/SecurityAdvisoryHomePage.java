@@ -20,6 +20,7 @@
 package org.xwiki.contrib.securityadvisory.test.po;
 
 import org.openqa.selenium.By;
+import org.xwiki.livedata.test.po.LiveDataElement;
 import org.xwiki.test.ui.po.ViewPage;
 
 /**
@@ -39,6 +40,16 @@ public class SecurityAdvisoryHomePage extends ViewPage
     {
         getUtil().gotoPage("SecurityAdvisoryApplication", "WebHome");
         return new SecurityAdvisoryHomePage();
+    }
+
+    /**
+     * @return the live data listing the advisories, once loaded
+     */
+    public LiveDataElement getAdvisories()
+    {
+        LiveDataElement liveData = new LiveDataElement("securityadvisoryapplication");
+        liveData.waitUntilReady();
+        return liveData;
     }
 
     /**

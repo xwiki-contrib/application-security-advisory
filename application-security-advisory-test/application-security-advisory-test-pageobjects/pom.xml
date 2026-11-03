@@ -41,6 +41,12 @@
       <artifactId>xwiki-platform-test-ui</artifactId>
       <version>${platform.version}</version>
     </dependency>
+    <!-- The advisories are listed in a live data on the home page of the application. -->
+    <dependency>
+      <groupId>org.xwiki.platform</groupId>
+      <artifactId>xwiki-platform-livedata-test-pageobjects</artifactId>
+      <version>${platform.version}</version>
+    </dependency>
     <!-- The computations of the application are run by scheduler jobs, triggered from the Scheduler application. -->
     <dependency>
       <groupId>org.xwiki.platform</groupId>

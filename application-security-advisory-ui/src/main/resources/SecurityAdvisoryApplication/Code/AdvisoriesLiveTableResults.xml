@@ -42,10 +42,11 @@
 ## Same results as XWiki.LiveTableResults, except that the CVE identifier is displayed as a link to its CVE record.
 ## Advisories without CVE identifier keep the default empty value, instead of a link without target.
 ## Once disclosed, an advisory is published on a new page, and the original page holds a redirect to it: the original
-## pages are skipped so that each advisory is listed once.
+## pages are skipped so that each advisory is listed once. The subquery selects a document name since, without
+## programming right, a query can only select some document fields, and no object field.
 #if ($xcontext.action == 'get' and "$!request.outputSyntax" == 'plain')
   #set ($map = {})
-  #set ($skipPublishedOriginals = "and not exists (select redirectObj.id from BaseObject redirectObj where redirectObj.name = doc.fullName and redirectObj.className = 'XWiki.RedirectClass')")
+  #set ($skipPublishedOriginals = "and doc.fullName not in (select redirectDoc.fullName from XWikiDocument redirectDoc, BaseObject redirectObj where redirectObj.name = redirectDoc.fullName and redirectObj.className = 'XWiki.RedirectClass')")
   #gridresultwithfilter_buildJSON("$!request.classname" $request.collist.split(',') '' $skipPublishedOriginals {} $map)
   #foreach ($row in $map.rows)
     #if ("$!row.cveId_value" != '')

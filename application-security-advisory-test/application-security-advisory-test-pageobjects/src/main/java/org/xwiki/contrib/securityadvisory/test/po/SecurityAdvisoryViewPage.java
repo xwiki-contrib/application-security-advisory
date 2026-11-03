@@ -157,6 +157,17 @@ public class SecurityAdvisoryViewPage extends ViewPage
     }
 
     /**
+     * Mark the disclosable advisory as disclosed, which publishes it on a new page of the disclosed entries space.
+     *
+     * @return the view of the published advisory
+     */
+    public SecurityAdvisoryViewPage markDisclosed()
+    {
+        // The sheet opens the published page instead of reloading the current one.
+        return clickStatusButton("btn-disclose");
+    }
+
+    /**
      * Reload the advisory until it gets the given status, for status changed by a background computation, such as
      * the one marking the advisories disclosable.
      *

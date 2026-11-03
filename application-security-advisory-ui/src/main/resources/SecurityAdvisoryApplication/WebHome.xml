@@ -71,7 +71,12 @@
 #set ($patchedVersionsSearchURL = "${patchedVersionsSearchURL}$escapetool.url($impactedPackageClassName)")
 #set ($patchedVersionsSearchURL = "${patchedVersionsSearchURL}/properties/patchedVersions/values?fp={encodedQuery}")
 ## The CVE identifier is displayed as HTML because the results page renders it as a link to its CVE record.
+## Only the disclosed advisories are listed by default, since they are the ones everybody can view: the security team
+## removes the status filter to follow the other advisories.
 #set ($liveDataConfig = {
+  'query': {
+    'filters': [{'property': 'status', 'constraints': [{'operator': 'equals', 'value': 'DISCLOSED'}]}]
+  },
   'meta': {
     'propertyDescriptors': [
       {'id': 'cveId', 'editable': false, 'displayer': 'html'},
