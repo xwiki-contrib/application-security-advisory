@@ -32,6 +32,7 @@ import org.xwiki.security.authorization.Right;
 import org.xwiki.test.junit5.mockito.InjectMockComponents;
 import org.xwiki.test.junit5.mockito.MockComponent;
 import org.xwiki.user.UserReference;
+import org.xwiki.user.UserReferenceResolver;
 import org.xwiki.user.UserReferenceSerializer;
 
 import com.xpn.xwiki.doc.XWikiDocument;
@@ -81,6 +82,10 @@ class ExternalUserMappingStoreTest
     @Named("document")
     private UserReferenceSerializer<DocumentReference> userReferenceSerializer;
 
+    @MockComponent
+    @Named("document")
+    private UserReferenceResolver<DocumentReference> userReferenceResolver;
+
     @InjectMockitoOldcore
     private MockitoOldcore oldcore;
 
@@ -100,9 +105,13 @@ class ExternalUserMappingStoreTest
         when(this.userPropertyConverter.resolve(eq("XWiki.B"), any(EntityReference.class)))
             .thenReturn(Optional.of(this.userB));
 
-        // The pages are saved by the context user, an administrator.
+        // The pages are saved by the context user, an administrator unless a test changes it.
         this.oldcore.getXWikiContext().setUserReference(ADMIN);
-        when(this.userReferenceSerializer.serialize(any())).thenReturn(ADMIN);
+        for (DocumentReference userDocument : List.of(ADMIN, EDITOR)) {
+            UserReference user = mock(UserReference.class);
+            when(this.userReferenceResolver.resolve(userDocument)).thenReturn(user);
+            when(this.userReferenceSerializer.serialize(user)).thenReturn(userDocument);
+        }
         when(this.authorizationManager.hasAccess(eq(Right.ADMIN), eq(ADMIN), any())).thenReturn(true);
     }
 
@@ -131,7 +140,11 @@ class ExternalUserMappingStoreTest
 
         this.store.setMapping(SURLI, this.userA);
         assertEquals(Optional.of(this.userA), this.store.getMappedUser(SURLI));
-        assertTrue(getDocument(SURLI).isHidden());
+        XWikiDocument document = getDocument(SURLI);
+        assertTrue(document.isHidden());
+        // The administrator saving the mapping is its author, which makes the mapping trusted.
+        assertEquals(ADMIN, this.userReferenceSerializer.serialize(document.getAuthors().getEffectiveMetadataAuthor()));
+        assertEquals(ADMIN, this.userReferenceSerializer.serialize(document.getAuthors().getCreator()));
 
         // Mapping the same external user again, after they renamed their account, replaces the existing mapping.
         this.store.setMapping(new ExternalUser("github", SURLI.id(), "surli-renamed"), this.userB);
@@ -151,9 +164,11 @@ class ExternalUserMappingStoreTest
     void mappingNotSavedByAdministratorIsIgnored() throws Exception
     {
         this.store.setMapping(SURLI, this.userA);
+        assertEquals(Optional.of(this.userA), this.store.getMappedUser(SURLI));
 
-        // The page was last saved by a user who is not an administrator, e.g. by editing it directly.
-        when(this.userReferenceSerializer.serialize(any())).thenReturn(EDITOR);
+        // The page is saved again by a user who is not an administrator.
+        this.oldcore.getXWikiContext().setUserReference(EDITOR);
+        this.store.setMapping(SURLI, this.userA);
 
         assertEquals(Optional.empty(), this.store.getMappedUser(SURLI));
     }

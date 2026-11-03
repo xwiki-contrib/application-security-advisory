@@ -29,11 +29,13 @@ import org.xwiki.component.annotation.Component;
 import org.xwiki.contrib.securityadvisory.ExternalUser;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryException;
 import org.xwiki.contrib.securityadvisory.internal.SecurityAdvisoryApplicationClassMandatoryDocumentInitializer;
+import org.xwiki.model.document.DocumentAuthors;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.SpaceReference;
 import org.xwiki.security.authorization.AuthorizationManager;
 import org.xwiki.security.authorization.Right;
 import org.xwiki.user.UserReference;
+import org.xwiki.user.UserReferenceResolver;
 import org.xwiki.user.UserReferenceSerializer;
 
 import com.xpn.xwiki.XWikiContext;
@@ -78,6 +80,10 @@ public class ExternalUserMappingStore
     @Inject
     @Named("document")
     private UserReferenceSerializer<DocumentReference> userReferenceSerializer;
+
+    @Inject
+    @Named("document")
+    private UserReferenceResolver<DocumentReference> userReferenceResolver;
 
     /**
      * @param externalUser an external user
@@ -232,6 +238,15 @@ public class ExternalUserMappingStore
                 externalUser.login());
             update.accept(mappingObject);
             clonedDocument.setHidden(true);
+            // XWiki#saveDocument doesn't set the authors: the current user must be recorded as author, since a
+            // mapping is only trusted when its page was last saved by an administrator.
+            UserReference currentUser = this.userReferenceResolver.resolve(context.getUserReference());
+            DocumentAuthors authors = clonedDocument.getAuthors();
+            authors.setOriginalMetadataAuthor(currentUser);
+            authors.setEffectiveMetadataAuthor(currentUser);
+            if (clonedDocument.isNew()) {
+                authors.setCreator(currentUser);
+            }
             context.getWiki().saveDocument(clonedDocument, comment, true, context);
         } catch (XWikiException e) {
             throw new SecurityAdvisoryException(
