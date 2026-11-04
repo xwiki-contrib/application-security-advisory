@@ -152,6 +152,7 @@ securityadvisoryapplication.admin.githubTokens.remove=Remove
 securityadvisoryapplication.admin.settings.heading=Configuration
 securityadvisoryapplication.admin.migration.heading=Data migration
 securityadvisoryapplication.admin.migration.description=Migrate existing security advisories to the new data model: the impacted packages are moved to dedicated objects and the CVE identifier is migrated. The migration runs as a background job and is safe to run multiple times.
+securityadvisoryapplication.admin.migration.none=All the advisories use the current data model.
 securityadvisoryapplication.admin.migration.candidates=Advisories still using the legacy data model: {0}
 securityadvisoryapplication.admin.migration.button=Migrate advisories
 securityadvisoryapplication.admin.migration.finish.success=The security advisories have been successfully migrated to the new data model.
@@ -169,13 +170,13 @@ securityadvisoryapplication.admin.externalUsers.resolve.button=Assign advisories
 securityadvisoryapplication.admin.externalUsers.resolve.finish.success=The advisories without assignee have been assigned from the current mapping.
 securityadvisoryapplication.admin.externalUsers.resolve.finish.error=An error occurred while assigning some advisories. See the log below for details.
 securityadvisoryapplication.admin.publishDisclosed.heading=Publish disclosed advisories
-securityadvisoryapplication.admin.publishDisclosed.description=When an advisory is disclosed, it is published in the disclosed entries space so that anyone can view it: the published page holds only the advisory information, without its history, comments or attachments, and the original page redirects to it. Advisories disclosed before this mechanism existed, or imported from GitHub as already published, need to be published with the button below.
+securityadvisoryapplication.admin.publishDisclosed.description=When an advisory is disclosed, it is published in the disclosed entries space so that anyone can view it: the published page holds only the advisory information, without its history, comments or attachments, and the original page redirects to it. Advisories disclosed before this mechanism existed, or imported from GitHub as already published, need to be published with the button below. This runs as a background job.
 securityadvisoryapplication.admin.publishDisclosed.notPublic=The disclosed entries space {0} cannot be viewed by all users: published advisories will not be public.
 securityadvisoryapplication.admin.publishDisclosed.none=All the disclosed advisories are published.
 securityadvisoryapplication.admin.publishDisclosed.candidates=Disclosed advisories not published yet: {0}
 securityadvisoryapplication.admin.publishDisclosed.button=Publish disclosed advisories
-securityadvisoryapplication.admin.publishDisclosed.success=The advisory {0} has been published.
-securityadvisoryapplication.admin.publishDisclosed.error=The advisory {0} could not be published: {1}
+securityadvisoryapplication.admin.publishDisclosed.finish.success=The disclosed advisories have been published.
+securityadvisoryapplication.admin.publishDisclosed.finish.error=An error occurred while publishing some disclosed advisories. See the log below for details.
 job.log.label.securityadvisory.datamigration=Migration log
 
 # Sheet Explanations

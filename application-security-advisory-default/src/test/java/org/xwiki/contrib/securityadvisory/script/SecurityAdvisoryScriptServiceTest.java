@@ -19,9 +19,7 @@
  */
 package org.xwiki.contrib.securityadvisory.script;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -30,6 +28,7 @@ import org.xwiki.contrib.securityadvisory.ExternalUser;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoriesManager;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisory;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryException;
+import org.xwiki.contrib.securityadvisory.internal.DisclosedAdvisoriesPublicationJobManager;
 import org.xwiki.contrib.securityadvisory.internal.DisclosedAdvisoryPublisher;
 import org.xwiki.contrib.securityadvisory.internal.assignee.AssigneeResolutionJobManager;
 import org.xwiki.contrib.securityadvisory.internal.assignee.AssigneeResolver;
@@ -100,6 +99,9 @@ class SecurityAdvisoryScriptServiceTest
 
     @MockComponent
     private AssigneeResolutionJobManager jobManager;
+
+    @MockComponent
+    private DisclosedAdvisoriesPublicationJobManager publicationJobManager;
 
     @MockComponent
     private ExternalUserMappingStore externalUserMappingStore;
@@ -183,32 +185,38 @@ class SecurityAdvisoryScriptServiceTest
     }
 
     @Test
-    void publishDisclosedAdvisories() throws Exception
+    void getUnpublishedDisclosedAdvisories() throws Exception
     {
-        when(this.authorization.hasAccess(Right.ADMIN)).thenReturn(true);
         when(this.disclosedAdvisoryPublisher.getUnpublishedDisclosedAdvisories())
             .thenReturn(List.of(ADVISORY_REFERENCE, OTHER_REFERENCE));
-        when(this.disclosedAdvisoryPublisher.publish(OTHER_REFERENCE))
-            .thenThrow(new SecurityAdvisoryException("Publishing failed"));
 
+        // Only administrators can see them.
+        assertEquals(List.of(), this.scriptService.getUnpublishedDisclosedAdvisories());
+
+        when(this.authorization.hasAccess(Right.ADMIN)).thenReturn(true);
         assertEquals(List.of(ADVISORY_REFERENCE, OTHER_REFERENCE),
             this.scriptService.getUnpublishedDisclosedAdvisories());
-        Map<DocumentReference, String> expected = new HashMap<>();
-        expected.put(ADVISORY_REFERENCE, null);
-        expected.put(OTHER_REFERENCE, "Publishing failed");
-        assertEquals(expected, this.scriptService.publishDisclosedAdvisories());
     }
 
     @Test
-    void publishDisclosedAdvisoriesWithoutAdminRight() throws Exception
+    void startDisclosedAdvisoriesPublication() throws Exception
     {
-        when(this.disclosedAdvisoryPublisher.getUnpublishedDisclosedAdvisories())
-            .thenReturn(List.of(ADVISORY_REFERENCE));
+        JobStatus jobStatus = mock(JobStatus.class);
+        when(this.publicationJobManager.startPublication()).thenReturn(jobStatus);
+        when(this.publicationJobManager.getPublicationStatus()).thenReturn(jobStatus);
 
-        assertEquals(List.of(), this.scriptService.getUnpublishedDisclosedAdvisories());
-        assertThrows(SecurityAdvisoryException.class, () -> this.scriptService.publishDisclosedAdvisories());
+        assertSame(jobStatus, this.scriptService.startDisclosedAdvisoriesPublication());
+        assertSame(jobStatus, this.scriptService.getDisclosedAdvisoriesPublicationStatus());
+    }
 
-        verify(this.disclosedAdvisoryPublisher, never()).publish(any());
+    @Test
+    void startDisclosedAdvisoriesPublicationRequiresAdmin() throws Exception
+    {
+        doThrow(AccessDeniedException.class).when(this.authorization).checkAccess(Right.ADMIN, this.wikiReference);
+
+        assertThrows(AccessDeniedException.class, () -> this.scriptService.startDisclosedAdvisoriesPublication());
+
+        verify(this.publicationJobManager, never()).startPublication();
     }
 
     @Test

@@ -21,9 +21,7 @@ package org.xwiki.contrib.securityadvisory.script;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -40,6 +38,7 @@ import org.xwiki.contrib.securityadvisory.SecurityAdvisory;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryConfiguration;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryException;
 import org.xwiki.contrib.securityadvisory.VersionReleasedManager;
+import org.xwiki.contrib.securityadvisory.internal.DisclosedAdvisoriesPublicationJobManager;
 import org.xwiki.contrib.securityadvisory.internal.DisclosedAdvisoryPublisher;
 import org.xwiki.contrib.securityadvisory.internal.SecurityAdvisoryDataMigrator;
 import org.xwiki.contrib.securityadvisory.internal.SecurityAdvisoryMigrationJob;
@@ -116,6 +115,9 @@ public class SecurityAdvisoryScriptService implements ScriptService
 
     @Inject
     private DisclosedAdvisoryPublisher disclosedAdvisoryPublisher;
+
+    @Inject
+    private DisclosedAdvisoriesPublicationJobManager publicationJobManager;
 
     @Inject
     private ContextualAuthorizationManager authorization;
@@ -418,30 +420,29 @@ public class SecurityAdvisoryScriptService implements ScriptService
     }
 
     /**
-     * Publish in the public data space all the advisories returned by {@link #getUnpublishedDisclosedAdvisories()}.
-     * Only wiki administrators can perform this operation. A failure to publish an advisory doesn't stop the
-     * publication of the others.
+     * Start a background job publishing in the public data space all the advisories returned by
+     * {@link #getUnpublishedDisclosedAdvisories()}, with the rights of the current user. A failure to publish an
+     * advisory doesn't stop the publication of the others: it's reported in the job log. If such a job is already
+     * running, its status is returned instead. Only wiki administrators can start it.
      *
-     * @return for each advisory to publish, {@code null} if it has been published, or the reason why it couldn't be
-     * @throws SecurityAdvisoryException if the current user is not a wiki administrator, or in case of problem to
-     *     retrieve the advisories
+     * @return the status of the started job, or of the running one
+     * @throws AccessDeniedException if the current user is not a wiki administrator
+     * @throws JobException in case of problem to start the job
      * @since 2.3.0
      */
-    public Map<DocumentReference, String> publishDisclosedAdvisories() throws SecurityAdvisoryException
+    public JobStatus startDisclosedAdvisoriesPublication() throws AccessDeniedException, JobException
     {
-        if (!this.authorization.hasAccess(Right.ADMIN)) {
-            throw new SecurityAdvisoryException("Only wiki administrators can publish the disclosed advisories.");
-        }
-        Map<DocumentReference, String> results = new LinkedHashMap<>();
-        for (DocumentReference advisoryReference : this.disclosedAdvisoryPublisher
-            .getUnpublishedDisclosedAdvisories()) {
-            try {
-                this.disclosedAdvisoryPublisher.publish(advisoryReference);
-                results.put(advisoryReference, null);
-            } catch (SecurityAdvisoryException e) {
-                results.put(advisoryReference, e.getMessage());
-            }
-        }
-        return results;
+        this.authorization.checkAccess(Right.ADMIN, this.contextProvider.get().getWikiReference());
+        return this.publicationJobManager.startPublication();
+    }
+
+    /**
+     * @return the status of the currently running or last executed publication of the disclosed advisories, or
+     *     {@code null} if it has never been run
+     * @since 2.3.0
+     */
+    public JobStatus getDisclosedAdvisoriesPublicationStatus()
+    {
+        return this.publicationJobManager.getPublicationStatus();
     }
 }

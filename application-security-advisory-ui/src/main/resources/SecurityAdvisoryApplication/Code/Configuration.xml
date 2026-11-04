@@ -474,24 +474,40 @@
 #set($migrationStatus = $services.securityadvisory.getDataMigrationStatus())
 #set($jobState = "$!migrationStatus.state")
 #set($candidateCount = $services.securityadvisory.getDataMigrationCandidateCount())
+## The job status display only refreshes itself (through job.js) when it's given the URL to poll the job status from.
+#macro(securityAdvisoryJobStatusURL $jobStatus $translationPrefix)
+$doc.getURL('get', $escapetool.url({
+  'xpage': 'job_status_json',
+  'outputSyntax': 'plain',
+  'jobId': $jobStatus.request.id,
+  'translationPrefix': $translationPrefix
+}))##
+#end
+## The skin displays the summary of the collapsible sections as a block, hiding its disclosure marker: the summary is
+## displayed as a list item to get the marker back, showing that it can be clicked.
+## The section is expanded only when there's something to migrate, or to follow a running migration: otherwise it's
+## collapsed, and can still be expanded to run the migration again or to consult the log of the last one. A null count
+## means the candidates couldn't be counted: the section is then expanded so that the administrator can notice it.
+#set($migrationActive = $jobState == 'RUNNING' || $jobState == 'WAITING')
 (% class="securityadvisory-migration" %)(((
 (% id="h-securityadvisory-migration" %)
 == {{translation key="securityadvisoryapplication.admin.migration.heading"/}} ==
 
-(%%){{translation key="securityadvisoryapplication.admin.migration.description"/}}
-
-{{info}}{{translation key="securityadvisoryapplication.admin.migration.candidates", parameters="$!candidateCount"/}}{{/info}}
-
 {{html clean="false"}}
-&lt;form action="$escapetool.xml($xwiki.relativeRequestURL)" method="post" class="xform"&gt;
-  &lt;input type="hidden" name="form_token" value="$!{services.csrf.getToken()}"/&gt;
-  &lt;input type="hidden" name="securityAdvisoryMigrate" value="1"/&gt;
-  &lt;p&gt;&lt;span class="buttonwrapper"&gt;&lt;button type="submit" class="btn btn-primary"#if($jobState == 'RUNNING' || $jobState == 'WAITING') disabled="disabled"#end&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.admin.migration.button'))&lt;/button&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;/form&gt;
+&lt;details class="securityadvisory-admin-details"#if("$!candidateCount" != '0' || $migrationActive) open="open"#end&gt;
+  &lt;summary style="display: list-item; cursor: pointer;"&gt;#if("$!candidateCount" == '0')$escapetool.xml($services.localization.render('securityadvisoryapplication.admin.migration.none'))#else$escapetool.xml($services.localization.render('securityadvisoryapplication.admin.migration.candidates', ["$!candidateCount"]))#end&lt;/summary&gt;
+  &lt;p&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.admin.migration.description'))&lt;/p&gt;
+  &lt;form action="$escapetool.xml($xwiki.relativeRequestURL)" method="post" class="xform"&gt;
+    &lt;input type="hidden" name="form_token" value="$!{services.csrf.getToken()}"/&gt;
+    &lt;input type="hidden" name="securityAdvisoryMigrate" value="1"/&gt;
+    &lt;p&gt;&lt;span class="buttonwrapper"&gt;&lt;button type="submit" class="btn btn-primary"#if($migrationActive) disabled="disabled"#end&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.admin.migration.button'))&lt;/button&gt;&lt;/span&gt;&lt;/p&gt;
+  &lt;/form&gt;
 #if("$!migrationStatus" != '')
 #template("job_macros.vm")
-#displayJobStatus($migrationStatus 'securityadvisoryapplication.admin.migration' '' true)
+#set($migrationStatusURL = "#securityAdvisoryJobStatusURL($migrationStatus 'securityadvisoryapplication.admin.migration')")
+#displayJobStatus($migrationStatus 'securityadvisoryapplication.admin.migration' $migrationStatusURL true)
 #end
+&lt;/details&gt;
 {{/html}}
 )))
 
@@ -545,52 +561,49 @@
 &lt;/form&gt;
 #if("$!resolutionStatus" != '')
 #template("job_macros.vm")
-#displayJobStatus($resolutionStatus 'securityadvisoryapplication.admin.externalUsers.resolve' '' true)
+#set($resolutionStatusURL = "#securityAdvisoryJobStatusURL($resolutionStatus 'securityadvisoryapplication.admin.externalUsers.resolve')")
+#displayJobStatus($resolutionStatus 'securityadvisoryapplication.admin.externalUsers.resolve' $resolutionStatusURL true)
 #end
 {{/html}}
 )))
 
 ----
 
-#set($publishAdvisoriesResults = $NULL)
 #if("$!request.get('securityAdvisoryPublishDisclosed')" == '1' &amp;&amp; $request.method == 'POST' &amp;&amp; $services.csrf.isTokenValid($request.get('form_token')))
-  #set($publishAdvisoriesResults = $services.securityadvisory.publishDisclosedAdvisories())
+  #set($discard = $services.securityadvisory.startDisclosedAdvisoriesPublication())
 #end
+#set($publicationStatus = $services.securityadvisory.getDisclosedAdvisoriesPublicationStatus())
+#set($publicationState = "$!publicationStatus.state")
 #set($unpublishedAdvisories = $services.securityadvisory.getUnpublishedDisclosedAdvisories())
+## The section is expanded only when there are advisories to publish, or to follow a running publication: otherwise
+## it's collapsed, and can still be expanded to consult the log of the last publication.
+#set($publicationActive = $publicationState == 'RUNNING' || $publicationState == 'WAITING')
+#set($publicDataSpace = $services.securityadvisory.getPublicDataSpace())
 (% class="securityadvisory-publish-disclosed" %)(((
 (% id="h-securityadvisory-publish-disclosed" %)
 == {{translation key="securityadvisoryapplication.admin.publishDisclosed.heading"/}} ==
 
-(%%){{translation key="securityadvisoryapplication.admin.publishDisclosed.description"/}}
-
-#set($publicDataSpace = $services.securityadvisory.getPublicDataSpace())
-#if(!$services.security.authorization.hasAccess('view', 'XWiki.XWikiAllGroup', $publicDataSpace))
-{{warning}}$services.rendering.escape($services.localization.render('securityadvisoryapplication.admin.publishDisclosed.notPublic', [$services.model.serialize($publicDataSpace, 'local')]), 'xwiki/2.1'){{/warning}}
-#end
-
-#if($publishAdvisoriesResults)
-#foreach($publishResult in $publishAdvisoriesResults.entrySet())
-#set($advisoryLabel = $services.model.serialize($publishResult.key, 'local'))
-#if("$!publishResult.value" == '')
-{{success}}$services.rendering.escape($services.localization.render('securityadvisoryapplication.admin.publishDisclosed.success', [$advisoryLabel]), 'xwiki/2.1'){{/success}}
-#else
-{{error}}$services.rendering.escape($services.localization.render('securityadvisoryapplication.admin.publishDisclosed.error', [$advisoryLabel, $publishResult.value]), 'xwiki/2.1'){{/error}}
-#end
-#end
-#end
-#if($unpublishedAdvisories.isEmpty())
-{{info}}{{translation key="securityadvisoryapplication.admin.publishDisclosed.none"/}}{{/info}}
-#else
-{{info}}{{translation key="securityadvisoryapplication.admin.publishDisclosed.candidates" parameters="$unpublishedAdvisories.size()"/}}{{/info}}
-
 {{html clean="false"}}
-&lt;form action="$escapetool.xml($xwiki.relativeRequestURL)" method="post" class="xform"&gt;
-  &lt;input type="hidden" name="form_token" value="$!{services.csrf.getToken()}"/&gt;
-  &lt;input type="hidden" name="securityAdvisoryPublishDisclosed" value="1"/&gt;
-  &lt;p&gt;&lt;span class="buttonwrapper"&gt;&lt;button type="submit" class="btn btn-primary"&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.admin.publishDisclosed.button'))&lt;/button&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;/form&gt;
-{{/html}}
+&lt;details class="securityadvisory-admin-details"#if(!$unpublishedAdvisories.isEmpty() || $publicationActive) open="open"#end&gt;
+  &lt;summary style="display: list-item; cursor: pointer;"&gt;#if($unpublishedAdvisories.isEmpty())$escapetool.xml($services.localization.render('securityadvisoryapplication.admin.publishDisclosed.none'))#else$escapetool.xml($services.localization.render('securityadvisoryapplication.admin.publishDisclosed.candidates', [$unpublishedAdvisories.size()]))#end&lt;/summary&gt;
+  &lt;p&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.admin.publishDisclosed.description'))&lt;/p&gt;
+#if(!$services.security.authorization.hasAccess('view', 'XWiki.XWikiAllGroup', $publicDataSpace))
+  &lt;div class="box warningmessage"&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.admin.publishDisclosed.notPublic', [$services.model.serialize($publicDataSpace, 'local')]))&lt;/div&gt;
 #end
+#if(!$unpublishedAdvisories.isEmpty())
+  &lt;form action="$escapetool.xml($xwiki.relativeRequestURL)" method="post" class="xform"&gt;
+    &lt;input type="hidden" name="form_token" value="$!{services.csrf.getToken()}"/&gt;
+    &lt;input type="hidden" name="securityAdvisoryPublishDisclosed" value="1"/&gt;
+    &lt;p&gt;&lt;span class="buttonwrapper"&gt;&lt;button type="submit" class="btn btn-primary"#if($publicationActive) disabled="disabled"#end&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.admin.publishDisclosed.button'))&lt;/button&gt;&lt;/span&gt;&lt;/p&gt;
+  &lt;/form&gt;
+#end
+#if("$!publicationStatus" != '')
+#template("job_macros.vm")
+#set($publicationStatusURL = "#securityAdvisoryJobStatusURL($publicationStatus 'securityadvisoryapplication.admin.publishDisclosed')")
+#displayJobStatus($publicationStatus 'securityadvisoryapplication.admin.publishDisclosed' $publicationStatusURL true)
+#end
+&lt;/details&gt;
+{{/html}}
 )))
 
 ----
