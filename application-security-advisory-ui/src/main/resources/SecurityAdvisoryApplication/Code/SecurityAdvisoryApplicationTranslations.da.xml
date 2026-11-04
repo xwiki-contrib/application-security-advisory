@@ -150,6 +150,7 @@ securityadvisoryapplication.admin.githubTokens.remove=Fjern
 securityadvisoryapplication.admin.settings.heading=Konfiguration
 securityadvisoryapplication.admin.migration.heading=Overflytning af data
 securityadvisoryapplication.admin.migration.description=Flyt eksisterende sikkerhedsmeddelelser over til den nye datamodel: De berørte pakker flyttes til særskilte objekter, og CVE-id'et overflyttes. Overflytningen kører som et baggrundsjob og kan uden problemer køres flere gange.
+### Missing: securityadvisoryapplication.admin.migration.none=All the advisories use the current data model.
 securityadvisoryapplication.admin.migration.candidates=Sikkerhedsmeddelelser, der stadig bruger den gamle datamodel: {0}
 securityadvisoryapplication.admin.migration.button=Flyt sikkerhedsmeddelelser
 securityadvisoryapplication.admin.migration.finish.success=Sikkerhedsmeddelelserne er flyttet over til den nye datamodel.
@@ -172,8 +173,8 @@ securityadvisoryapplication.admin.publishDisclosed.notPublic=Området med offent
 securityadvisoryapplication.admin.publishDisclosed.none=Alle offentliggjorte sikkerhedsmeddelelser er udgivet.
 securityadvisoryapplication.admin.publishDisclosed.candidates=Offentliggjorte sikkerhedsmeddelelser, der ikke er udgivet endnu: {0}
 securityadvisoryapplication.admin.publishDisclosed.button=Udgiv offentliggjorte sikkerhedsmeddelelser
-securityadvisoryapplication.admin.publishDisclosed.success=Sikkerhedsmeddelelsen {0} er udgivet.
-securityadvisoryapplication.admin.publishDisclosed.error=Sikkerhedsmeddelelsen {0} kunne ikke udgives: {1}
+### Missing: securityadvisoryapplication.admin.publishDisclosed.finish.success=The disclosed advisories have been published.
+### Missing: securityadvisoryapplication.admin.publishDisclosed.finish.error=An error occurred while publishing some disclosed advisories. See the log below for details.
 job.log.label.securityadvisory.datamigration=Log over overflytning
 
 # Sheet Explanations
