@@ -150,6 +150,7 @@ securityadvisoryapplication.admin.githubTokens.remove=Entfernen
 ### Missing: securityadvisoryapplication.admin.settings.heading=Configuration
 ### Missing: securityadvisoryapplication.admin.migration.heading=Data migration
 securityadvisoryapplication.admin.migration.description=Migration bestehender Sicherheitshinweise in das neue Datenmodell: Die betroffenen Pakete werden in eigene Objekte verschoben und die CVE-Kennung wird migriert. Die Migration läuft als Hintergrundauftrag und kann problemlos mehrmals ausgeführt werden.
+### Missing: securityadvisoryapplication.admin.migration.none=All the advisories use the current data model.
 securityadvisoryapplication.admin.migration.candidates=Hinweise, die noch das alte Datenmodell verwenden: {0}
 securityadvisoryapplication.admin.migration.button=Hinweise zur Migration
 securityadvisoryapplication.admin.migration.finish.success=Die Sicherheitshinweise wurden erfolgreich auf das neue Datenmodell migriert.
@@ -172,8 +173,8 @@ securityadvisoryapplication.admin.publishDisclosed.notPublic=Der Bereich für of
 securityadvisoryapplication.admin.publishDisclosed.none=Alle offengelegten Warnungen sind veröffentlicht.
 securityadvisoryapplication.admin.publishDisclosed.candidates=Offengelegte Warnungen, die noch nicht veröffentlicht wurden: {0}
 securityadvisoryapplication.admin.publishDisclosed.button=Offengelegte Warnungen veröffentlichen
-securityadvisoryapplication.admin.publishDisclosed.success=Die Warnung {0} wurde veröffentlicht.
-securityadvisoryapplication.admin.publishDisclosed.error=Die Warnung {0} konnte nicht veröffentlicht werden: {1}
+### Missing: securityadvisoryapplication.admin.publishDisclosed.finish.success=The disclosed advisories have been published.
+### Missing: securityadvisoryapplication.admin.publishDisclosed.finish.error=An error occurred while publishing some disclosed advisories. See the log below for details.
 ### Missing: job.log.label.securityadvisory.datamigration=Migration log
 
 # Sheet Explanations
