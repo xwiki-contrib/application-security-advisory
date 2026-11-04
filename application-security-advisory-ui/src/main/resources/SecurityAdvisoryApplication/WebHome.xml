@@ -73,12 +73,22 @@
 ## The CVE identifier is displayed as HTML because the results page renders it as a link to its CVE record.
 ## Only the disclosed advisories are listed by default, since they are the ones everybody can view: the security team
 ## removes the status filter to follow the other advisories.
+## The status filter is given all the status values as options: the list filter only displays its initial value (here
+## the default status filter) when that value is among its options, otherwise the filter looks empty and can't be
+## removed. The labels are the ones of the class property, as displayed in the table. See XWIKI-25647: The list filter
+## doesn't display a filter value set by the live data configuration when its options come only from a search URL.
+#set ($statusFilterOptions = [])
+#set ($advisoryClass = $xwiki.getClass('SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass'))
+#foreach ($statusEntry in $advisoryClass.get('status').getMapValues().entrySet())
+  #set ($discard = $statusFilterOptions.add({'value': $statusEntry.key, 'label': $statusEntry.value.value}))
+#end
 #set ($liveDataConfig = {
   'query': {
     'filters': [{'property': 'status', 'constraints': [{'operator': 'equals', 'value': 'DISCLOSED'}]}]
   },
   'meta': {
     'propertyDescriptors': [
+      {'id': 'status', 'filter': {'options': $statusFilterOptions}},
       {'id': 'cveId', 'editable': false, 'displayer': 'html'},
       {
         'id': 'patchedVersions',

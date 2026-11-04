@@ -21,6 +21,8 @@ package org.xwiki.contrib.securityadvisory.test.po;
 
 import org.openqa.selenium.By;
 import org.xwiki.livedata.test.po.LiveDataElement;
+import org.xwiki.livedata.test.po.TableLayoutElement;
+import org.xwiki.test.ui.po.SuggestInputElement;
 import org.xwiki.test.ui.po.ViewPage;
 
 /**
@@ -50,6 +52,18 @@ public class SecurityAdvisoryHomePage extends ViewPage
         LiveDataElement liveData = new LiveDataElement("securityadvisoryapplication");
         liveData.waitUntilReady();
         return liveData;
+    }
+
+    /**
+     * Remove the filter of a column of the advisories, the way a user does it: by removing the selected value of the
+     * column filter, which needs to be a list filter. The advisories are then fetched again, without that filter.
+     *
+     * @param columnLabel the label of the column to stop filtering
+     */
+    public void removeAdvisoriesColumnFilter(String columnLabel)
+    {
+        TableLayoutElement tableLayout = getAdvisories().getTableLayout();
+        new SuggestInputElement(tableLayout.getFilter(columnLabel)).clearSelectedSuggestions();
     }
 
     /**

@@ -21,6 +21,7 @@ package org.xwiki.contrib.securityadvisory.test.ui;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -30,7 +31,6 @@ import org.xwiki.contrib.securityadvisory.test.po.SecurityAdvisoryEditPage;
 import org.xwiki.contrib.securityadvisory.test.po.SecurityAdvisoryHomePage;
 import org.xwiki.contrib.securityadvisory.test.po.SecurityAdvisorySchedulerJobs;
 import org.xwiki.contrib.securityadvisory.test.po.SecurityAdvisoryViewPage;
-import org.xwiki.livedata.test.po.LiveDataElement;
 import org.xwiki.livedata.test.po.TableLayoutElement;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.SpaceReference;
@@ -109,6 +109,8 @@ class SecurityAdvisoryIT
     private static final String RECENT_ADVISORY_TITLE = "Recently patched advisory";
 
     private static final String TITLE_COLUMN = "Page Title";
+
+    private static final String STATUS_COLUMN = "status";
 
     /**
      * The advisory created by the first test and followed by the next ones.
@@ -210,16 +212,19 @@ class SecurityAdvisoryIT
         assertEquals(new SpaceReference("xwiki", "SecurityAdvisoryApplication", "DisclosedEntries"),
             advisoryPage.getAdvisoryReference().getLastSpaceReference());
 
-        // The home page lists only the disclosed advisories by default, and not the recent one, which is announced.
-        LiveDataElement advisories = SecurityAdvisoryHomePage.gotoPage().getAdvisories();
-        TableLayoutElement tableLayout = advisories.getTableLayout();
+        // The home page lists only the disclosed advisories by default, and not the recent one, which is announced. The
+        // default status filter is displayed in the status column, so that it can be removed from there.
+        SecurityAdvisoryHomePage homePage = SecurityAdvisoryHomePage.gotoPage();
+        TableLayoutElement tableLayout = homePage.getAdvisories().getTableLayout();
         assertEquals(1, tableLayout.countRows());
         tableLayout.assertRow(TITLE_COLUMN, ADVISORY_TITLE);
+        assertEquals(List.of("disclosed"), tableLayout.getFilterValues(STATUS_COLUMN));
 
         // Without the status filter, the other advisories are listed too, while the page holding the advisory before
         // its disclosure, which now redirects to the published page, is not.
-        advisories.clearAllFilters();
+        homePage.removeAdvisoriesColumnFilter(STATUS_COLUMN);
         tableLayout.waitUntilRowCountEqualsTo(2);
+        assertEquals(List.of(), tableLayout.getFilterValues(STATUS_COLUMN));
         tableLayout.assertRow(TITLE_COLUMN, ADVISORY_TITLE);
         tableLayout.assertRow(TITLE_COLUMN, RECENT_ADVISORY_TITLE);
     }
