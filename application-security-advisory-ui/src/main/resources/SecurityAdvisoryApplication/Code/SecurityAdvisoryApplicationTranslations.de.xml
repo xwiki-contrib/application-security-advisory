@@ -165,7 +165,7 @@ securityadvisoryapplication.externalUsers.livetable.emptyvalue=-
 securityadvisoryapplication.admin.externalUsers.resolve.description=Weise alle Warnungen ohne Beauftragte aus der aktuellen Zuordnung ihrer GitHub-Benutzer zu. Das läuft als Hintergrundauftrag.
 securityadvisoryapplication.admin.externalUsers.resolve.button=Warnungen zuweisen
 securityadvisoryapplication.admin.externalUsers.resolve.finish.success=Die Warnungen ohne Beauftragten wurden anhand der aktuellen Zuordnung zugewiesen.
-### Missing: securityadvisoryapplication.admin.externalUsers.resolve.finish.error=An error occurred while assigning some advisories. See the log below for details.
+securityadvisoryapplication.admin.externalUsers.resolve.finish.error=Beim Zuweisen einiger Warnungen ist ein Fehler aufgetreten. Details findest du im folgenden Protokoll.
 securityadvisoryapplication.admin.publishDisclosed.heading=Offengelegte Warnungen veröffentlichen
 securityadvisoryapplication.admin.publishDisclosed.description=Wenn eine Warnung offengelegt wird, erscheint er im Bereich „Veröffentlichte Einträge“, sodass ihn jeder einsehen kann: Die veröffentlichte Seite enthält nur die Informationen zur Warnung, ohne deren Verlauf, Kommentare oder Anhänge, und die ursprüngliche Seite leitet dorthin weiter. Warnungen, die veröffentlicht wurden, bevor es diesen Mechanismus gab, oder die bereits als veröffentlicht von GitHub importiert wurden, müssen über die Schaltfläche unten veröffentlicht werden.
 securityadvisoryapplication.admin.publishDisclosed.notPublic=Der Bereich für offengelegte Einträge {0} ist nicht für alle Nutzer sichtbar: Veröffentlichte Hinweise sind nicht allgemein zugänglich.
@@ -184,11 +184,11 @@ securityadvisoryapplication.sheet.nextstep.DISCLOSABLE=Dieser Hinweis kann nun g
 securityadvisoryapplication.sheet.nextstep.DISCLOSED=Dieser Hinweis wurde veröffentlicht und ist nun allgemein zugänglich.
 securityadvisoryapplication.sheet.disclose.forbidden=Um Warnungen offenzulegen werden sie im Bereich der offengelegten Einträge {0} veröffentlicht: du benötigst dort Bearbeitungsrechte.
 securityadvisoryapplication.sheet.severity=Schweregrad
-### Missing: securityadvisoryapplication.sheet.unmappedUsers.description=This advisory has no assignee because none of the GitHub users involved in it is mapped to an XWiki user.
-### Missing: securityadvisoryapplication.sheet.unmappedUsers.link=Link to this user
-### Missing: securityadvisoryapplication.sheet.unmappedUsers.ignore=Ignore
-### Missing: securityadvisoryapplication.sheet.unmappedUsers.ignore.hint=Ignore this GitHub user: it will no longer be proposed for mapping on any advisory, e.g. because it is an external reporter without an XWiki account. This can be undone from the Security Advisory administration.
-### Missing: securityadvisoryapplication.sheet.unmappedUsers.askAdmin=Ask an administrator to link one of these GitHub users to an XWiki user, or set the assignee by hand.
+securityadvisoryapplication.sheet.unmappedUsers.description=Diese Warnung hat keinen Beauftragten, da keiner der daran beteiligten GitHub-Nutzer einem XWiki-Nutzer zugeordnet ist.
+securityadvisoryapplication.sheet.unmappedUsers.link=Diesen Benutzer verknüpfen
+securityadvisoryapplication.sheet.unmappedUsers.ignore=Ignorieren
+securityadvisoryapplication.sheet.unmappedUsers.ignore.hint=Ignoriere diesen GitHub-Nutzer: Er wird dann bei keiner Warnung mehr zur Zuordnung vorgeschlagen, z. B. weil es sich um einen externen Melder ohne XWiki-Konto handelt. Dies kannst du in der Verwaltung der Warnungen rückgängig machen.
+securityadvisoryapplication.sheet.unmappedUsers.askAdmin=Bitte einen Administrator, einen dieser GitHub-Benutzer mit einem XWiki-Benutzer zu verknüpfen, oder lege den Beauftragten manuell fest.
 
 # Deprecated keys
 securityadvisoryapplication.dataSpace.title=Daten
