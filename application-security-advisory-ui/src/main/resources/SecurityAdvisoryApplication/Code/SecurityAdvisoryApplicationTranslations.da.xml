@@ -150,7 +150,7 @@ securityadvisoryapplication.admin.githubTokens.remove=Fjern
 securityadvisoryapplication.admin.settings.heading=Konfiguration
 securityadvisoryapplication.admin.migration.heading=Overflytning af data
 securityadvisoryapplication.admin.migration.description=Flyt eksisterende sikkerhedsmeddelelser over til den nye datamodel: De berørte pakker flyttes til særskilte objekter, og CVE-id'et overflyttes. Overflytningen kører som et baggrundsjob og kan uden problemer køres flere gange.
-### Missing: securityadvisoryapplication.admin.migration.none=All the advisories use the current data model.
+securityadvisoryapplication.admin.migration.none=Alle sikkerhedsmeddelelser bruger den aktuelle datamodel.
 securityadvisoryapplication.admin.migration.candidates=Sikkerhedsmeddelelser, der stadig bruger den gamle datamodel: {0}
 securityadvisoryapplication.admin.migration.button=Flyt sikkerhedsmeddelelser
 securityadvisoryapplication.admin.migration.finish.success=Sikkerhedsmeddelelserne er flyttet over til den nye datamodel.
@@ -168,13 +168,13 @@ securityadvisoryapplication.admin.externalUsers.resolve.button=Tildel sikkerheds
 securityadvisoryapplication.admin.externalUsers.resolve.finish.success=Sikkerhedsmeddelelserne uden ansvarlig er tildelt ud fra den aktuelle tilknytning.
 securityadvisoryapplication.admin.externalUsers.resolve.finish.error=Der opstod en fejl under tildelingen af nogle sikkerhedsmeddelelser. Se loggen nedenfor for detaljer.
 securityadvisoryapplication.admin.publishDisclosed.heading=Udgiv offentliggjorte sikkerhedsmeddelelser
-securityadvisoryapplication.admin.publishDisclosed.description=Når en sikkerhedsmeddelelse offentliggøres, udgives den i området med offentliggjorte poster, så alle kan se den: Den udgivne side indeholder kun sikkerhedsmeddelelsens oplysninger uden historik, kommentarer eller bilag, og den oprindelige side omdirigerer til den. Sikkerhedsmeddelelser, der blev offentliggjort, før denne ordning fandtes, eller som er importeret fra GitHub som allerede udgivet, skal udgives med knappen nedenfor.
+securityadvisoryapplication.admin.publishDisclosed.description=Når en sikkerhedsmeddelelse offentliggøres, udgives den i området med offentliggjorte poster, så alle kan se den: Den udgivne side indeholder kun sikkerhedsmeddelelsens oplysninger uden historik, kommentarer eller bilag, og den oprindelige side omdirigerer til den. Sikkerhedsmeddelelser, der blev offentliggjort, før denne ordning fandtes, eller som er importeret fra GitHub som allerede udgivet, skal udgives med knappen nedenfor. Det kører som et baggrundsjob.
 securityadvisoryapplication.admin.publishDisclosed.notPublic=Området med offentliggjorte poster {0} kan ikke ses af alle brugere: Udgivne sikkerhedsmeddelelser bliver ikke offentlige.
 securityadvisoryapplication.admin.publishDisclosed.none=Alle offentliggjorte sikkerhedsmeddelelser er udgivet.
 securityadvisoryapplication.admin.publishDisclosed.candidates=Offentliggjorte sikkerhedsmeddelelser, der ikke er udgivet endnu: {0}
 securityadvisoryapplication.admin.publishDisclosed.button=Udgiv offentliggjorte sikkerhedsmeddelelser
-### Missing: securityadvisoryapplication.admin.publishDisclosed.finish.success=The disclosed advisories have been published.
-### Missing: securityadvisoryapplication.admin.publishDisclosed.finish.error=An error occurred while publishing some disclosed advisories. See the log below for details.
+securityadvisoryapplication.admin.publishDisclosed.finish.success=De offentliggjorte sikkerhedsmeddelelser er udgivet.
+securityadvisoryapplication.admin.publishDisclosed.finish.error=Der opstod en fejl under udgivelsen af nogle offentliggjorte sikkerhedsmeddelelser. Se loggen nedenfor for detaljer.
 job.log.label.securityadvisory.datamigration=Log over overflytning
 
 # Sheet Explanations

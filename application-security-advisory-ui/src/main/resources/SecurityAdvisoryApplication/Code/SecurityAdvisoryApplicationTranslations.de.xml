@@ -150,7 +150,7 @@ securityadvisoryapplication.admin.githubTokens.remove=Entfernen
 ### Missing: securityadvisoryapplication.admin.settings.heading=Configuration
 ### Missing: securityadvisoryapplication.admin.migration.heading=Data migration
 securityadvisoryapplication.admin.migration.description=Migration bestehender Sicherheitshinweise in das neue Datenmodell: Die betroffenen Pakete werden in eigene Objekte verschoben und die CVE-Kennung wird migriert. Die Migration läuft als Hintergrundauftrag und kann problemlos mehrmals ausgeführt werden.
-### Missing: securityadvisoryapplication.admin.migration.none=All the advisories use the current data model.
+securityadvisoryapplication.admin.migration.none=Alle Warnungen basieren auf dem aktuellen Datenmodell.
 securityadvisoryapplication.admin.migration.candidates=Hinweise, die noch das alte Datenmodell verwenden: {0}
 securityadvisoryapplication.admin.migration.button=Hinweise zur Migration
 securityadvisoryapplication.admin.migration.finish.success=Die Sicherheitshinweise wurden erfolgreich auf das neue Datenmodell migriert.
@@ -168,13 +168,13 @@ securityadvisoryapplication.admin.externalUsers.resolve.button=Warnungen zuweise
 securityadvisoryapplication.admin.externalUsers.resolve.finish.success=Die Warnungen ohne Beauftragten wurden anhand der aktuellen Zuordnung zugewiesen.
 securityadvisoryapplication.admin.externalUsers.resolve.finish.error=Beim Zuweisen einiger Warnungen ist ein Fehler aufgetreten. Details findest du im folgenden Protokoll.
 securityadvisoryapplication.admin.publishDisclosed.heading=Offengelegte Warnungen veröffentlichen
-securityadvisoryapplication.admin.publishDisclosed.description=Wenn eine Warnung offengelegt wird, erscheint er im Bereich „Veröffentlichte Einträge“, sodass ihn jeder einsehen kann: Die veröffentlichte Seite enthält nur die Informationen zur Warnung, ohne deren Verlauf, Kommentare oder Anhänge, und die ursprüngliche Seite leitet dorthin weiter. Warnungen, die veröffentlicht wurden, bevor es diesen Mechanismus gab, oder die bereits als veröffentlicht von GitHub importiert wurden, müssen über die Schaltfläche unten veröffentlicht werden.
+securityadvisoryapplication.admin.publishDisclosed.description=Wenn eine Warnung offengelegt wird, erscheint er im Bereich „Veröffentlichte Einträge“, sodass ihn jeder einsehen kann: Die veröffentlichte Seite enthält nur die Informationen zur Warnung, ohne deren Verlauf, Kommentare oder Anhänge, und die ursprüngliche Seite leitet dorthin weiter. Warnungen, die veröffentlicht wurden, bevor es diesen Mechanismus gab, oder die bereits als veröffentlicht von GitHub importiert wurden, müssen über die Schaltfläche unten veröffentlicht werden. Dies läuft als Hintergrundjob.
 securityadvisoryapplication.admin.publishDisclosed.notPublic=Der Bereich für offengelegte Einträge {0} ist nicht für alle Nutzer sichtbar: Veröffentlichte Hinweise sind nicht allgemein zugänglich.
 securityadvisoryapplication.admin.publishDisclosed.none=Alle offengelegten Warnungen sind veröffentlicht.
 securityadvisoryapplication.admin.publishDisclosed.candidates=Offengelegte Warnungen, die noch nicht veröffentlicht wurden: {0}
 securityadvisoryapplication.admin.publishDisclosed.button=Offengelegte Warnungen veröffentlichen
-### Missing: securityadvisoryapplication.admin.publishDisclosed.finish.success=The disclosed advisories have been published.
-### Missing: securityadvisoryapplication.admin.publishDisclosed.finish.error=An error occurred while publishing some disclosed advisories. See the log below for details.
+securityadvisoryapplication.admin.publishDisclosed.finish.success=Die offengelegten Warnungen wurden veröffentlicht.
+securityadvisoryapplication.admin.publishDisclosed.finish.error=Beim Veröffentlichen einiger offengelegter Warnungen ist ein Fehler aufgetreten. Details findest du im folgenden Protokoll.
 ### Missing: job.log.label.securityadvisory.datamigration=Migration log
 
 # Sheet Explanations
