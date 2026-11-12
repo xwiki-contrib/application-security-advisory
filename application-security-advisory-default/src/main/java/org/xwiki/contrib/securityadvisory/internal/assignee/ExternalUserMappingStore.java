@@ -42,6 +42,7 @@ import com.xpn.xwiki.XWikiContext;
 import com.xpn.xwiki.XWikiException;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
+import com.xpn.xwiki.objects.BaseProperty;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -113,6 +114,16 @@ public class ExternalUserMappingStore
             document.getXObject(ExternalUserMappingClassMandatoryDocumentInitializer.CLASS_REFERENCE));
     }
 
+    /**
+     * The {@code archived} value of external user pages registered before it was initialized is missing: such an
+     * external user is not archived, but a Live Data filter on {@code archived=0} doesn't match it.
+     */
+    private static boolean hasArchivedValue(BaseObject mappingObject)
+    {
+        return mappingObject.safeget(ExternalUserMappingClassMandatoryDocumentInitializer.ARCHIVED)
+            instanceof BaseProperty<?> property && property.getValue() != null;
+    }
+
     private boolean isAuthoredByAdministrator(XWikiDocument document)
     {
         DocumentReference author =
@@ -172,8 +183,9 @@ public class ExternalUserMappingStore
 
     /**
      * Make sure a page exists for the given external user, so that administrators can find it and map it. The login
-     * of an external user who is not mapped yet is updated if it changed; the page of a mapped user is left untouched,
-     * so that the mapping stays authored by the administrator who saved it.
+     * of an external user who is not mapped yet is updated if it changed, and its missing {@code archived} value is
+     * initialized; the page of a mapped user is left untouched, so that the mapping stays authored by the
+     * administrator who saved it.
      *
      * @param externalUser the external user to register
      * @throws SecurityAdvisoryException in case of problem to save the external user page
@@ -186,8 +198,41 @@ public class ExternalUserMappingStore
             object.getLargeStringValue(ExternalUserMappingClassMandatoryDocumentInitializer.USER))).orElse(false);
         boolean loginChanged = mappingObject.map(object -> !Objects.equals(externalUser.login(),
             object.getStringValue(ExternalUserMappingClassMandatoryDocumentInitializer.LOGIN))).orElse(true);
-        if (!isMapped && loginChanged) {
+        boolean archivedMissing = mappingObject.map(object -> !hasArchivedValue(object)).orElse(true);
+        if (!isMapped && (loginChanged || archivedMissing)) {
             save(externalUser, document, object -> { }, "Register external user");
+        }
+    }
+
+    /**
+     * Initialize to {@code 0} the {@code archived} value of the given external user page if it has none, so that the
+     * external user is listed among the external users that are not archived. The authors of the page are kept, so
+     * that an existing mapping stays authored by the administrator who saved it.
+     *
+     * @param reference the reference of an external user page
+     * @return {@code true} if the page has been updated, {@code false} if it already had an {@code archived} value or
+     *     doesn't hold an external user
+     * @throws SecurityAdvisoryException in case of problem to read or save the external user page
+     */
+    public boolean initializeArchived(DocumentReference reference) throws SecurityAdvisoryException
+    {
+        XWikiContext context = this.contextProvider.get();
+        try {
+            XWikiDocument document = context.getWiki().getDocument(reference, context);
+            Optional<BaseObject> mappingObject = getObject(document);
+            if (mappingObject.isEmpty() || hasArchivedValue(mappingObject.get())) {
+                return false;
+            }
+            XWikiDocument clonedDocument = document.clone();
+            getObject(clonedDocument).orElseThrow()
+                .setIntValue(ExternalUserMappingClassMandatoryDocumentInitializer.ARCHIVED, 0);
+            // XWiki#saveDocument doesn't change the authors of the page.
+            context.getWiki().saveDocument(clonedDocument, "Initialize the archived value of the external user",
+                true, context);
+            return true;
+        } catch (XWikiException e) {
+            throw new SecurityAdvisoryException(
+                String.format("Cannot initialize the archived value of the external user page [%s]", reference), e);
         }
     }
 
@@ -236,6 +281,9 @@ public class ExternalUserMappingStore
                 externalUser.id());
             mappingObject.setStringValue(ExternalUserMappingClassMandatoryDocumentInitializer.LOGIN,
                 externalUser.login());
+            if (!hasArchivedValue(mappingObject)) {
+                mappingObject.setIntValue(ExternalUserMappingClassMandatoryDocumentInitializer.ARCHIVED, 0);
+            }
             update.accept(mappingObject);
             clonedDocument.setHidden(true);
             // XWiki#saveDocument doesn't set the authors: the current user must be recorded as author, since a

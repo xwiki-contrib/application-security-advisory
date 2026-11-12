@@ -28,3 +28,4 @@ org.xwiki.contrib.securityadvisory.internal.assignee.ExternalUserMappingListener
 org.xwiki.contrib.securityadvisory.internal.assignee.ExternalUsersRightsInitializer
 org.xwiki.contrib.securityadvisory.internal.assignee.AssigneeResolutionJobManager
 org.xwiki.contrib.securityadvisory.internal.DisclosedAdvisoryPublisher
+org.xwiki.contrib.securityadvisory.internal.assignee.ExternalUserArchivedUpgradeListener

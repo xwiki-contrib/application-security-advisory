@@ -37,6 +37,7 @@ import org.xwiki.user.UserReferenceSerializer;
 
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
+import com.xpn.xwiki.objects.BaseProperty;
 import com.xpn.xwiki.test.MockitoOldcore;
 import com.xpn.xwiki.test.junit5.mockito.InjectMockitoOldcore;
 import com.xpn.xwiki.test.junit5.mockito.OldcoreTest;
@@ -46,6 +47,7 @@ import jakarta.inject.Named;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -124,6 +126,25 @@ class ExternalUserMappingStoreTest
     private BaseObject getObject(ExternalUser externalUser) throws Exception
     {
         return getDocument(externalUser).getXObject(ExternalUserMappingClassMandatoryDocumentInitializer.CLASS_REFERENCE);
+    }
+
+    private Object getArchivedValue(ExternalUser externalUser) throws Exception
+    {
+        BaseProperty<?> archived = (BaseProperty<?>) getObject(externalUser)
+            .safeget(ExternalUserMappingClassMandatoryDocumentInitializer.ARCHIVED);
+        return archived == null ? null : archived.getValue();
+    }
+
+    /**
+     * Remove the archived value of the external user page, as it was when registered by version 2.3.0.
+     */
+    private void removeArchivedValue(ExternalUser externalUser) throws Exception
+    {
+        XWikiDocument document = getDocument(externalUser).clone();
+        document.getXObject(ExternalUserMappingClassMandatoryDocumentInitializer.CLASS_REFERENCE)
+            .removeField(ExternalUserMappingClassMandatoryDocumentInitializer.ARCHIVED);
+        this.oldcore.getSpyXWiki().saveDocument(document, this.oldcore.getXWikiContext());
+        assertNull(getArchivedValue(externalUser));
     }
 
     @Test
@@ -225,6 +246,8 @@ class ExternalUserMappingStoreTest
         BaseObject mappingObject = getObject(SURLI);
         assertEquals("surli", mappingObject.getStringValue(ExternalUserMappingClassMandatoryDocumentInitializer.LOGIN));
         assertEquals("", mappingObject.getLargeStringValue(ExternalUserMappingClassMandatoryDocumentInitializer.USER));
+        // The archived value is initialized, so that the user is listed among the users that are not archived.
+        assertEquals(0, getArchivedValue(SURLI));
         assertTrue(getDocument(SURLI).isHidden());
 
         // The login of a user who is not mapped yet is updated when they rename their account.
@@ -238,5 +261,39 @@ class ExternalUserMappingStoreTest
         this.store.register(new ExternalUser("github", SURLI.id(), "surli-renamed-again"));
         assertEquals(version, getDocument(SURLI).getVersion());
         assertEquals(Optional.of(this.userA), this.store.getMappedUser(SURLI));
+    }
+
+    @Test
+    void registerInitializesMissingArchivedValue() throws Exception
+    {
+        this.store.register(OANAT);
+        removeArchivedValue(OANAT);
+
+        // Registering the user again, even with the same login, initializes the missing archived value.
+        this.store.register(OANAT);
+        assertEquals(0, getArchivedValue(OANAT));
+    }
+
+    @Test
+    void initializeArchived() throws Exception
+    {
+        this.store.setMapping(SURLI, this.userA);
+        removeArchivedValue(SURLI);
+
+        // The page is initialized by a user who is not an administrator, e.g. the user upgrading the application.
+        this.oldcore.getXWikiContext().setUserReference(EDITOR);
+        DocumentReference reference = this.store.getReference(SURLI);
+        assertTrue(this.store.initializeArchived(reference));
+        assertEquals(0, getArchivedValue(SURLI));
+        assertFalse(this.store.isArchived(SURLI));
+        // The authors are kept, so the mapping is still trusted.
+        assertEquals(Optional.of(this.userA), this.store.getMappedUser(SURLI));
+
+        // Nothing to do once the value is initialized, nor for a page not holding an external user.
+        String version = getDocument(SURLI).getVersion();
+        assertFalse(this.store.initializeArchived(reference));
+        assertEquals(version, getDocument(SURLI).getVersion());
+        assertFalse(this.store.initializeArchived(this.store.getReference(OANAT)));
+        assertTrue(getDocument(OANAT).isNew());
     }
 }
