@@ -196,6 +196,26 @@ class DefaultSecurityAdvisoriesManagerTest
     }
 
     @Test
+    void writeAdvisoryKeepsExistingComputeEmbargoDate() throws Exception
+    {
+        this.manager.writeAdvisory(importedAdvisory().setComputeEmbargoDate(true));
+        BaseObject advisoryObject = getAdvisoryObject();
+        assertEquals(1, advisoryObject.getIntValue(
+            SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_COMPUTE_EMBARGO_DATE));
+
+        // The embargo date is set by hand, which disables its computation, then the advisory is imported again: the
+        // import must not enable the computation back, or the embargo date set by hand would be overwritten.
+        XWikiDocument document = advisoryObject.getOwnerDocument();
+        advisoryObject.setIntValue(
+            SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_COMPUTE_EMBARGO_DATE, 0);
+        this.oldcore.getSpyXWiki().saveDocument(document, this.oldcore.getXWikiContext());
+
+        this.manager.writeAdvisory(importedAdvisory().setComputeEmbargoDate(true));
+
+        assertFalse(this.manager.loadAdvisory(ADVISORY_REFERENCE).orElseThrow().isComputeEmbargoDate());
+    }
+
+    @Test
     void writeAdvisoryExternalUsersKeepsOtherData() throws Exception
     {
         // An advisory imported before the external users existed, then changed in the wiki and protected from being

@@ -411,8 +411,9 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
             BaseObject object = document.getXObject(
                 SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.CLASS_REFERENCE);
             boolean preventOverride = false;
+            boolean newObject = object == null;
 
-            if (object == null) {
+            if (newObject) {
                 object = document.newXObject(
                     SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.CLASS_REFERENCE,
                     context);
@@ -437,7 +438,7 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
                 authors.setCreator(securityAdvisory.getAuthor());
             }
             document.setContent(securityAdvisory.getContent());
-            setObjectValues(securityAdvisory, object);
+            setObjectValues(securityAdvisory, object, newObject);
 
             writeVulnerablePackages(document, securityAdvisory.getVulnerablePackages());
             writeExternalUsersAndAssignee(document, object, securityAdvisory);
@@ -584,7 +585,16 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
         }
     }
 
-    private static void setObjectValues(SecurityAdvisory securityAdvisory, BaseObject object)
+    /**
+     * Set the advisory values in the given object. The embargo date computation flag is only set in a new object:
+     * the flag is switched off when the embargo date is set by hand, and an import must not switch it back on or
+     * the embargo date set by hand would be overwritten by the computed one.
+     *
+     * @param securityAdvisory the advisory to write
+     * @param object the object holding the advisory
+     * @param newObject {@code true} if the object has just been created
+     */
+    private static void setObjectValues(SecurityAdvisory securityAdvisory, BaseObject object, boolean newObject)
     {
         object.setStringValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_ADVISORY_LINK,
             securityAdvisory.getAdvisoryLink());
@@ -596,8 +606,10 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
             securityAdvisory.getProduct());
         object.setStringValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_CVE_ID,
             securityAdvisory.getCveId());
-        object.setIntValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_COMPUTE_EMBARGO_DATE,
-            securityAdvisory.isComputeEmbargoDate() ? 1 : 0);
+        if (newObject) {
+            object.setIntValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_COMPUTE_EMBARGO_DATE,
+                securityAdvisory.isComputeEmbargoDate() ? 1 : 0);
+        }
         object.setIntValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.PREVENT_OVERRIDE, 0);
 
         if (StringUtils.isBlank(object.getStringValue(
