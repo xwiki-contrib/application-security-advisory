@@ -384,6 +384,15 @@ public class SecurityAdvisoryScriptService implements ScriptService
     }
 
     /**
+     * @return the space where the advisories are stored until their disclosure
+     * @since 2.3.1
+     */
+    public SpaceReference getSecurityDataSpace()
+    {
+        return this.configuration.getSecurityDataSpace();
+    }
+
+    /**
      * @return the space where disclosed advisories are published
      * @since 2.3.0
      */

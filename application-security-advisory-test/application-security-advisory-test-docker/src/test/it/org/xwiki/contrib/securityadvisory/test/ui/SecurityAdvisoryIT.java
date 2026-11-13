@@ -38,6 +38,7 @@ import org.xwiki.rest.model.jaxb.Object;
 import org.xwiki.test.docker.junit5.TestReference;
 import org.xwiki.test.docker.junit5.UITest;
 import org.xwiki.test.ui.TestUtils;
+import org.xwiki.test.ui.po.ViewPage;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -227,6 +228,21 @@ class SecurityAdvisoryIT
         assertEquals(List.of(), tableLayout.getFilterValues(STATUS_COLUMN));
         tableLayout.assertRow(TITLE_COLUMN, ADVISORY_TITLE);
         tableLayout.assertRow(TITLE_COLUMN, RECENT_ADVISORY_TITLE);
+    }
+
+    @Test
+    @Order(5)
+    void warnAboutSecurityEntriesOpenToAllUsers()
+    {
+        // No right restricts the access to the advisories on the test instance, so the home page warns about it, with a
+        // link to the rights editor of their space.
+        SecurityAdvisoryHomePage homePage = SecurityAdvisoryHomePage.gotoPage();
+        assertTrue(homePage.hasSecurityEntriesAccessWarning());
+
+        homePage.clickSecurityEntriesAccessWarningLink().getRightsTable();
+        ViewPage rightsPage = new ViewPage();
+        assertEquals("admin", rightsPage.getMetaDataValue("action"));
+        assertEquals("SecurityAdvisoryApplication.SecurityEntries", rightsPage.getMetaDataValue("space"));
     }
 
     private static void addImpactedPackage(TestUtils setup, DocumentReference advisory, String... patchedVersions)

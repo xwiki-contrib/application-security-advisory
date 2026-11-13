@@ -24,6 +24,7 @@ import org.xwiki.livedata.test.po.LiveDataElement;
 import org.xwiki.livedata.test.po.TableLayoutElement;
 import org.xwiki.test.ui.po.SuggestInputElement;
 import org.xwiki.test.ui.po.ViewPage;
+import org.xwiki.test.ui.po.editor.RightsEditPage;
 
 /**
  * Represents the home page of the Security Advisory Application, listing the advisories.
@@ -33,6 +34,8 @@ import org.xwiki.test.ui.po.ViewPage;
  */
 public class SecurityAdvisoryHomePage extends ViewPage
 {
+    private static final By SECURITY_ENTRIES_ACCESS_WARNING_LINK = By.cssSelector("#xwikicontent .warningmessage a");
+
     /**
      * Go to the home page of the application.
      *
@@ -78,5 +81,26 @@ public class SecurityAdvisoryHomePage extends ViewPage
         // The click goes through a page generating the name of the new advisory, which redirects to its edit form.
         getDriver().waitUntilPageIsReloaded();
         return new SecurityAdvisoryEditPage();
+    }
+
+    /**
+     * @return {@code true} if the page warns that the space holding the advisories is open to all users
+     */
+    public boolean hasSecurityEntriesAccessWarning()
+    {
+        return getDriver().hasElementWithoutWaiting(SECURITY_ENTRIES_ACCESS_WARNING_LINK);
+    }
+
+    /**
+     * Click on the link of the warning about the space holding the advisories being open to all users.
+     *
+     * @return the rights editor of the space holding the advisories, where its access can be restricted
+     */
+    public RightsEditPage clickSecurityEntriesAccessWarningLink()
+    {
+        getDriver().addPageNotYetReloadedMarker();
+        getDriver().findElement(SECURITY_ENTRIES_ACCESS_WARNING_LINK).click();
+        getDriver().waitUntilPageIsReloaded();
+        return new RightsEditPage();
     }
 }
