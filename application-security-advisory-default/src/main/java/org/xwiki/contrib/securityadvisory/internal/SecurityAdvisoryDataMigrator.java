@@ -36,7 +36,6 @@ import org.xwiki.component.annotation.Component;
 import org.xwiki.contrib.securityadvisory.AdvisoryImporter;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoriesManager;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisory;
-import org.xwiki.contrib.securityadvisory.SecurityAdvisoryConfiguration;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryException;
 import org.xwiki.contrib.securityadvisory.VersionReleasedManager;
 import org.xwiki.contrib.securityadvisory.internal.assignee.ExternalUserClassMandatoryDocumentInitializer;
@@ -67,8 +66,9 @@ import com.xpn.xwiki.objects.BaseObject;
  * The external users of an advisory (the users of the external system it was imported from, used to resolve its
  * assignee) are only written when the advisory is imported. The advisories imported before they existed, and not
  * updated in the external system since, are thus missing them: this component imports them again from the advisory
- * link, without changing any other data of the advisory. The advisories published in the public data space are left
- * untouched, since they only hold the public information of the advisory.
+ * link, without changing any other data of the advisory. Once an advisory is published in the public data space, the
+ * published page is the one holding its external users, as for an import: the original page, which only redirects to
+ * it, is left untouched.
  * <p>
  * The migration is idempotent: a document that has already been migrated is left untouched.
  *
@@ -150,7 +150,7 @@ public class SecurityAdvisoryDataMigrator
     private SecurityAdvisoriesManager advisoriesManager;
 
     @Inject
-    private SecurityAdvisoryConfiguration configuration;
+    private DisclosedAdvisoryPublisher disclosedAdvisoryPublisher;
 
     // The importer is provided by another module: it's only looked up when an advisory needs its external users.
     @Inject
@@ -187,7 +187,7 @@ public class SecurityAdvisoryDataMigrator
                     .execute();
             for (Object[] row : missingExternalUsers) {
                 DocumentReference reference = this.documentReferenceResolver.resolve(String.valueOf(row[0]));
-                if (StringUtils.isNotBlank((String) row[1]) && !isPublication(reference)) {
+                if (StringUtils.isNotBlank((String) row[1]) && !isPublishedOriginal(reference)) {
                     result.add(reference);
                 }
             }
@@ -207,9 +207,15 @@ public class SecurityAdvisoryDataMigrator
         return getDocumentsToMigrate().size();
     }
 
-    private boolean isPublication(DocumentReference reference)
+    private boolean isPublishedOriginal(DocumentReference reference) throws SecurityAdvisoryException
     {
-        return Objects.equals(reference.getLastSpaceReference(), this.configuration.getPublicDataSpace());
+        XWikiContext context = this.contextProvider.get();
+        try {
+            return this.disclosedAdvisoryPublisher.isPublishedOriginal(
+                context.getWiki().getDocument(reference, context));
+        } catch (XWikiException e) {
+            throw new SecurityAdvisoryException(String.format("Error while loading the advisory [%s]", reference), e);
+        }
     }
 
     /**
@@ -253,7 +259,7 @@ public class SecurityAdvisoryDataMigrator
         return StringUtils.isNotBlank(getAdvisoryLink(document))
             && document.getXObjects(ExternalUserClassMandatoryDocumentInitializer.CLASS_REFERENCE).stream()
                 .noneMatch(Objects::nonNull)
-            && !isPublication(document.getDocumentReference());
+            && !this.disclosedAdvisoryPublisher.isPublishedOriginal(document);
     }
 
     private boolean importExternalUsers(DocumentReference documentReference, String advisoryLink)

@@ -20,18 +20,18 @@
 package org.xwiki.contrib.securityadvisory.internal;
 
 import java.util.List;
+import java.util.stream.Stream;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.xwiki.contrib.securityadvisory.AdvisoryImporter;
 import org.xwiki.contrib.securityadvisory.ExternalUser;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoriesManager;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisory;
-import org.xwiki.contrib.securityadvisory.SecurityAdvisoryConfiguration;
 import org.xwiki.contrib.securityadvisory.internal.assignee.ExternalUserClassMandatoryDocumentInitializer;
 import org.xwiki.model.reference.DocumentReference;
-import org.xwiki.model.reference.SpaceReference;
 import org.xwiki.query.Query;
 import org.xwiki.query.QueryManager;
 import org.xwiki.test.LogLevel;
@@ -72,6 +72,8 @@ class SecurityAdvisoryDataMigratorTest
 {
     private static final List<String> ENTRIES_SPACE = List.of("SecurityAdvisoryApplication", "SecurityEntries");
 
+    private static final List<String> PUBLIC_SPACE = List.of("SecurityAdvisoryApplication", "DisclosedEntries");
+
     private static final String ADVISORY_LINK =
         "https://github.com/xwiki/xwiki-platform/security/advisories/GHSA-8469-jx93-r677";
 
@@ -93,17 +95,10 @@ class SecurityAdvisoryDataMigratorTest
     private SecurityAdvisoriesManager advisoriesManager;
 
     @MockComponent
-    private SecurityAdvisoryConfiguration configuration;
+    private DisclosedAdvisoryPublisher disclosedAdvisoryPublisher;
 
     @RegisterExtension
     private LogCaptureExtension logCapture = new LogCaptureExtension(LogLevel.INFO);
-
-    @BeforeEach
-    void setUp()
-    {
-        when(this.configuration.getPublicDataSpace()).thenReturn(
-            new SpaceReference("xwiki", List.of("SecurityAdvisoryApplication", "DisclosedEntries")));
-    }
 
     private XWikiDocument createImportedAdvisory(DocumentReference reference, List<ExternalUser> externalUsers)
         throws Exception
@@ -232,10 +227,13 @@ class SecurityAdvisoryDataMigratorTest
         assertSingleMigrationLog(document.getDocumentReference());
     }
 
-    @Test
-    void migrateImportsMissingExternalUsers() throws Exception
+    @ParameterizedTest
+    @MethodSource("advisorySpaces")
+    void migrateImportsMissingExternalUsers(List<String> space) throws Exception
     {
-        DocumentReference reference = new DocumentReference("xwiki", ENTRIES_SPACE, "GHSA-8469-jx93-r677");
+        // Once published, the advisory held in the public data space is the one getting the external users, as for an
+        // import.
+        DocumentReference reference = new DocumentReference("xwiki", space, "GHSA-8469-jx93-r677");
         XWikiDocument document = createImportedAdvisory(reference, List.of());
         SecurityAdvisory importedAdvisory = new SecurityAdvisory(reference).setTitle("Title on GitHub")
             .setExternalUsers(EXTERNAL_USERS);
@@ -256,18 +254,30 @@ class SecurityAdvisoryDataMigratorTest
             this.logCapture.getMessage(0));
     }
 
+    static Stream<List<String>> advisorySpaces()
+    {
+        return Stream.of(ENTRIES_SPACE, PUBLIC_SPACE);
+    }
+
+    private void mockPublishedOriginal(DocumentReference reference)
+    {
+        when(this.disclosedAdvisoryPublisher.isPublishedOriginal(
+            argThat(document -> document != null && reference.equals(document.getDocumentReference()))))
+            .thenReturn(true);
+    }
+
     @Test
     void migrateSkipsAdvisoriesNotMissingExternalUsers() throws Exception
     {
         DocumentReference withExternalUsers = new DocumentReference("xwiki", ENTRIES_SPACE, "GHSA-with-users");
         createImportedAdvisory(withExternalUsers, EXTERNAL_USERS);
-        // A published advisory only holds the public information of the advisory.
-        DocumentReference publication = new DocumentReference("xwiki",
-            List.of("SecurityAdvisoryApplication", "DisclosedEntries"), "GHSA-published");
-        createImportedAdvisory(publication, List.of());
+        // The original of a published advisory only redirects to the published one.
+        DocumentReference publishedOriginal = new DocumentReference("xwiki", ENTRIES_SPACE, "GHSA-published");
+        createImportedAdvisory(publishedOriginal, List.of());
+        mockPublishedOriginal(publishedOriginal);
 
         assertFalse(this.migrator.migrate(withExternalUsers));
-        assertFalse(this.migrator.migrate(publication));
+        assertFalse(this.migrator.migrate(publishedOriginal));
 
         verify(this.advisoryImporter, never()).importAdvisory(anyString());
         verify(this.advisoriesManager, never()).writeAdvisoryExternalUsers(any());
@@ -291,7 +301,9 @@ class SecurityAdvisoryDataMigratorTest
             new Object[] {"SecurityAdvisoryApplication.SecurityEntries.Advisory6", ADVISORY_LINK},
             // Without advisory link, so there's nothing to import the external users from.
             new Object[] {"SecurityAdvisoryApplication.SecurityEntries.Advisory7", " "},
-            new Object[] {"SecurityAdvisoryApplication.DisclosedEntries.Advisory8", ADVISORY_LINK}));
+            new Object[] {"SecurityAdvisoryApplication.DisclosedEntries.Advisory8", ADVISORY_LINK},
+            new Object[] {"SecurityAdvisoryApplication.SecurityEntries.Advisory9", ADVISORY_LINK}));
+        mockPublishedOriginal(new DocumentReference("xwiki", ENTRIES_SPACE, "Advisory9"));
     }
 
     @Test
@@ -301,7 +313,8 @@ class SecurityAdvisoryDataMigratorTest
 
         assertEquals(List.of(new DocumentReference("xwiki", ENTRIES_SPACE, "Advisory4"),
             new DocumentReference("xwiki", ENTRIES_SPACE, "Advisory5"),
-            new DocumentReference("xwiki", ENTRIES_SPACE, "Advisory6")), this.migrator.getDocumentsToMigrate());
+            new DocumentReference("xwiki", ENTRIES_SPACE, "Advisory6"),
+            new DocumentReference("xwiki", PUBLIC_SPACE, "Advisory8")), this.migrator.getDocumentsToMigrate());
     }
 
     @Test
@@ -309,6 +322,6 @@ class SecurityAdvisoryDataMigratorTest
     {
         mockDocumentsToMigrateQueries();
 
-        assertEquals(3L, this.migrator.countDocumentsToMigrate());
+        assertEquals(4L, this.migrator.countDocumentsToMigrate());
     }
 }
