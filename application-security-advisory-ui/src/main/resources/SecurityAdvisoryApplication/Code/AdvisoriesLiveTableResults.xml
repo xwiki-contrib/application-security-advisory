@@ -44,15 +44,81 @@
 ## Once disclosed, an advisory is published on a new page, and the original page holds a redirect to it: the original
 ## pages are skipped so that each advisory is listed once. The subquery selects a document name since, without
 ## programming right, a query can only select some document fields, and no object field.
+## An advisory can impact several packages, each described by its own impacted package object, while the live table
+## macros display the values of the first object of a class only. So, for each advisory:
+## * the "packageId" cell lists all its impacted packages, each with a line for its affected version ranges and a line
+##   for its patched versions, displayed as badges colored after their meaning;
+## * the "patchedVersions" cell lists the patched versions of all its impacted packages, each version once.
 #if ($xcontext.action == 'get' and "$!request.outputSyntax" == 'plain')
   #set ($map = {})
   #set ($skipPublishedOriginals = "and doc.fullName not in (select redirectDoc.fullName from XWikiDocument redirectDoc, BaseObject redirectObj where redirectObj.name = redirectDoc.fullName and redirectObj.className = 'XWiki.RedirectClass')")
   #gridresultwithfilter_buildJSON("$!request.classname" $request.collist.split(',') '' $skipPublishedOriginals {} $map)
+  #set ($impactedPackageClassName = 'SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass')
+  #macro (advisories_badge $type $value)&lt;span class="label $type"&gt;$escapetool.xml($value)&lt;/span&gt;#end
+  #set ($emptyValueKey = 'securityadvisoryapplication.livetable.emptyvalue')
+  #set ($emptyValue = $escapetool.xml($services.localization.render($emptyValueKey)))
+  #set ($versionsLines = [
+    {
+      'property': 'vulnerableVersionRange',
+      'cssClass': 'impacted-package-affected',
+      'badgeClass': 'label-danger',
+      'label': $services.localization.render('securityadvisoryapplication.livetable.impactedPackage.affected')
+    },
+    {
+      'property': 'patchedVersions',
+      'cssClass': 'impacted-package-patched',
+      'badgeClass': 'label-success',
+      'label': $services.localization.render('securityadvisoryapplication.livetable.impactedPackage.patched')
+    }
+  ])
   #foreach ($row in $map.rows)
     #if ("$!row.cveId_value" != '')
       #set ($cveURL = "https://www.cve.org/CVERecord?id=$escapetool.url($row.cveId_value)")
       #set ($cveLink = "&lt;a href=""$escapetool.xml($cveURL)""&gt;$escapetool.xml($row.cveId_value)&lt;/a&gt;")
       #set ($discard = $row.put('cveId', $cveLink))
+    #end
+    #if ($row.doc_viewable)
+      #set ($impactedPackageItems = '')
+      #set ($allPatchedVersions = [])
+      #foreach ($impactedPackage in $xwiki.getDocument($row.doc_fullName).getObjects($impactedPackageClassName))
+        #set ($packageId = "$!impactedPackage.getValue('packageId')")
+        #if ($packageId == '')
+          #set ($packageIdHTML = $emptyValue)
+        #else
+          #set ($packageIdHTML = $escapetool.xml($packageId))
+        #end
+        #set ($impactedPackageItem = "&lt;span class=""impacted-package-id""&gt;$packageIdHTML&lt;/span&gt;")
+        #foreach ($versionsLine in $versionsLines)
+          #set ($versions = $impactedPackage.getValue($versionsLine.property))
+          #set ($badges = '')
+          #foreach ($version in $versions)
+            #set ($badges = "$badges #advisories_badge($versionsLine.badgeClass $version)")
+          #end
+          #if ($badges == '')
+            #set ($badges = " $emptyValue")
+          #end
+          #set ($line = "&lt;strong&gt;$escapetool.xml($versionsLine.label)&lt;/strong&gt;$badges")
+          #set ($line = "&lt;div class=""$versionsLine.cssClass""&gt;$line&lt;/div&gt;")
+          #set ($impactedPackageItem = "$impactedPackageItem$line")
+        #end
+        #set ($impactedPackageItem = "&lt;li class=""impacted-package""&gt;$impactedPackageItem&lt;/li&gt;")
+        #set ($impactedPackageItems = "$impactedPackageItems$impactedPackageItem")
+        #foreach ($version in $impactedPackage.getValue('patchedVersions'))
+          #if (!$allPatchedVersions.contains($version))
+            #set ($discard = $allPatchedVersions.add($version))
+          #end
+        #end
+      #end
+      #if ($impactedPackageItems != '')
+        #set ($discard = $row.put('packageId', "&lt;ul&gt;$impactedPackageItems&lt;/ul&gt;"))
+      #end
+      #if (!$allPatchedVersions.isEmpty())
+        #set ($patchedBadges = [])
+        #foreach ($version in $allPatchedVersions)
+          #set ($discard = $patchedBadges.add("#advisories_badge('label-success' $version)"))
+        #end
+        #set ($discard = $row.put('patchedVersions', $stringtool.join($patchedBadges, ' ')))
+      #end
     #end
   #end
   #jsonResponse($map)

@@ -24,11 +24,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.xwiki.contrib.securityadvisory.test.po.SecurityAdvisoryEditPage;
 import org.xwiki.contrib.securityadvisory.test.po.SecurityAdvisoryHomePage;
+import org.xwiki.contrib.securityadvisory.test.po.SecurityAdvisoryHomePage.ImpactedPackage;
 import org.xwiki.contrib.securityadvisory.test.po.SecurityAdvisorySchedulerJobs;
 import org.xwiki.contrib.securityadvisory.test.po.SecurityAdvisoryViewPage;
 import org.xwiki.livedata.test.po.TableLayoutElement;
@@ -94,6 +96,15 @@ class SecurityAdvisoryIT
 
     private static final String PACKAGE_ID = "org.xwiki.platform:xwiki-platform-security-advisory-test";
 
+    /**
+     * A second package impacted by the advisory, patched in the last patched version only.
+     */
+    private static final String SECOND_PACKAGE_ID = "org.xwiki.platform:xwiki-platform-security-advisory-other-test";
+
+    private static final List<String> AFFECTED_RANGES = List.of("[1.0,42.1.1)", "[42.2.0-rc-1,42.2.0)");
+
+    private static final List<String> SECOND_PACKAGE_AFFECTED_RANGES = List.of("[1.0,42.2.0)");
+
     private static final String FIRST_PATCHED_VERSION = "42.1.1";
 
     private static final String LAST_PATCHED_VERSION = "42.2.0";
@@ -133,7 +144,10 @@ class SecurityAdvisoryIT
         advisoryReference = advisoryPage.getAdvisoryReference();
 
         // No UI allows to add the impacted packages: they are imported along with the advisory from GitHub.
-        addImpactedPackage(setup, advisoryReference, FIRST_PATCHED_VERSION, LAST_PATCHED_VERSION);
+        addImpactedPackage(setup, advisoryReference, PACKAGE_ID, AFFECTED_RANGES, FIRST_PATCHED_VERSION,
+            LAST_PATCHED_VERSION);
+        addImpactedPackage(setup, advisoryReference, SECOND_PACKAGE_ID, SECOND_PACKAGE_AFFECTED_RANGES,
+            LAST_PATCHED_VERSION);
 
         advisoryPage = SecurityAdvisoryViewPage.gotoPage(advisoryReference);
         assertEquals(Map.of(FIRST_PATCHED_VERSION, false, LAST_PATCHED_VERSION, false),
@@ -188,7 +202,7 @@ class SecurityAdvisoryIT
         Object recentAdvisory = setup.rest().object(recentAdvisoryReference, SecurityAdvisoryViewPage.ADVISORY_CLASS);
         recentAdvisory.withProperties(property("status", ANNOUNCED.name()), property("computeEmbargo", 1));
         setup.rest().add(recentAdvisory);
-        addImpactedPackage(setup, recentAdvisoryReference, recentPatchedVersion);
+        addImpactedPackage(setup, recentAdvisoryReference, PACKAGE_ID, List.of(), recentPatchedVersion);
         release(setup, createReleaseNote(setup, testReference, recentPatchedVersion), recentReleaseDate);
 
         new SecurityAdvisorySchedulerJobs().triggerDisclosableComputation();
@@ -220,6 +234,13 @@ class SecurityAdvisoryIT
         assertEquals(1, tableLayout.countRows());
         tableLayout.assertRow(TITLE_COLUMN, ADVISORY_TITLE);
         assertEquals(List.of("disclosed"), tableLayout.getFilterValues(STATUS_COLUMN));
+        // The row of the advisory lists all its impacted packages, each with its affected version ranges and its
+        // patched versions, and the patched versions of all its packages, each version once.
+        assertEquals(List.of(
+            new ImpactedPackage(PACKAGE_ID, AFFECTED_RANGES, List.of(FIRST_PATCHED_VERSION, LAST_PATCHED_VERSION)),
+            new ImpactedPackage(SECOND_PACKAGE_ID, SECOND_PACKAGE_AFFECTED_RANGES, List.of(LAST_PATCHED_VERSION))),
+            homePage.getImpactedPackages(1));
+        assertEquals(List.of(FIRST_PATCHED_VERSION, LAST_PATCHED_VERSION), homePage.getPatchedVersions(1));
 
         // Without the status filter, the other advisories are listed too, while the page holding the advisory before
         // its disclosure, which now redirects to the published page, is not.
@@ -228,6 +249,12 @@ class SecurityAdvisoryIT
         assertEquals(List.of(), tableLayout.getFilterValues(STATUS_COLUMN));
         tableLayout.assertRow(TITLE_COLUMN, ADVISORY_TITLE);
         tableLayout.assertRow(TITLE_COLUMN, RECENT_ADVISORY_TITLE);
+
+        // Filtering on its second impacted package, which is not impacted by the recent advisory, lists back only the
+        // disclosed advisory.
+        homePage.filterAdvisoriesByPackage(SECOND_PACKAGE_ID);
+        tableLayout.waitUntilRowCountEqualsTo(1);
+        tableLayout.assertRow(TITLE_COLUMN, ADVISORY_TITLE);
     }
 
     @Test
@@ -245,12 +272,15 @@ class SecurityAdvisoryIT
         assertEquals("SecurityAdvisoryApplication.SecurityEntries", rightsPage.getMetaDataValue("space"));
     }
 
-    private static void addImpactedPackage(TestUtils setup, DocumentReference advisory, String... patchedVersions)
-        throws Exception
+    private static void addImpactedPackage(TestUtils setup, DocumentReference advisory, String packageId,
+        List<String> affectedRanges, String... patchedVersions) throws Exception
     {
+        // The commas of the version ranges are escaped, since they also separate the values of the list properties.
+        String ranges =
+            affectedRanges.stream().map(range -> range.replace(",", "\\,")).collect(Collectors.joining("|"));
         Object impactedPackage = setup.rest().object(advisory, SecurityAdvisoryViewPage.IMPACTED_PACKAGE_CLASS);
-        impactedPackage.withProperties(property("ecosystem", "maven"), property("packageId", PACKAGE_ID),
-            property("patchedVersions", String.join("|", patchedVersions)));
+        impactedPackage.withProperties(property("ecosystem", "maven"), property("packageId", packageId),
+            property("vulnerableVersionRange", ranges), property("patchedVersions", String.join("|", patchedVersions)));
         setup.rest().add(impactedPackage);
     }
 

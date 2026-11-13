@@ -19,7 +19,11 @@
  */
 package org.xwiki.contrib.securityadvisory.test.po;
 
+import java.util.List;
+import java.util.Map;
+
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import org.xwiki.livedata.test.po.LiveDataElement;
 import org.xwiki.livedata.test.po.TableLayoutElement;
 import org.xwiki.test.ui.po.SuggestInputElement;
@@ -35,6 +39,24 @@ import org.xwiki.test.ui.po.editor.RightsEditPage;
 public class SecurityAdvisoryHomePage extends ViewPage
 {
     private static final By SECURITY_ENTRIES_ACCESS_WARNING_LINK = By.cssSelector("#xwikicontent .warningmessage a");
+
+    private static final String IMPACTED_PACKAGES_COLUMN = "Impacted packages";
+
+    private static final String PATCHED_VERSIONS_COLUMN = "Patched versions";
+
+    private static final By VERSION_BADGES = By.className("label");
+
+    /**
+     * A package impacted by an advisory, as displayed in the impacted packages column of the advisories.
+     *
+     * @param packageId the identifier of the package, for example {@code org.xwiki.platform:xwiki-platform-oldcore}
+     * @param affectedRanges the ranges of the affected versions of the package, for example {@code [1.0,15.10.11)}
+     * @param patchedVersions the versions of the package fixing the advisory, for example {@code 15.10.11}
+     * @since 2.3.1
+     */
+    public record ImpactedPackage(String packageId, List<String> affectedRanges, List<String> patchedVersions)
+    {
+    }
 
     /**
      * Go to the home page of the application.
@@ -67,6 +89,51 @@ public class SecurityAdvisoryHomePage extends ViewPage
     {
         TableLayoutElement tableLayout = getAdvisories().getTableLayout();
         new SuggestInputElement(tableLayout.getFilter(columnLabel)).clearSelectedSuggestions();
+    }
+
+    /**
+     * Filter the advisories on one of their impacted packages, picked among the suggested packages. The advisories are
+     * then fetched again, with that filter.
+     *
+     * @param packageId the identifier of the impacted package
+     * @since 2.3.1
+     */
+    public void filterAdvisoriesByPackage(String packageId)
+    {
+        getAdvisories().getTableLayout().filterColumn(IMPACTED_PACKAGES_COLUMN, packageId, true,
+            Map.of(TableLayoutElement.FILTER_COLUMN_SELECTIZE_WAIT_FOR_SUGGESTIONS, true));
+    }
+
+    /**
+     * @param rowNumber the number of the row of the advisory, starting at 1
+     * @return the packages impacted by the advisory, in the order of the impacted packages column, each with its
+     *     affected version ranges and its patched versions
+     * @since 2.3.1
+     */
+    public List<ImpactedPackage> getImpactedPackages(int rowNumber)
+    {
+        return getAdvisories().getTableLayout().getCell(IMPACTED_PACKAGES_COLUMN, rowNumber)
+            .findElements(By.className("impacted-package")).stream()
+            .map(item -> new ImpactedPackage(item.findElement(By.className("impacted-package-id")).getText(),
+                getVersions(item.findElement(By.className("impacted-package-affected"))),
+                getVersions(item.findElement(By.className("impacted-package-patched")))))
+            .toList();
+    }
+
+    /**
+     * @param rowNumber the number of the row of the advisory, starting at 1
+     * @return the patched versions of all the packages impacted by the advisory, as displayed in the patched versions
+     *     column: each version once, in the order of the impacted packages
+     * @since 2.3.1
+     */
+    public List<String> getPatchedVersions(int rowNumber)
+    {
+        return getVersions(getAdvisories().getTableLayout().getCell(PATCHED_VERSIONS_COLUMN, rowNumber));
+    }
+
+    private List<String> getVersions(WebElement container)
+    {
+        return container.findElements(VERSION_BADGES).stream().map(WebElement::getText).toList();
     }
 
     /**

@@ -63,21 +63,28 @@
 #if ($services.security.authorization.hasAccess('admin'))
   You can import an advisory from Github directly using [[this tool&gt;&gt;.Code.SingleAdvisoryImportPage]].
 #end
-## The patched versions are stored in the impacted package objects, not in the advisory object: the live table results
-## page joins them through the "patchedVersions_class" parameter. Since an advisory can have several impacted packages
-## with the same patched version, the "unique" query filter avoids listing the same advisory several times.
+## The impacted packages are stored in their own objects, not in the advisory object: the live table results page joins
+## them through the "packageId_class" and "patchedVersions_class" parameters. Both parameters name the same class, so
+## both filters apply to the same impacted package: filtering on a package and a patched version lists the advisories
+## where that package is patched in that version. Since an advisory can have several impacted packages matching the
+## filters, the "unique" query filter avoids listing the same advisory several times.
+## The results page displays the impacted packages of an advisory as HTML: each package with its affected version ranges
+## and patched versions in the "packageId" column, and the patched versions of all the packages in the
+## "patchedVersions" column.
 #set ($impactedPackageClassName = 'SecurityAdvisoryApplication.Code.SecurityAdvisoryImpactedPackageClass')
 #set ($sourceParameters = $escapetool.url({
   'className': 'SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass',
   'translationPrefix': 'securityadvisoryapplication.livetable.',
   'resultPage': 'SecurityAdvisoryApplication.Code.AdvisoriesLiveTableResults',
+  'packageId_class': $impactedPackageClassName,
   'patchedVersions_class': $impactedPackageClassName,
   'queryFilters': 'currentlanguage,hidden,unique'
 }))
-## Suggest the patched versions already used, as the live data does for the list properties of the advisory class.
-#set ($patchedVersionsSearchURL = "${request.contextPath}/rest/wikis/$escapetool.url($xcontext.database)/classes/")
-#set ($patchedVersionsSearchURL = "${patchedVersionsSearchURL}$escapetool.url($impactedPackageClassName)")
-#set ($patchedVersionsSearchURL = "${patchedVersionsSearchURL}/properties/patchedVersions/values?fp={encodedQuery}")
+## Suggest the values already used, as the live data does for the list properties of the advisory class.
+#set ($impactedPackageClassURL = "${request.contextPath}/rest/wikis/$escapetool.url($xcontext.database)/classes/")
+#set ($impactedPackageClassURL = "${impactedPackageClassURL}$escapetool.url($impactedPackageClassName)")
+#set ($packageIdSearchURL = "${impactedPackageClassURL}/properties/packageId/values?fp={encodedQuery}")
+#set ($patchedVersionsSearchURL = "${impactedPackageClassURL}/properties/patchedVersions/values?fp={encodedQuery}")
 ## The CVE identifier is displayed as HTML because the results page renders it as a link to its CVE record.
 ## Only the disclosed advisories are listed by default, since they are the ones everybody can view: the security team
 ## removes the status filter to follow the other advisories.
@@ -99,11 +106,24 @@
       {'id': 'status', 'filter': {'options': $statusFilterOptions}},
       {'id': 'cveId', 'editable': false, 'displayer': 'html'},
       {
+        'id': 'packageId',
+        'type': 'StaticList',
+        'sortable': false,
+        'editable': false,
+        'displayer': 'html',
+        'filter': {
+          'id': 'list',
+          'searchURL': $packageIdSearchURL,
+          'operators': [{'id': 'equals'}, {'id': 'empty'}],
+          'defaultOperator': 'equals'
+        }
+      },
+      {
         'id': 'patchedVersions',
         'type': 'StaticList',
         'sortable': false,
         'editable': false,
-        'displayer': 'text',
+        'displayer': 'html',
         'filter': {
           'id': 'list',
           'searchURL': $patchedVersionsSearchURL,
@@ -117,7 +137,7 @@
 
 {{liveData
   id="securityadvisoryapplication"
-  properties="doc.date,status,product,doc.title,cveId,cvssScore,patchedVersions,assignee,embargoDate,_actions"
+  properties="doc.date,status,product,doc.title,cveId,cvssScore,packageId,patchedVersions,assignee,embargoDate,_actions"
   source="liveTable"
   sourceParameters="$sourceParameters"
   sort="status:asc"
