@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryException;
 import org.xwiki.extension.ExtensionId;
+import org.xwiki.extension.InstalledExtension;
 import org.xwiki.extension.event.ExtensionUpgradedEvent;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.DocumentReferenceResolver;
@@ -46,6 +47,7 @@ import jakarta.inject.Named;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -110,10 +112,19 @@ class ExternalUserArchivedUpgradeListenerTest
         when(query.execute()).thenReturn(List.of(PAGE_NAME));
     }
 
+    private static List<InstalledExtension> previousExtensions(String version)
+    {
+        InstalledExtension previous = mock(InstalledExtension.class);
+        when(previous.getId())
+            .thenReturn(new ExtensionId(ExternalUserArchivedUpgradeListener.UI_EXTENSION_ID, version));
+        return List.of(previous);
+    }
+
     @Test
     void upgradeOnWiki() throws Exception
     {
-        this.listener.onEvent(new ExtensionUpgradedEvent(UI_EXTENSION, "wiki:sub"), null, null);
+        this.listener.onEvent(new ExtensionUpgradedEvent(UI_EXTENSION, "wiki:sub"), null,
+            previousExtensions("2.3.0"));
 
         verify(this.externalUserMappingStore).initializeArchived(SUB_PAGE);
         verify(this.externalUserMappingStore, never()).initializeArchived(MAIN_PAGE);
@@ -126,10 +137,22 @@ class ExternalUserArchivedUpgradeListenerTest
         when(this.externalUserMappingStore.initializeArchived(MAIN_PAGE))
             .thenThrow(new SecurityAdvisoryException("Save failed"));
 
-        this.listener.onEvent(new ExtensionUpgradedEvent(UI_EXTENSION, null), null, null);
+        this.listener.onEvent(new ExtensionUpgradedEvent(UI_EXTENSION, null), null, previousExtensions("2.3.0"));
 
         verify(this.externalUserMappingStore).initializeArchived(SUB_PAGE);
         assertEquals("Failed to initialize the archived value of the external user page "
             + "[xwiki:SecurityAdvisoryApplication.ExternalUsers.github-42].", this.logCapture.getMessage(0));
+    }
+
+    @Test
+    void upgradeFromOtherVersion()
+    {
+        // Only version 2.3.0 registered external user pages without archived value.
+        for (String version : List.of("2.2.0", "2.3.1", "2.4.0")) {
+            this.listener.onEvent(new ExtensionUpgradedEvent(UI_EXTENSION, "wiki:sub"), null,
+                previousExtensions(version));
+        }
+
+        verifyNoInteractions(this.queryManager, this.externalUserMappingStore);
     }
 }
