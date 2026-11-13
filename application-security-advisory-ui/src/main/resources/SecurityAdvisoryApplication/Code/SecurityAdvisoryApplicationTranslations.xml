@@ -152,6 +152,7 @@ securityadvisoryapplication.admin.githubTokens.remove=Remove
 securityadvisoryapplication.admin.settings.heading=Configuration
 securityadvisoryapplication.admin.migration.heading=Data migration
 securityadvisoryapplication.admin.migration.description=Migrate existing security advisories to the new data model: the impacted packages are moved to dedicated objects and the CVE identifier is migrated. The migration runs as a background job and is safe to run multiple times.
+securityadvisoryapplication.admin.migration.externalUsers.description=It also fetches from GitHub the users involved in the advisories imported before version 2.3.0, so that these advisories can be assigned. No other data of these advisories is changed.
 securityadvisoryapplication.admin.migration.none=All the advisories use the current data model.
 securityadvisoryapplication.admin.migration.candidates=Advisories still using the legacy data model: {0}
 securityadvisoryapplication.admin.migration.button=Migrate advisories

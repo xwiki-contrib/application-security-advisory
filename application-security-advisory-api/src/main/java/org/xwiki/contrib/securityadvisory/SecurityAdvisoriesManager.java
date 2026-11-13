@@ -99,4 +99,19 @@ public interface SecurityAdvisoriesManager
     default void setStatus(SecurityAdvisory advisory, SecurityAdvisory.State state) throws SecurityAdvisoryException
     {
     }
+
+    /**
+     * Only write the external users of the given advisory and, if the advisory doesn't have an assignee yet, the
+     * assignee resolved from their mapping. No other information is written.
+     *
+     * @param securityAdvisory the advisory holding the external users to write in its holder document
+     * @return {@code true} if the holder document has been changed and saved
+     * @throws SecurityAdvisoryException in case of problem to load or save the document, or if it doesn't hold an
+     *     advisory
+     * @since 2.3.1
+     */
+    default boolean writeAdvisoryExternalUsers(SecurityAdvisory securityAdvisory) throws SecurityAdvisoryException
+    {
+        return false;
+    }
 }

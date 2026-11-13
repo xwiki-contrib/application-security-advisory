@@ -48,6 +48,7 @@ import com.xpn.xwiki.test.junit5.mockito.OldcoreTest;
 import com.xpn.xwiki.test.reference.ReferenceComponentList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -170,6 +171,45 @@ class DefaultSecurityAdvisoriesManagerTest
         assertEquals("XWiki.someone", getAdvisoryObject().getLargeStringValue(
             SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_ASSIGNEE));
         verify(this.externalUserMappingStore, never()).resolveAssignee(EXTERNAL_USERS);
+    }
+
+    @Test
+    void writeAdvisoryExternalUsersKeepsOtherData() throws Exception
+    {
+        // An advisory imported before the external users existed, then changed in the wiki and protected from being
+        // overridden by the import.
+        XWikiDocument document = createAdvisory(ADVISORY_REFERENCE, "ANNOUNCED");
+        document.setTitle("Title edited in the wiki");
+        document.setContent("Content edited in the wiki");
+        document.getXObject(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.CLASS_REFERENCE)
+            .setIntValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.PREVENT_OVERRIDE, 1);
+        this.oldcore.getSpyXWiki().saveDocument(document, this.oldcore.getXWikiContext());
+
+        assertTrue(this.manager.writeAdvisoryExternalUsers(
+            new SecurityAdvisory(ADVISORY_REFERENCE).setExternalUsers(EXTERNAL_USERS)));
+
+        SecurityAdvisory loadedAdvisory = this.manager.loadAdvisory(ADVISORY_REFERENCE).orElseThrow();
+        assertEquals(EXTERNAL_USERS, loadedAdvisory.getExternalUsers());
+        assertEquals(this.mappedUser, loadedAdvisory.getAssignee());
+        for (ExternalUser externalUser : EXTERNAL_USERS) {
+            verify(this.externalUserMappingStore).register(externalUser);
+        }
+
+        XWikiDocument updatedDocument =
+            this.oldcore.getSpyXWiki().getDocument(ADVISORY_REFERENCE, this.oldcore.getXWikiContext());
+        assertEquals("Title edited in the wiki", updatedDocument.getTitle());
+        assertEquals("Content edited in the wiki", updatedDocument.getContent());
+        assertEquals(SecurityAdvisory.State.ANNOUNCED, loadedAdvisory.getState());
+        assertEquals(ADVISORY_LINK, loadedAdvisory.getAdvisoryLink());
+        assertEquals(1, getAdvisoryObject().getIntValue(
+            SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.PREVENT_OVERRIDE));
+
+        // Writing the same external users again doesn't save a new version.
+        String version = updatedDocument.getVersion();
+        assertFalse(this.manager.writeAdvisoryExternalUsers(
+            new SecurityAdvisory(ADVISORY_REFERENCE).setExternalUsers(EXTERNAL_USERS)));
+        assertEquals(version,
+            this.oldcore.getSpyXWiki().getDocument(ADVISORY_REFERENCE, this.oldcore.getXWikiContext()).getVersion());
     }
 
     private XWikiDocument createAdvisory(DocumentReference reference, String state) throws Exception

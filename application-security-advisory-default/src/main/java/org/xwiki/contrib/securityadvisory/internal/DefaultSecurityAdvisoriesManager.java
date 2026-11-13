@@ -437,18 +437,51 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
             setObjectValues(securityAdvisory, object);
 
             writeVulnerablePackages(document, securityAdvisory.getVulnerablePackages());
-            writeExternalUsers(document, securityAdvisory.getExternalUsers());
-            // Make the external users known, so that administrators can map them before an advisory needs them.
-            for (ExternalUser externalUser : securityAdvisory.getExternalUsers()) {
-                this.externalUserMappingStore.register(externalUser);
-            }
-            writeAssignee(document, object, securityAdvisory);
+            writeExternalUsersAndAssignee(document, object, securityAdvisory);
             context.getWiki().saveDocument(document, "Import data", context);
         } catch (XWikiException e) {
             throw new SecurityAdvisoryException(
                 String.format(ADVISORY_ACCESS_EXCEPTION,
                     securityAdvisory.getHolderReference()), e);
         }
+    }
+
+    @Override
+    public boolean writeAdvisoryExternalUsers(SecurityAdvisory securityAdvisory) throws SecurityAdvisoryException
+    {
+        XWikiContext context = this.contextProvider.get();
+        DocumentReference holderReference = securityAdvisory.getHolderReference();
+        try {
+            XWikiDocument document = context.getWiki().getDocument(holderReference, context).clone();
+            BaseObject object =
+                document.getXObject(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.CLASS_REFERENCE);
+            if (object == null) {
+                throw new SecurityAdvisoryException(MISSING_OBJECT_EXCEPTION);
+            }
+            if (!writeExternalUsersAndAssignee(document, object, securityAdvisory)) {
+                return false;
+            }
+            // XWiki#saveDocument doesn't change the authors of the page, so the rights the content and the objects
+            // are evaluated with stay the same.
+            context.getWiki().saveDocument(document, "Import the external users", true, context);
+            return true;
+        } catch (XWikiException e) {
+            throw new SecurityAdvisoryException(String.format(ADVISORY_ACCESS_EXCEPTION, holderReference), e);
+        }
+    }
+
+    /**
+     * @return {@code true} if the external users or the assignee of the document changed
+     */
+    private boolean writeExternalUsersAndAssignee(XWikiDocument document, BaseObject object,
+        SecurityAdvisory securityAdvisory) throws XWikiException, SecurityAdvisoryException
+    {
+        boolean changed = writeExternalUsers(document, securityAdvisory.getExternalUsers());
+        // Make the external users known, so that administrators can map them before an advisory needs them.
+        for (ExternalUser externalUser : securityAdvisory.getExternalUsers()) {
+            this.externalUserMappingStore.register(externalUser);
+        }
+        return writeAssignee(document, object, securityAdvisory) || changed;
     }
 
     /**
@@ -468,47 +501,54 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
             .toList();
     }
 
-    private void writeExternalUsers(XWikiDocument document, List<ExternalUser> externalUsers) throws XWikiException
+    private boolean writeExternalUsers(XWikiDocument document, List<ExternalUser> externalUsers)
+        throws XWikiException
     {
-        if (!externalUsers.equals(readExternalUsers(document))) {
-            document.removeXObjects(ExternalUserClassMandatoryDocumentInitializer.CLASS_REFERENCE);
-            XWikiContext context = this.contextProvider.get();
-            for (ExternalUser externalUser : externalUsers) {
-                BaseObject externalUserObject =
-                    document.newXObject(ExternalUserClassMandatoryDocumentInitializer.CLASS_REFERENCE, context);
-                externalUserObject.setStringValue(ExternalUserClassMandatoryDocumentInitializer.HINT,
-                    externalUser.hint());
-                externalUserObject.setStringValue(ExternalUserClassMandatoryDocumentInitializer.EXTERNAL_ID,
-                    externalUser.id());
-                externalUserObject.setStringValue(ExternalUserClassMandatoryDocumentInitializer.LOGIN,
-                    externalUser.login());
-            }
+        if (externalUsers.equals(readExternalUsers(document))) {
+            return false;
         }
+        document.removeXObjects(ExternalUserClassMandatoryDocumentInitializer.CLASS_REFERENCE);
+        XWikiContext context = this.contextProvider.get();
+        for (ExternalUser externalUser : externalUsers) {
+            BaseObject externalUserObject =
+                document.newXObject(ExternalUserClassMandatoryDocumentInitializer.CLASS_REFERENCE, context);
+            externalUserObject.setStringValue(ExternalUserClassMandatoryDocumentInitializer.HINT,
+                externalUser.hint());
+            externalUserObject.setStringValue(ExternalUserClassMandatoryDocumentInitializer.EXTERNAL_ID,
+                externalUser.id());
+            externalUserObject.setStringValue(ExternalUserClassMandatoryDocumentInitializer.LOGIN,
+                externalUser.login());
+        }
+        return true;
     }
 
     /**
      * Set the assignee of the advisory only if it doesn't have one yet: the assignee might have been changed by hand
      * since the previous import, and an import must not revert that change. The assignee is the one of the given
      * advisory if any, or else the XWiki user mapped to its first external user having a mapping.
+     *
+     * @return {@code true} if the assignee has been set
      */
-    private void writeAssignee(XWikiDocument document, BaseObject object, SecurityAdvisory securityAdvisory)
+    private boolean writeAssignee(XWikiDocument document, BaseObject object, SecurityAdvisory securityAdvisory)
         throws SecurityAdvisoryException
     {
-        if (StringUtils.isBlank(
+        if (StringUtils.isNotBlank(
             object.getLargeStringValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_ASSIGNEE)))
         {
-            UserReference assignee = securityAdvisory.getAssignee();
-            if (assignee == null) {
-                assignee =
-                    this.externalUserMappingStore.resolveAssignee(securityAdvisory.getExternalUsers()).orElse(null);
-            }
-            String serializedAssignee = (assignee != null)
-                ? this.userPropertyConverter.serialize(assignee, document.getDocumentReference()) : null;
-            if (serializedAssignee != null) {
-                object.setLargeStringValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_ASSIGNEE,
-                    serializedAssignee);
-            }
+            return false;
         }
+        UserReference assignee = securityAdvisory.getAssignee();
+        if (assignee == null) {
+            assignee = this.externalUserMappingStore.resolveAssignee(securityAdvisory.getExternalUsers()).orElse(null);
+        }
+        String serializedAssignee = (assignee != null)
+            ? this.userPropertyConverter.serialize(assignee, document.getDocumentReference()) : null;
+        if (serializedAssignee == null) {
+            return false;
+        }
+        object.setLargeStringValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_ASSIGNEE,
+            serializedAssignee);
+        return true;
     }
 
     @Override

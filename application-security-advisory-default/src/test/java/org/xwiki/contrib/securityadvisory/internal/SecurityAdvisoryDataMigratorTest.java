@@ -21,9 +21,17 @@ package org.xwiki.contrib.securityadvisory.internal;
 
 import java.util.List;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.xwiki.contrib.securityadvisory.AdvisoryImporter;
+import org.xwiki.contrib.securityadvisory.ExternalUser;
+import org.xwiki.contrib.securityadvisory.SecurityAdvisoriesManager;
+import org.xwiki.contrib.securityadvisory.SecurityAdvisory;
+import org.xwiki.contrib.securityadvisory.SecurityAdvisoryConfiguration;
+import org.xwiki.contrib.securityadvisory.internal.assignee.ExternalUserClassMandatoryDocumentInitializer;
 import org.xwiki.model.reference.DocumentReference;
+import org.xwiki.model.reference.SpaceReference;
 import org.xwiki.query.Query;
 import org.xwiki.query.QueryManager;
 import org.xwiki.test.LogLevel;
@@ -45,8 +53,11 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -59,6 +70,13 @@ import static org.mockito.Mockito.when;
 @ReferenceComponentList
 class SecurityAdvisoryDataMigratorTest
 {
+    private static final List<String> ENTRIES_SPACE = List.of("SecurityAdvisoryApplication", "SecurityEntries");
+
+    private static final String ADVISORY_LINK =
+        "https://github.com/xwiki/xwiki-platform/security/advisories/GHSA-8469-jx93-r677";
+
+    private static final List<ExternalUser> EXTERNAL_USERS = List.of(new ExternalUser("github", "42", "reporter"));
+
     @InjectMockComponents
     private SecurityAdvisoryDataMigrator migrator;
 
@@ -68,8 +86,42 @@ class SecurityAdvisoryDataMigratorTest
     @InjectMockitoOldcore
     private MockitoOldcore oldcore;
 
+    @MockComponent
+    private AdvisoryImporter advisoryImporter;
+
+    @MockComponent
+    private SecurityAdvisoriesManager advisoriesManager;
+
+    @MockComponent
+    private SecurityAdvisoryConfiguration configuration;
+
     @RegisterExtension
     private LogCaptureExtension logCapture = new LogCaptureExtension(LogLevel.INFO);
+
+    @BeforeEach
+    void setUp()
+    {
+        when(this.configuration.getPublicDataSpace()).thenReturn(
+            new SpaceReference("xwiki", List.of("SecurityAdvisoryApplication", "DisclosedEntries")));
+    }
+
+    private XWikiDocument createImportedAdvisory(DocumentReference reference, List<ExternalUser> externalUsers)
+        throws Exception
+    {
+        XWikiContext context = this.oldcore.getXWikiContext();
+        XWikiDocument document = new XWikiDocument(reference);
+        BaseObject advisoryObject =
+            document.newXObject(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.CLASS_REFERENCE, context);
+        advisoryObject.setStringValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_STATE, "DRAFT");
+        advisoryObject.setStringValue(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.FIELD_ADVISORY_LINK,
+            ADVISORY_LINK);
+        for (ExternalUser externalUser : externalUsers) {
+            document.newXObject(ExternalUserClassMandatoryDocumentInitializer.CLASS_REFERENCE, context)
+                .setStringValue(ExternalUserClassMandatoryDocumentInitializer.EXTERNAL_ID, externalUser.id());
+        }
+        this.oldcore.getSpyXWiki().saveDocument(document, context);
+        return document;
+    }
 
     private XWikiDocument createLegacyAdvisory(String name, List<String> modules, List<String> affectedVersions,
         List<String> patchedVersions, String cve) throws Exception
@@ -181,32 +233,81 @@ class SecurityAdvisoryDataMigratorTest
     }
 
     @Test
+    void migrateImportsMissingExternalUsers() throws Exception
+    {
+        DocumentReference reference = new DocumentReference("xwiki", ENTRIES_SPACE, "GHSA-8469-jx93-r677");
+        XWikiDocument document = createImportedAdvisory(reference, List.of());
+        SecurityAdvisory importedAdvisory = new SecurityAdvisory(reference).setTitle("Title on GitHub")
+            .setExternalUsers(EXTERNAL_USERS);
+        when(this.advisoryImporter.importAdvisory(ADVISORY_LINK)).thenReturn(importedAdvisory);
+        when(this.advisoriesManager.writeAdvisoryExternalUsers(any())).thenReturn(true);
+
+        assertTrue(this.migrator.migrate(reference));
+
+        // Only the external users of the imported advisory are written.
+        verify(this.advisoriesManager).writeAdvisoryExternalUsers(argThat(advisory ->
+            reference.equals(advisory.getHolderReference()) && EXTERNAL_USERS.equals(advisory.getExternalUsers())
+                && advisory.getTitle() == null));
+        verify(this.advisoriesManager, never()).writeAdvisory(any());
+        // The legacy data migration has nothing to do on the document.
+        assertEquals(document.getVersion(), reload(reference).getVersion());
+        assertEquals(1, this.logCapture.size());
+        assertEquals(String.format("Imported the external users of security advisory [%s].", reference),
+            this.logCapture.getMessage(0));
+    }
+
+    @Test
+    void migrateSkipsAdvisoriesNotMissingExternalUsers() throws Exception
+    {
+        DocumentReference withExternalUsers = new DocumentReference("xwiki", ENTRIES_SPACE, "GHSA-with-users");
+        createImportedAdvisory(withExternalUsers, EXTERNAL_USERS);
+        // A published advisory only holds the public information of the advisory.
+        DocumentReference publication = new DocumentReference("xwiki",
+            List.of("SecurityAdvisoryApplication", "DisclosedEntries"), "GHSA-published");
+        createImportedAdvisory(publication, List.of());
+
+        assertFalse(this.migrator.migrate(withExternalUsers));
+        assertFalse(this.migrator.migrate(publication));
+
+        verify(this.advisoryImporter, never()).importAdvisory(anyString());
+        verify(this.advisoriesManager, never()).writeAdvisoryExternalUsers(any());
+    }
+
+    private void mockDocumentsToMigrateQueries() throws Exception
+    {
+        Query legacyQuery = mock(Query.class);
+        when(this.queryManager.createQuery(contains("legacyProp"), eq(Query.HQL))).thenReturn(legacyQuery);
+        when(legacyQuery.bindValue(anyString(), any())).thenReturn(legacyQuery);
+        when(legacyQuery.execute()).thenReturn(List.of("SecurityAdvisoryApplication.SecurityEntries.Advisory4",
+            "SecurityAdvisoryApplication.SecurityEntries.Advisory5"));
+
+        Query externalUsersQuery = mock(Query.class);
+        when(this.queryManager.createQuery(contains("externalUserObj"), eq(Query.HQL)))
+            .thenReturn(externalUsersQuery);
+        when(externalUsersQuery.bindValue(anyString(), any())).thenReturn(externalUsersQuery);
+        when(externalUsersQuery.execute()).thenReturn(List.of(
+            // Both holding legacy data and missing its external users.
+            new Object[] {"SecurityAdvisoryApplication.SecurityEntries.Advisory5", ADVISORY_LINK},
+            new Object[] {"SecurityAdvisoryApplication.SecurityEntries.Advisory6", ADVISORY_LINK},
+            // Without advisory link, so there's nothing to import the external users from.
+            new Object[] {"SecurityAdvisoryApplication.SecurityEntries.Advisory7", " "},
+            new Object[] {"SecurityAdvisoryApplication.DisclosedEntries.Advisory8", ADVISORY_LINK}));
+    }
+
+    @Test
     void getDocumentsToMigrate() throws Exception
     {
-        Query query = mock(Query.class);
-        when(this.queryManager.createQuery(anyString(), eq(Query.HQL))).thenReturn(query);
-        when(query.bindValue(anyString(), any())).thenReturn(query);
-        when(query.execute()).thenReturn(List.of("SecurityAdvisoryApplication.SecurityEntries.Advisory4"));
+        mockDocumentsToMigrateQueries();
 
-        List<DocumentReference> documentsToMigrate = this.migrator.getDocumentsToMigrate();
-
-        assertEquals(1, documentsToMigrate.size());
-        assertEquals(
-            new DocumentReference("xwiki", List.of("SecurityAdvisoryApplication", "SecurityEntries"), "Advisory4"),
-            documentsToMigrate.get(0));
-        // The query is constrained to the advisory class and the legacy fields.
-        verify(query).bindValue("className", "SecurityAdvisoryApplication.Code.SecurityAdvisoryApplicationClass");
-        verify(query).bindValue("legacyFields",
-            List.of("mavenModules", "affectedVersions", "patchedVersions", "cve"));
+        assertEquals(List.of(new DocumentReference("xwiki", ENTRIES_SPACE, "Advisory4"),
+            new DocumentReference("xwiki", ENTRIES_SPACE, "Advisory5"),
+            new DocumentReference("xwiki", ENTRIES_SPACE, "Advisory6")), this.migrator.getDocumentsToMigrate());
     }
 
     @Test
     void countDocumentsToMigrate() throws Exception
     {
-        Query query = mock(Query.class);
-        when(this.queryManager.createQuery(anyString(), eq(Query.HQL))).thenReturn(query);
-        when(query.bindValue(anyString(), any())).thenReturn(query);
-        when(query.execute()).thenReturn(List.of(3L));
+        mockDocumentsToMigrateQueries();
 
         assertEquals(3L, this.migrator.countDocumentsToMigrate());
     }

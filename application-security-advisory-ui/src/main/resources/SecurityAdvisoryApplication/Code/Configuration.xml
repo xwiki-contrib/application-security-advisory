@@ -497,6 +497,7 @@ $doc.getURL('get', $escapetool.url({
 &lt;details class="securityadvisory-admin-details"#if("$!candidateCount" != '0' || $migrationActive) open="open"#end&gt;
   &lt;summary style="display: list-item; cursor: pointer;"&gt;#if("$!candidateCount" == '0')$escapetool.xml($services.localization.render('securityadvisoryapplication.admin.migration.none'))#else$escapetool.xml($services.localization.render('securityadvisoryapplication.admin.migration.candidates', ["$!candidateCount"]))#end&lt;/summary&gt;
   &lt;p&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.admin.migration.description'))&lt;/p&gt;
+  &lt;p&gt;$escapetool.xml($services.localization.render('securityadvisoryapplication.admin.migration.externalUsers.description'))&lt;/p&gt;
   &lt;form action="$escapetool.xml($xwiki.relativeRequestURL)" method="post" class="xform"&gt;
     &lt;input type="hidden" name="form_token" value="$!{services.csrf.getToken()}"/&gt;
     &lt;input type="hidden" name="securityAdvisoryMigrate" value="1"/&gt;
