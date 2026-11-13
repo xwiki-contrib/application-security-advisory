@@ -43,9 +43,10 @@ import org.xwiki.contrib.securityadvisory.SecurityAdvisoriesManager;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisory;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisoryException;
 import org.xwiki.contrib.securityadvisory.VersionReleasedManager;
+import org.xwiki.contrib.securityadvisory.event.AdvisoryImportedEvent;
+import org.xwiki.contrib.securityadvisory.event.AdvisoryImportingEvent;
 import org.xwiki.contrib.securityadvisory.event.AdvisoryStateChangedEvent;
 import org.xwiki.contrib.securityadvisory.event.EmbargoDateComputedEvent;
-import org.xwiki.contrib.securityadvisory.internal.assignee.CreatorAssigneeListener;
 import org.xwiki.contrib.securityadvisory.internal.assignee.ExternalUserClassMandatoryDocumentInitializer;
 import org.xwiki.contrib.securityadvisory.internal.assignee.ExternalUserMappingStore;
 import org.xwiki.contrib.securityadvisory.internal.assignee.UserPropertyConverter;
@@ -445,12 +446,13 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
             if (document.isNew() || !document.equalsData(storedDocument)
                 || !document.getAuthors().equals(storedDocument.getAuthors()))
             {
-                // Tell the listeners that the document is imported, e.g. so that it's not assigned to its creator.
-                context.put(CreatorAssigneeListener.IMPORT_CONTEXT_KEY, Boolean.TRUE);
+                // Tell the listeners that the document is saved by an import, e.g. so that it's not assigned to its
+                // creator.
+                this.observationManager.notify(new AdvisoryImportingEvent(), securityAdvisory, context);
                 try {
                     context.getWiki().saveDocument(document, "Import data", context);
                 } finally {
-                    context.remove(CreatorAssigneeListener.IMPORT_CONTEXT_KEY);
+                    this.observationManager.notify(new AdvisoryImportedEvent(), securityAdvisory, context);
                 }
             }
         } catch (XWikiException e) {
