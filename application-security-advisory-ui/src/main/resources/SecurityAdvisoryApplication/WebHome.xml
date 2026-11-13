@@ -42,12 +42,13 @@
 #set ($allUsersGroup = "XWiki.XWikiAllGroup")
 #set ($isOpenToAll = $services.security.authorization.hasAccess("view", $allUsersGroup, $securityEntrySpaceRef))
 #if ($isOpenToAll)
-## The link leads to the administration of the rights of the space, where its access can be restricted. It targets the
-## preferences page of the space, which holds its rights: the space has no home page, and the administration of a page
-## that doesn't exist displays nothing, while the preferences page is created by the administration if needed.
+## The link leads to the administration of the rights of the space and all its pages, where its access can be
+## restricted. It targets the preferences page of the space, which holds its rights: the space has no home page, and
+## the administration of a page that doesn't exist displays nothing, while the preferences page is created by the
+## administration if needed.
 #set ($securityEntrySpacePrefsRef = $services.model.createDocumentReference('WebPreferences', $securityEntrySpaceRef))
 #set ($securityEntrySpaceRightsURL = $xwiki.getURL($securityEntrySpacePrefsRef, 'admin',
-  'editor=spaceadmin&amp;section=PageRights'))
+  'editor=spaceadmin&amp;section=PageAndChildrenRights'))
 #set ($securityEntrySpaceRightsLink = "&gt;&gt;path:$services.rendering.escape($securityEntrySpaceRightsURL, 'xwiki/2.1')]]")
 ## The translation holds the link label between its {0} and {1} parameters.
 #set ($warningMessage = $services.localization.render('securityadvisoryapplication.home.right.warning', ["__BEGINLINK__", "__ENDLINK__"]))
