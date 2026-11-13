@@ -49,6 +49,7 @@ import com.xpn.xwiki.test.reference.ReferenceComponentList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -210,6 +211,23 @@ class DefaultSecurityAdvisoriesManagerTest
             new SecurityAdvisory(ADVISORY_REFERENCE).setExternalUsers(EXTERNAL_USERS)));
         assertEquals(version,
             this.oldcore.getSpyXWiki().getDocument(ADVISORY_REFERENCE, this.oldcore.getXWikiContext()).getVersion());
+    }
+
+    @Test
+    void writeAdvisorySavesOnlyWhenTheImportedDataChanged() throws Exception
+    {
+        this.manager.writeAdvisory(importedAdvisory());
+        String version = getAdvisoryObject().getOwnerDocument().getVersion();
+
+        // Importing the same data again doesn't save an empty revision.
+        this.manager.writeAdvisory(importedAdvisory());
+        assertEquals(version, getAdvisoryObject().getOwnerDocument().getVersion());
+
+        // Importing changed data saves a new revision.
+        this.manager.writeAdvisory(importedAdvisory().setContent("Content edited in GitHub"));
+        XWikiDocument document = getAdvisoryObject().getOwnerDocument();
+        assertNotEquals(version, document.getVersion());
+        assertEquals("Content edited in GitHub", document.getContent());
     }
 
     private XWikiDocument createAdvisory(DocumentReference reference, String state) throws Exception

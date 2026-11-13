@@ -403,8 +403,9 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
     {
         XWikiContext context = this.contextProvider.get();
         try {
-            XWikiDocument document = context.getWiki().getDocument(securityAdvisory.getHolderReference(), context);
-            document = document.clone();
+            XWikiDocument storedDocument =
+                context.getWiki().getDocument(securityAdvisory.getHolderReference(), context);
+            XWikiDocument document = storedDocument.clone();
             BaseObject object = document.getXObject(
                 SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.CLASS_REFERENCE);
             boolean preventOverride = false;
@@ -438,7 +439,13 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
 
             writeVulnerablePackages(document, securityAdvisory.getVulnerablePackages());
             writeExternalUsersAndAssignee(document, object, securityAdvisory);
-            context.getWiki().saveDocument(document, "Import data", context);
+            // The advisory is imported again each time it's updated in the external system, even when the update
+            // doesn't concern the imported data: saving it then would only create an empty revision.
+            if (document.isNew() || !document.equalsData(storedDocument)
+                || !document.getAuthors().equals(storedDocument.getAuthors()))
+            {
+                context.getWiki().saveDocument(document, "Import data", context);
+            }
         } catch (XWikiException e) {
             throw new SecurityAdvisoryException(
                 String.format(ADVISORY_ACCESS_EXCEPTION,
