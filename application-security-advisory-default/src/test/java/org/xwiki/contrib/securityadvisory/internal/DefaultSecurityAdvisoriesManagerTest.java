@@ -19,15 +19,18 @@
  */
 package org.xwiki.contrib.securityadvisory.internal;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.xwiki.bridge.event.DocumentCreatedEvent;
 import org.xwiki.contrib.securityadvisory.ExternalUser;
 import org.xwiki.contrib.securityadvisory.SecurityAdvisory;
 import org.xwiki.contrib.securityadvisory.event.AdvisoryStateChangedEvent;
+import org.xwiki.contrib.securityadvisory.internal.assignee.CreatorAssigneeListener;
 import org.xwiki.contrib.securityadvisory.internal.assignee.ExternalUserMappingStore;
 import org.xwiki.contrib.securityadvisory.internal.assignee.UserPropertyConverter;
 import org.xwiki.model.reference.DocumentReference;
@@ -50,11 +53,13 @@ import com.xpn.xwiki.test.reference.ReferenceComponentList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -151,6 +156,24 @@ class DefaultSecurityAdvisoriesManagerTest
         SecurityAdvisory loadedAdvisory = this.manager.loadAdvisory(ADVISORY_REFERENCE).orElseThrow();
         assertEquals(this.mappedUser, loadedAdvisory.getAssignee());
         assertEquals(EXTERNAL_USERS, loadedAdvisory.getExternalUsers());
+    }
+
+    @Test
+    void writeAdvisoryFlagsTheSaveAsImport() throws Exception
+    {
+        XWikiContext context = this.oldcore.getXWikiContext();
+        // The mocked save only sends the DocumentCreatedEvent, which is sent during the save like the
+        // DocumentCreatingEvent that CreatorAssigneeListener listens to.
+        this.oldcore.notifyDocumentCreatedEvent(true);
+        List<Object> importFlags = new ArrayList<>();
+        doAnswer(invocation -> importFlags.add(context.get(CreatorAssigneeListener.IMPORT_CONTEXT_KEY)))
+            .when(this.observationManager).notify(any(DocumentCreatedEvent.class), any(), any());
+
+        this.manager.writeAdvisory(importedAdvisory());
+
+        // The listeners know that the advisory is imported while it's saved, and only then.
+        assertEquals(List.of(Boolean.TRUE), importFlags);
+        assertNull(context.get(CreatorAssigneeListener.IMPORT_CONTEXT_KEY));
     }
 
     @Test

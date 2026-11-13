@@ -82,7 +82,6 @@ class CreatorAssigneeListenerTest
         this.document.getAuthors().setCreator(this.creator);
         when(this.userPropertyConverter.serialize(this.creator, this.document.getDocumentReference()))
             .thenReturn("XWiki.creator");
-        when(this.configuration.getAdvisoryImporterUser()).thenReturn(mock(UserReference.class));
     }
 
     private String getAssignee()
@@ -134,13 +133,25 @@ class CreatorAssigneeListenerTest
     }
 
     @Test
-    void doNotAssignImporterUser()
+    void doNotAssignAdvisorySavedByImporter()
     {
-        when(this.configuration.getAdvisoryImporterUser()).thenReturn(this.creator);
+        XWikiContext context = this.oldcore.getXWikiContext();
+        context.put(CreatorAssigneeListener.IMPORT_CONTEXT_KEY, Boolean.TRUE);
 
-        this.listener.onEvent(new DocumentCreatingEvent(), this.document, null);
+        this.listener.onEvent(new DocumentCreatingEvent(), this.document, context);
 
         assertEquals("", getAssignee());
+    }
+
+    @Test
+    void assignImporterUserCreatingAdvisoryByHand()
+    {
+        // The importer user, XWiki.Admin by default, is also a real user creating advisories by hand.
+        when(this.configuration.getAdvisoryImporterUser()).thenReturn(this.creator);
+
+        this.listener.onEvent(new DocumentCreatingEvent(), this.document, this.oldcore.getXWikiContext());
+
+        assertEquals("XWiki.creator", getAssignee());
     }
 
     @Test

@@ -30,6 +30,7 @@ import org.xwiki.observation.event.AbstractLocalEventListener;
 import org.xwiki.observation.event.Event;
 import org.xwiki.user.UserReference;
 
+import com.xpn.xwiki.XWikiContext;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
 
@@ -39,8 +40,11 @@ import jakarta.inject.Singleton;
 
 /**
  * Listener assigning an advisory created by hand to its creator. Imported advisories are not concerned: their
- * assignee comes from the mapping of their external users, and their creator is the technical importer user. Neither
- * are the publications of disclosed advisories in the public data space, created by the user disclosing them.
+ * assignee comes from the mapping of their external users, and their creator is the technical importer user. They are
+ * recognized by the {@link #IMPORT_CONTEXT_KEY} context property set while the importer saves them, or by their
+ * external users, and not by their creator: the importer user is also a real user, {@code XWiki.Admin} by default,
+ * who creates advisories by hand. Neither are the publications of disclosed advisories in the public data space,
+ * created by the user disclosing them.
  *
  * @version $Id$
  * @since 2.3.0
@@ -50,6 +54,11 @@ import jakarta.inject.Singleton;
 @Named(CreatorAssigneeListener.NAME)
 public class CreatorAssigneeListener extends AbstractLocalEventListener
 {
+    /**
+     * The key of the {@link XWikiContext} property set to {@link Boolean#TRUE} while an imported advisory is saved.
+     */
+    public static final String IMPORT_CONTEXT_KEY = "securityadvisory.importingAdvisory";
+
     static final String NAME = "org.xwiki.contrib.securityadvisory.internal.assignee.CreatorAssigneeListener";
 
     @Inject
@@ -73,7 +82,7 @@ public class CreatorAssigneeListener extends AbstractLocalEventListener
             BaseObject advisoryObject =
                 document.getXObject(SecurityAdvisoryApplicationClassMandatoryDocumentInitializer.CLASS_REFERENCE);
             UserReference creator = document.getAuthors().getCreator();
-            if (advisoryObject != null && creator != null && shouldAssignCreator(document, advisoryObject, creator)) {
+            if (advisoryObject != null && creator != null && shouldAssignCreator(document, advisoryObject, data)) {
                 String assignee = this.userPropertyConverter.serialize(creator, document.getDocumentReference());
                 if (assignee != null) {
                     advisoryObject.setLargeStringValue(
@@ -83,11 +92,11 @@ public class CreatorAssigneeListener extends AbstractLocalEventListener
         }
     }
 
-    private boolean shouldAssignCreator(XWikiDocument document, BaseObject advisoryObject, UserReference creator)
+    private boolean shouldAssignCreator(XWikiDocument document, BaseObject advisoryObject, Object data)
     {
         boolean isImported =
-            !document.getXObjects(ExternalUserClassMandatoryDocumentInitializer.CLASS_REFERENCE).isEmpty()
-                || creator.equals(this.configuration.getAdvisoryImporterUser());
+            (data instanceof XWikiContext context && Boolean.TRUE.equals(context.get(IMPORT_CONTEXT_KEY)))
+                || !document.getXObjects(ExternalUserClassMandatoryDocumentInitializer.CLASS_REFERENCE).isEmpty();
         // A page of the public data space is the publication of a disclosed advisory, created by the user disclosing
         // it, who is not in charge of the advisory.
         boolean isPublication = Objects.equals(document.getDocumentReference().getLastSpaceReference(),

@@ -45,6 +45,7 @@ import org.xwiki.contrib.securityadvisory.SecurityAdvisoryException;
 import org.xwiki.contrib.securityadvisory.VersionReleasedManager;
 import org.xwiki.contrib.securityadvisory.event.AdvisoryStateChangedEvent;
 import org.xwiki.contrib.securityadvisory.event.EmbargoDateComputedEvent;
+import org.xwiki.contrib.securityadvisory.internal.assignee.CreatorAssigneeListener;
 import org.xwiki.contrib.securityadvisory.internal.assignee.ExternalUserClassMandatoryDocumentInitializer;
 import org.xwiki.contrib.securityadvisory.internal.assignee.ExternalUserMappingStore;
 import org.xwiki.contrib.securityadvisory.internal.assignee.UserPropertyConverter;
@@ -444,7 +445,13 @@ public class DefaultSecurityAdvisoriesManager implements SecurityAdvisoriesManag
             if (document.isNew() || !document.equalsData(storedDocument)
                 || !document.getAuthors().equals(storedDocument.getAuthors()))
             {
-                context.getWiki().saveDocument(document, "Import data", context);
+                // Tell the listeners that the document is imported, e.g. so that it's not assigned to its creator.
+                context.put(CreatorAssigneeListener.IMPORT_CONTEXT_KEY, Boolean.TRUE);
+                try {
+                    context.getWiki().saveDocument(document, "Import data", context);
+                } finally {
+                    context.remove(CreatorAssigneeListener.IMPORT_CONTEXT_KEY);
+                }
             }
         } catch (XWikiException e) {
             throw new SecurityAdvisoryException(
